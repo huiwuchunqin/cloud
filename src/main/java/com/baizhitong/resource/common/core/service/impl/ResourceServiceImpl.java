@@ -32,7 +32,6 @@ import com.baizhitong.resource.dao.res.ResDocDao;
 import com.baizhitong.resource.dao.res.ResMediaDao;
 import com.baizhitong.resource.dao.share.ShareResTypeL1Dao;
 import com.baizhitong.resource.dao.share.ShareResTypeL2Dao;
-import com.baizhitong.resource.manage.textbook.service.TextbookChapterService;
 import com.baizhitong.resource.model.rel.RelResGrade;
 import com.baizhitong.resource.model.rel.RelResKp;
 import com.baizhitong.resource.model.rel.RelResSection;
@@ -75,10 +74,6 @@ public class ResourceServiceImpl implements ResourceService {
      */
     private @Autowired ResDocDao              resDocDao;
 
-    /**
-     * 教材章节接口
-     */
-    private @Autowired TextbookChapterService textbookChapterService;
 
     /** 资源与学科关系 */
     private @Autowired RelResSubjectDao       relResSubjectDao;

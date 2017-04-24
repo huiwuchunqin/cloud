@@ -30,10 +30,8 @@ import com.baizhitong.resource.common.utils.ExcelUtils;
 import com.baizhitong.resource.dao.res.ResAudioDao;
 import com.baizhitong.resource.manage.grade.service.GradeService;
 import com.baizhitong.resource.manage.res.service.AudioService;
-import com.baizhitong.resource.manage.res.service.impl.DataFormatter;
 import com.baizhitong.resource.manage.section.service.SectionService;
 import com.baizhitong.resource.manage.subject.service.SubjectService;
-import com.baizhitong.resource.manage.teacher.service.ITeacherService;
 import com.baizhitong.resource.manage.textbook.service.TextbookChapterService;
 import com.baizhitong.resource.manage.textbook.service.TextbookKnowledgePointService;
 import com.baizhitong.resource.model.vo.res.ResVo;
@@ -48,7 +46,6 @@ public class AudioAction extends BaseAction {
     private @Autowired TextbookChapterService        chapterService;   // 章节接口
     private @Autowired TextbookKnowledgePointService knowledgeService; // 知识点接口
 
-    private @Autowired ITeacherService               teacherService;
     private @Autowired AudioService                  audioService;
 
     private @Autowired ResAudioDao                   audioDao;
@@ -382,7 +379,6 @@ public class AudioAction extends BaseAction {
             ResVo vo = audioService.getById(resId);
             map.put("check", check);
             map.put("sectionList", JSONArray.toJSONString(sectionService.selectSectionList())); // 学段列表
-            map.put("teacherList", JSONArray.toJSONString(teacherService.getTeacherList(vo.getOrgCode())));
 
             map.put("relateChapterList", JSONArray
                             .toJSONString(chapterService.getChapterZtree(resId, CoreConstants.RES_TYPE_AUDIO)));

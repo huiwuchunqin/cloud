@@ -26,7 +26,6 @@ import com.baizhitong.resource.common.core.vo.UserInfoVo;
 import com.baizhitong.resource.common.utils.BeanHelper;
 import com.baizhitong.resource.common.utils.ExcelUtils;
 import com.baizhitong.resource.dao.share.ShareCodeDifficultyDao;
-import com.baizhitong.resource.manage.questionType.service.IQuestionTypeService;
 import com.baizhitong.resource.manage.res.service.QuestionService;
 import com.baizhitong.resource.manage.res.service.impl.DataFormatter;
 import com.baizhitong.resource.manage.section.service.SectionService;
@@ -38,7 +37,6 @@ public class QuestionAction extends BaseAction {
 
     private @Autowired QuestionService          questionService;
     private @Autowired SectionService           sectionService;
-    private @Autowired IQuestionTypeService     questionTypeServie;
     private @Autowired ShareCodeDifficultyDao   shareCodeDifficultyDao;
 
     /**
@@ -77,7 +75,6 @@ public class QuestionAction extends BaseAction {
                 map.put("areaAdmin", 1);
             }
             
-            map.put("questionTypeList", JSONArray.toJSONString(questionTypeServie.getQuestionTypeList()));
             map.put("difficultyList", JSONArray.toJSONString(shareCodeDifficultyDao.getDifficultyList()));
             if(StringUtils.isNotEmpty(checkStatus)){
                 map.put("checkStatus", checkStatus);

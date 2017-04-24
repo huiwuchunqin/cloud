@@ -29,7 +29,6 @@ import com.baizhitong.resource.common.utils.BeanHelper;
 import com.baizhitong.resource.dao.res.ResThumbnailDao;
 import com.baizhitong.resource.manage.res.service.ResMediaSpecialService;
 import com.baizhitong.resource.manage.res.service.ShareResSpecialTypeService;
-import com.baizhitong.resource.manage.teacher.service.ITeacherService;
 import com.baizhitong.resource.model.res.ResMediaSpecial;
 import com.baizhitong.resource.model.share.ShareResSpecialType;
 import com.baizhitong.resource.model.vo.res.ResMediaSpecialVo;
@@ -54,8 +53,6 @@ public class ResMediaSpecialAction extends BaseAction {
     /** 特色资源分类Service */
     @Autowired
     private ShareResSpecialTypeService shareResSpecialTypeService;
-    @Autowired
-    private ITeacherService            teacherService;
     @Autowired
     private ResThumbnailDao            resThumbnailDao;
 
@@ -683,7 +680,7 @@ public class ResMediaSpecialAction extends BaseAction {
             List<ShareResSpecialType> typeList = shareResSpecialTypeService.queryListByLevel1();// 类别列表
             map.put("typeList", JSONArray.toJSONString(typeList));
             map.put("resource", vo);
-            map.put("teacherList", JSONArray.toJSONString(teacherService.getTeacherList(vo.getMakerOrgCode())));
+           
             map.put("thumbnailList", JSONArray.toJSONString(resThumbnailDao.getThumbnailList(vo.getResCode())));
             map.put("res", JSON.toJSONString(vo));
         } catch (Exception e) {

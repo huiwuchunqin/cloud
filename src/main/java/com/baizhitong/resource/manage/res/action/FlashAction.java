@@ -23,23 +23,18 @@ import com.alibaba.fastjson.JSONArray;
 import com.baizhitong.common.Page;
 import com.baizhitong.resource.common.constants.CoreConstants;
 import com.baizhitong.resource.common.core.action.BaseAction;
-import com.baizhitong.resource.common.core.service.ResourceService;
 import com.baizhitong.resource.common.core.vo.ResultCodeVo;
 import com.baizhitong.resource.common.core.vo.UserInfoVo;
 import com.baizhitong.resource.common.utils.BeanHelper;
 import com.baizhitong.resource.common.utils.ExcelUtils;
 import com.baizhitong.resource.dao.res.ResFlashDao;
-import com.baizhitong.resource.dao.res.ResThumbnailDao;
 import com.baizhitong.resource.manage.grade.service.GradeService;
 import com.baizhitong.resource.manage.res.service.FlashService;
-import com.baizhitong.resource.manage.res.service.ResTypeService;
 import com.baizhitong.resource.manage.res.service.impl.DataFormatter;
 import com.baizhitong.resource.manage.section.service.SectionService;
 import com.baizhitong.resource.manage.subject.service.SubjectService;
-import com.baizhitong.resource.manage.teacher.service.ITeacherService;
 import com.baizhitong.resource.manage.textbook.service.TextbookChapterService;
 import com.baizhitong.resource.manage.textbook.service.TextbookKnowledgePointService;
-import com.baizhitong.resource.manage.textbook.service.TextbookVersionService;
 import com.baizhitong.resource.model.vo.res.ResVo;
 import com.baizhitong.utils.StringUtils;
 
@@ -60,7 +55,6 @@ public class FlashAction extends BaseAction {
     private @Autowired SubjectService                subjectService;   // 学科接口
     private @Autowired TextbookChapterService        chapterService;   // 章节接口
     private @Autowired TextbookKnowledgePointService knowledgeService; // 知识点接口
-    private @Autowired ITeacherService               teacherService;   // 老师接口
     private @Autowired ResFlashDao                   resFlashDao;
 
     /**
@@ -190,7 +184,6 @@ public class FlashAction extends BaseAction {
         try {
             model.put("check", check);
             model.put("sectionList", JSONArray.toJSONString(sectionService.selectSectionList())); // 学段列表
-            model.put("teacherList", JSONArray.toJSONString(teacherService.getTeacherList(vo.getOrgCode())));
             model.put("relateChapterList", JSONArray
                             .toJSONString(chapterService.getChapterZtree(resId, CoreConstants.RES_TYPE_FLASH))); 
             model.put("relateKnowledgeList", JSONArray

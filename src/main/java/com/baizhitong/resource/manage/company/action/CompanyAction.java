@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -23,9 +22,7 @@ import com.baizhitong.resource.common.config.SystemConfig;
 import com.baizhitong.resource.common.constants.CoreConstants;
 import com.baizhitong.resource.common.core.action.BaseAction;
 import com.baizhitong.resource.common.core.vo.ResultCodeVo;
-import com.baizhitong.resource.common.utils.BeanHelper;
 import com.baizhitong.resource.common.utils.FtpHelper;
-import com.baizhitong.resource.manage.adminClass.service.IAdminClassService;
 import com.baizhitong.resource.manage.company.service.ICompanyService;
 import com.baizhitong.resource.manage.companyGrade.service.ICompanyGradeService;
 import com.baizhitong.resource.manage.section.service.SectionService;
@@ -59,8 +56,6 @@ public class CompanyAction extends BaseAction {
     /** 机构年级接口 */
     private @Autowired ICompanyGradeService companyGradeService;
 
-    /** 行政班级接口 */
-    private @Autowired IAdminClassService   adminClassService;
 
     /**
      * 
@@ -141,8 +136,6 @@ public class CompanyAction extends BaseAction {
             model.put("studentChoose", studentChoose);
             // 年级列表
             model.put("gradeList", JSONArray.toJSONString(companyGradeService.getGradeList()));
-            // 行政班级列表
-            model.put("adminClassList", JSONArray.toJSONString(adminClassService.getList(companyInfoVo.getOrgCode())));
             model.put("sectionList", JSON.toJSONString(companyService.getCompanySection(companyInfoVo.getOrgCode())));
         } catch (Exception e) {
             log.error("查询学段信息失败", e);

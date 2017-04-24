@@ -10,7 +10,6 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.collections.MapUtils;
-import org.apache.poi.poifs.storage.ListManagedBlock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,14 +37,12 @@ import com.baizhitong.resource.dao.share.ShareUserLoginDao;
 import com.baizhitong.resource.dao.share.ShareUserTeacherDao;
 import com.baizhitong.resource.manage.company.service.ICompanyService;
 import com.baizhitong.resource.manage.login.service.LoginService;
-import com.baizhitong.resource.manage.teacher.service.ITeacherService;
 import com.baizhitong.resource.model.authority.AuthRole;
 import com.baizhitong.resource.model.authority.AuthUserRoleRef;
 import com.baizhitong.resource.model.authority.SettingUserPriviledgeGrade;
 import com.baizhitong.resource.model.authority.SettingUserPriviledgeSection;
 import com.baizhitong.resource.model.authority.SettingUserPriviledgeSubject;
 import com.baizhitong.resource.model.company.ShareOrg;
-import com.baizhitong.resource.model.log.LoginLog;
 import com.baizhitong.resource.model.share.ShareDomain;
 import com.baizhitong.resource.model.share.SharePlatform;
 import com.baizhitong.resource.model.share.ShareUserLogin;
@@ -58,11 +55,8 @@ import com.baizhitong.resource.model.vo.login.LoginUserRoleVo;
 import com.baizhitong.resource.model.vo.login.LoginUserVo;
 import com.baizhitong.resource.model.vo.share.ShareCodeSectionVo;
 import com.baizhitong.resource.model.vo.share.ShareUserLoginVo;
-import com.baizhitong.syscode.frontend.service.ISysCodeService;
-import com.baizhitong.utils.BeanUtils;
 import com.baizhitong.utils.DateUtils;
 import com.baizhitong.utils.StringUtils;
-import com.baizhitong.utils.TimeUtils;
 
 /**
  * 登录模块接口实现

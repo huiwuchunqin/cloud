@@ -41,7 +41,6 @@ import com.baizhitong.resource.manage.res.service.ResTypeService;
 import com.baizhitong.resource.manage.res.service.impl.DataFormatter;
 import com.baizhitong.resource.manage.section.service.SectionService;
 import com.baizhitong.resource.manage.subject.service.SubjectService;
-import com.baizhitong.resource.manage.teacher.service.ITeacherService;
 import com.baizhitong.resource.manage.textbook.service.TextbookChapterService;
 import com.baizhitong.resource.manage.textbook.service.TextbookKnowledgePointService;
 import com.baizhitong.resource.manage.textbook.service.TextbookVersionService;
@@ -75,8 +74,6 @@ public class ResAction extends BaseAction {
     private @Autowired ResTypeService                resTypeService;        // 资源类型接口
     @Autowired
     private ICompanyService                          companyService;
-    @Autowired
-    private ITeacherService                          teacherService;
     private @Autowired ResThumbnailDao               resThumbnailDao; 
     private @Autowired ResMediaSpecialService        resMediaSpecialService;
 
@@ -1006,7 +1003,6 @@ public class ResAction extends BaseAction {
             map.put("sectionList", JSONArray.toJSONString(sectionService.selectSectionList())); // 学段列表
             map.put("typeList", JSONArray
                             .toJSONString(resTypeService.getResTypeTwoByType1Code(CoreConstants.RES_TYPE_DOC)));// 类型列表
-            map.put("teacherList", JSONArray.toJSONString(teacherService.getTeacherList(vo.getOrgCode())));
             map.put("relateChapterList",
                             JSONArray.toJSONString(chapterService.getChapterZtree(resId, CoreConstants.RES_TYPE_DOC)));
             map.put("relateKnowledgeList", JSONArray
@@ -1056,7 +1052,6 @@ public class ResAction extends BaseAction {
             ResVo vo = resService.getMediaAllInfoById(resId);
             map.put("check", check);
             map.put("sectionList", JSONArray.toJSONString(sectionService.selectSectionList())); // 学段列表
-            map.put("teacherList", JSONArray.toJSONString(teacherService.getTeacherList(vo.getOrgCode())));
             map.put("typeList", JSONArray
                             .toJSONString(resTypeService.getResTypeTwoByType1Code(CoreConstants.RES_TYPE_MEDIA)));// 类型列表
 
