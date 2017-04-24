@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>codeMaster共通</title>
+<style type="text/css">
+.info {
+	margin: 10px 5px;
+	padding: 5px 10px;
+	border: 1px solid #0053a2;
+	-moz-border-radius: 15px;
+	-webkit-border-radius: 15px;
+}
+
+.title {
+	display: block;
+	width: 100%;
+}
+
+.method {
+	color: #067CFD;
+}
+
+.msg {
+	color: #FA0637;
+}
+
+.tb {
+	border: solid 1px #A0C6E5;
+	border-collapse: collapse;
+	background-color: #F8F8F8;
+}
+
+.tb th {
+	border: solid 1px #A0C6E5;
+	text-align: center;
+}
+
+.tb td {
+	border: solid 1px #A0C6E5;
+	text-align: center;
+}
+</style>
+</head>
+<body>
+	<div class="info">
+		<span class="title">0001.获取系统编码中系统类型集合</span>
+		<span class="method">CodeMasterService.getCodeTypeList()</span>
+		<table class="tb">
+			<tr>
+				<th>序号</th>
+				<th>编码类型</th>
+				<th>编码类型名称</th>
+			</tr>
+			<tbody>
+				<#list codeTypeList_0001 as codeType>
+				<tr>
+					<td>${codeType_index+1}</td>
+					<td>${codeType.codeType}</td>
+					<td>${codeType.codeTypeName}</td>
+				</tr>
+				</#list>
+			</tbody>
+		</table>
+	</div>
+	<div class="info">
+		<span class="title">0101.获取系统编码集合</span>
+		<span class="method">CodeMasterService.getCodeMasterList()</span>
+		<table class="tb">
+			<tr>
+				<th>序号</th>
+				<th>主键</th>
+				<th>所属机构</th>
+				<th>编码类型</th>
+				<th>编码类型名称</th>
+				<th>编码值</th>
+				<th>编码名称</th>
+				<th>是否可以修改编码</th>
+				<th>父子分层分类</th>
+				<th>父节点主键</th>
+				<th>是否删除</th>
+				<th>显示顺序</th>
+				<th>备注</th>
+			</tr>
+			<tbody>
+				<#list codeMasterVoList_0101 as codeMaster>
+				<tr>
+					<td>${codeMaster_index+1}</td>
+					<td>${codeMaster.id}</td>
+					<td>${codeMaster.orgCode}</td>
+					<td>${codeMaster.codeType}</td>
+					<td>${codeMaster.codeTypeName}</td>
+					<td>${codeMaster.codeValue}</td>
+					<td>${codeMaster.codeName}</td>
+					<td>${codeMaster.canModify}(${codeMaster.canModifyName})</td>
+					<td>${codeMaster.parentChildType}(${codeMaster.parentChildTypeName})</td>
+					<td>${codeMaster.pid}</td>
+					<td>${codeMaster.flagDelete}(${codeMaster.flagDeleteName})</td>
+					<td>${codeMaster.dispOrder}</td>
+					<td>${codeMaster.memo}</td>
+				</tr>
+				</#list>
+			</tbody>
+		</table>
+	</div>
+	<div class="info">
+		<span class="title">0102.根据编码类型获取系统编码集合</span>
+		<span class="method">CodeMasterService.getCodeMasterList(String codeType)</span>
+		<span class="msg">codeType:${codeMasterVo.codeType}</span>
+		<table class="tb">
+			<tr>
+				<th>序号</th>
+				<th>主键</th>
+				<th>所属机构</th>
+				<th>编码类型</th>
+				<th>编码类型名称</th>
+				<th>编码值</th>
+				<th>编码名称</th>
+				<th>是否可以修改编码</th>
+				<th>父子分层分类</th>
+				<th>父节点主键</th>
+				<th>是否删除</th>
+				<th>显示顺序</th>
+				<th>备注</th>
+			</tr>
+			<tbody>
+				<#list codeMasterVoList_0102 as codeMaster>
+				<tr>
+					<td>${codeMaster_index+1}</td>
+					<td>${codeMaster.id}</td>
+					<td>${codeMaster.orgCode}</td>
+					<td>${codeMaster.codeType}</td>
+					<td>${codeMaster.codeTypeName}</td>
+					<td>${codeMaster.codeValue}</td>
+					<td>${codeMaster.codeName}</td>
+					<td>${codeMaster.canModify}(${codeMaster.canModifyName})</td>
+					<td>${codeMaster.parentChildType}(${codeMaster.parentChildTypeName})</td>
+					<td>${codeMaster.pid}</td>
+					<td>${codeMaster.flagDelete}(${codeMaster.flagDeleteName})</td>
+					<td>${codeMaster.dispOrder}</td>
+					<td>${codeMaster.memo}</td>
+				</tr>
+				</#list>
+			</tbody>
+		</table>
+	</div>
+	<div class="info">
+		<span class="title">0103.根据编码类型和编码值集合获取系统编码集合</span>
+		<span class="method">CodeMasterService.getCodeMasterList(String codeType, List&lt;String&gt; codeValues)</span>
+		<span class="msg">codeType:${codeMasterVo.codeType},codeValues:List&lt;String&gt;</span>
+		<table class="tb">
+			<tr>
+				<th>序号</th>
+				<th>主键</th>
+				<th>所属机构</th>
+				<th>编码类型</th>
+				<th>编码类型名称</th>
+				<th>编码值</th>
+				<th>编码名称</th>
+				<th>是否可以修改编码</th>
+				<th>父子分层分类</th>
+				<th>父节点主键</th>
+				<th>是否删除</th>
+				<th>显示顺序</th>
+				<th>备注</th>
+			</tr>
+			<tbody>
+				<#list codeMasterVoList_0103 as codeMaster>
+				<tr>
+					<td>${codeMaster_index+1}</td>
+					<td>${codeMaster.id}</td>
+					<td>${codeMaster.orgCode}</td>
+					<td>${codeMaster.codeType}</td>
+					<td>${codeMaster.codeTypeName}</td>
+					<td>${codeMaster.codeValue}</td>
+					<td>${codeMaster.codeName}</td>
+					<td>${codeMaster.canModify}(${codeMaster.canModifyName})</td>
+					<td>${codeMaster.parentChildType}(${codeMaster.parentChildTypeName})</td>
+					<td>${codeMaster.pid}</td>
+					<td>${codeMaster.flagDelete}(${codeMaster.flagDeleteName})</td>
+					<td>${codeMaster.dispOrder}</td>
+					<td>${codeMaster.memo}</td>
+				</tr>
+				</#list>
+			</tbody>
+		</table>
+	</div>
+	<div class="info">
+		<span class="title">0111.获取系统编码分页集合</span>
+		<span class="method">CodeMasterService.getCodeMasterPage(Integer pageNo, Integer pageSize)</span>
+		<span class="msg">pageNo:${pageNo},pageSize:${pageSize}</span>
+		<table class="tb">
+			<tr>
+				<th>序号</th>
+				<th>主键</th>
+				<th>所属机构</th>
+				<th>编码类型</th>
+				<th>编码类型名称</th>
+				<th>编码值</th>
+				<th>编码名称</th>
+				<th>是否可以修改编码</th>
+				<th>父子分层分类</th>
+				<th>父节点主键</th>
+				<th>是否删除</th>
+				<th>显示顺序</th>
+				<th>备注</th>
+			</tr>
+			<tbody>
+				<#list codeMasterPage_0111.rows as codeMaster>
+				<tr>
+					<td>${codeMaster_index+1}</td>
+					<td>${codeMaster.id}</td>
+					<td>${codeMaster.orgCode}</td>
+					<td>${codeMaster.codeType}</td>
+					<td>${codeMaster.codeTypeName}</td>
+					<td>${codeMaster.codeValue}</td>
+					<td>${codeMaster.codeName}</td>
+					<td>${codeMaster.canModify}(${codeMaster.canModifyName})</td>
+					<td>${codeMaster.parentChildType}(${codeMaster.parentChildTypeName})</td>
+					<td>${codeMaster.pid}</td>
+					<td>${codeMaster.flagDelete}(${codeMaster.flagDeleteName})</td>
+					<td>${codeMaster.dispOrder}</td>
+					<td>${codeMaster.memo}</td>
+				</tr>
+				</#list>
+			</tbody>
+		</table>
+		<span>第${codeMasterPage_0111.pageNo}页，共${codeMasterPage_0111.totalPageCount}页，每页${codeMasterPage_0111.pageSize}条，总${codeMasterPage_0111.total}条</span>
+	</div>
+	<div class="info">
+		<span class="title">0112.根据编码类型获取系统编码分页集合</span>
+		<span class="method">CodeMasterService.getCodeMasterPage(String codeType, Integer pageNo, Integer pageSize)</span>
+		<span class="msg">codeType:${codeMasterVo.codeType},pageNo:${pageNo},pageSize:${pageSize}</span>
+		<table class="tb">
+			<tr>
+				<th>序号</th>
+				<th>主键</th>
+				<th>所属机构</th>
+				<th>编码类型</th>
+				<th>编码类型名称</th>
+				<th>编码值</th>
+				<th>编码名称</th>
+				<th>是否可以修改编码</th>
+				<th>父子分层分类</th>
+				<th>父节点主键</th>
+				<th>是否删除</th>
+				<th>显示顺序</th>
+				<th>备注</th>
+			</tr>
+			<tbody>
+				<#list codeMasterPage_0112.rows as codeMaster>
+				<tr>
+					<td>${codeMaster_index+1}</td>
+					<td>${codeMaster.id}</td>
+					<td>${codeMaster.orgCode}</td>
+					<td>${codeMaster.codeType}</td>
+					<td>${codeMaster.codeTypeName}</td>
+					<td>${codeMaster.codeValue}</td>
+					<td>${codeMaster.codeName}</td>
+					<td>${codeMaster.canModify}(${codeMaster.canModifyName})</td>
+					<td>${codeMaster.parentChildType}(${codeMaster.parentChildTypeName})</td>
+					<td>${codeMaster.pid}</td>
+					<td>${codeMaster.flagDelete}(${codeMaster.flagDeleteName})</td>
+					<td>${codeMaster.dispOrder}</td>
+					<td>${codeMaster.memo}</td>
+				</tr>
+				</#list>
+			</tbody>
+		</table>
+		<span>第${codeMasterPage_0112.pageNo}页，共${codeMasterPage_0112.totalPageCount}页，每页${codeMasterPage_0112.pageSize}条，总${codeMasterPage_0112.total}条</span>
+	</div>
+	<div class="info">
+		<span class="title">0201.根据系统编码主键获取系统编码</span>
+		<span class="method">CodeMasterService.getCodeMasterById(Integer id)</span>
+		<span class="msg">id:${codeMasterVo.id}</span>
+		<table class="tb">
+			<tr>
+				<th>主键</th>
+				<th>所属机构</th>
+				<th>编码类型</th>
+				<th>编码类型名称</th>
+				<th>编码值</th>
+				<th>编码名称</th>
+				<th>是否可以修改编码</th>
+				<th>父子分层分类</th>
+				<th>父节点主键</th>
+				<th>是否删除</th>
+				<th>显示顺序</th>
+				<th>备注</th>
+			</tr>
+			<tbody>
+				<tr>
+					<td>${codeMaster_0201.id}</td>
+					<td>${codeMaster_0201.orgCode}</td>
+					<td>${codeMaster_0201.codeType}</td>
+					<td>${codeMaster_0201.codeTypeName}</td>
+					<td>${codeMaster_0201.codeValue}</td>
+					<td>${codeMaster_0201.codeName}</td>
+					<td>${codeMaster_0201.canModify}(${codeMaster_0201.canModifyName})</td>
+					<td>${codeMaster_0201.parentChildType}(${codeMaster_0201.parentChildTypeName})</td>
+					<td>${codeMaster_0201.pid}</td>
+					<td>${codeMaster_0201.flagDelete}(${codeMaster_0201.flagDeleteName})</td>
+					<td>${codeMaster_0201.dispOrder}</td>
+					<td>${codeMaster_0201.memo}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="info">
+		<span class="title">0202.根据编码类型和编码值获取系统编码</span>
+		<span class="method">CodeMasterService.getCodeMasterByValue(String codeType, String codeValue)</span>
+		<span class="msg">codeType:${codeMasterVo.codeType},codeValue:${codeMasterVo.codeValue}</span>
+		<table class="tb">
+			<tr>
+				<th>主键</th>
+				<th>所属机构</th>
+				<th>编码类型</th>
+				<th>编码类型名称</th>
+				<th>编码值</th>
+				<th>编码名称</th>
+				<th>是否可以修改编码</th>
+				<th>父子分层分类</th>
+				<th>父节点主键</th>
+				<th>是否删除</th>
+				<th>显示顺序</th>
+				<th>备注</th>
+			</tr>
+			<tbody>
+				<tr>
+					<td>${codeMaster_0202.id}</td>
+					<td>${codeMaster_0202.orgCode}</td>
+					<td>${codeMaster_0202.codeType}</td>
+					<td>${codeMaster_0202.codeTypeName}</td>
+					<td>${codeMaster_0202.codeValue}</td>
+					<td>${codeMaster_0202.codeName}</td>
+					<td>${codeMaster_0202.canModify}(${codeMaster_0202.canModifyName})</td>
+					<td>${codeMaster_0202.parentChildType}(${codeMaster_0202.parentChildTypeName})</td>
+					<td>${codeMaster_0202.pid}</td>
+					<td>${codeMaster_0202.flagDelete}(${codeMaster_0202.flagDeleteName})</td>
+					<td>${codeMaster_0202.dispOrder}</td>
+					<td>${codeMaster_0202.memo}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="info">
+		<span class="title">0203.根据编码类型和编码名称获取系统编码</span>
+		<span class="method">CodeMasterService.getCodeMasterByName(String codeType, String codeName)</span>
+		<span class="msg">codeType:${codeMasterVo.codeType},codeName:${codeMasterVo.codeName}</span>
+		<table class="tb">
+			<tr>
+				<th>主键</th>
+				<th>所属机构</th>
+				<th>编码类型</th>
+				<th>编码类型名称</th>
+				<th>编码值</th>
+				<th>编码名称</th>
+				<th>是否可以修改编码</th>
+				<th>父子分层分类</th>
+				<th>父节点主键</th>
+				<th>是否删除</th>
+				<th>显示顺序</th>
+				<th>备注</th>
+			</tr>
+			<tbody>
+				<tr>
+					<td>${codeMaster_0203.id}</td>
+					<td>${codeMaster_0203.orgCode}</td>
+					<td>${codeMaster_0203.codeType}</td>
+					<td>${codeMaster_0203.codeTypeName}</td>
+					<td>${codeMaster_0203.codeValue}</td>
+					<td>${codeMaster_0203.codeName}</td>
+					<td>${codeMaster_0203.canModify}(${codeMaster_0203.canModifyName})</td>
+					<td>${codeMaster_0203.parentChildType}(${codeMaster_0203.parentChildTypeName})</td>
+					<td>${codeMaster_0203.pid}</td>
+					<td>${codeMaster_0203.flagDelete}(${codeMaster_0203.flagDeleteName})</td>
+					<td>${codeMaster_0203.dispOrder}</td>
+					<td>${codeMaster_0203.memo}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="info">
+		<span class="title">0301.保存系统编码返回主键ID</span>
+		<span class="method">CodeMasterService.saveCodeMaster(CodeMasterVo vo)</span>
+		<span class="msg"></span>
+		<table class="tb">
+			<tr>
+				<th>主键</th>
+			</tr>
+			<tbody>
+				<tr>
+					<td>${id_0301}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<div class="info">
+		<span class="title">0401.根据主键ID删除系统编码</span>
+		<span class="method">CodeMasterService.deleteCodeMaster(Integer id)</span>
+		<span class="msg">id:${codeMasterVo.id}</span>
+	</div>
+	<div class="info">
+		<span class="title">0402.根据主键ID集合删除系统编码</span>
+		<span class="method">CodeMasterService.deleteCodeMaster(List&lt;Integer&gt; ids)</span>
+		<span class="msg"></span>
+	</div>
+	<div class="info">
+		<span class="title">0501.根据编码类型和编码值获取编码关联集合</span>
+		<span class="method">CodeMasterService.getPCCodeList(String parentCodeType, String parentCodeValue, String childCodeType)</span>
+		<span class="msg">parentCodeType:${codeMasterVo.codeType},parentCodeValue:${codeMasterVo.codeValue},childCodeType:${pcCodeVo.childCodeType}</span>
+		<table class="tb">
+			<tr>
+				<th>主键</th>
+				<th>所属机构</th>
+				<th>父代码种类</th>
+				<th>子代码种类</th>
+				<th>父代码</th>
+				<th>子代码</th>
+				<th>子代码名称</th>
+				<th>是否删除</th>
+				<th>显示顺序</th>
+				<th>备注</th>
+			</tr>
+			<tbody>
+				<#list pcCodeList_0501 as pcCode>
+				<tr>
+					<td>${pcCode.id}</td>
+					<td>${pcCode.orgCode}</td>
+					<td>${pcCode.parentCodeType}</td>
+					<td>${pcCode.childCodeType}</td>
+					<td>${pcCode.parentCodeValue}</td>
+					<td>${pcCode.childCodeValue}</td>
+					<td>${pcCode.childCodeName}</td>
+					<td>${pcCode.flagDelete}(${pcCode.flagDeleteName})</td>
+					<td>${pcCode.dispOrder}</td>
+					<td>${pcCode.memo}</td>
+				</tr>
+				</#list>
+			</tbody>
+		</table>
+	</div>
+	<script type="text/javascript">
+		
+	</script>
+</body>
+</html>

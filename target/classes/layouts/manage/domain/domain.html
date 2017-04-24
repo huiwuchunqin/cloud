@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>域名信息设置</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body>
+<div class="box">
+	<div class="attrDiv400">
+		<span>平台名称：</span><input data-bind="value:domainName" />
+	</div>
+	<div class="attrDiv400">
+		<span>系统域名：</span><input data-bind="value:domainURL" />
+	</div>
+	<span class="clear40"></span>
+	<div class="attrDiv400">
+		<span>首页：</span><input data-bind="value:indexPage" />
+	</div>
+	<form id="imageFm" enctype="multipart/form-data" method="post"
+		action="/manage/company/uploadImage.html">
+		<div class="attrDiv400">
+			<span>系统LOGO:</span> <input id="file" name="file" type="file"
+				hidden="true" /> <img id="image"  class="upload"
+				data-bind="attr:{src:path}" /> <input hidden="hidden"
+				id="fileType" name="fileType" value="company">
+		</div>
+	</form>
+	<span class="clear40"></span>
+	<div class="attrDiv850">
+		<span>备注</span>
+		<textarea data-bind="value:memo" id="memo" cols="80" rows="4" ></textarea>
+	</div>
+	<span class="clear40"></span>
+	<div class="attrDiv650 textRight">
+	<button class="btn btnBlue " data-bind="click:save">更新</button>
+	</div>
+</div>
+<script>
+ var domain=eval(${domain}),
+	 _logoEditEnable="${logoEditEnable}",
+	 imageHost="${imgHost}";
+$(function(){
+	//图片上传事件
+	imageUpload(
+				$('#file'),
+				$('#image'), 
+				function(path){
+					model.domainLogo(path);
+				}
+		     );
+	//模型
+	 function Domian(domain){
+		 var self=this;
+		 self.domainURL=ko.observable(domain.domainURL||"").extend({
+				required	:	true,
+				maxLength	:	 100,
+				web:true,
+			});
+		 
+		 self.originalLogo=ko.observable(domain.domainLogo||"");
+		 
+		 self.domainLogo=ko.observable(domain.domainLogo||"").extend({
+				required	:	 true,
+		 });
+		 self.orginalDomainURL=ko.observable(domain.domainURL||"");
+		 
+		 //是否可以编辑图片  当域名公用的情况下不能编辑 修改域名后可以编辑
+		 self.logoEditEnable=ko.computed(function(){
+			 //域名改变或者本来就能改
+			var canChooseFile=(self.orginalDomainURL()!=self.domainURL())||_logoEditEnable;
+			  if(!canChooseFile){ 
+				  	//去除图片上传点击功能
+					 $('#image').off();
+				  	//恢复默认图片地址
+					 self.domainLogo(self.originalLogo());
+				  }else{
+					 $('#image').off("click").click(function(){$('#file').click()});
+			   }
+			  return canChooseFile;
+		 })
+		 
+		 self.domainName=ko.observable(domain.domainName||"").extend({
+				maxLength	:	 100,
+		 });
+		 
+		 self.indexPage=ko.observable(domain.indexPage||"").extend({
+				alphanumMaxLength:100
+		 });
+		
+		 self.memo=ko.observable(domain.memo||"").extend({
+			 	maxLength	:	 100,
+		 });
+		 
+		 //图片预览地址
+		 self.path=ko.computed(function(){
+			 var path=self.domainLogo()?(imageHost+"/"+self.domainLogo()):"";
+			 return path;
+		 });
+		 
+		 self.id=ko.observable(domain.id||null);
+		 
+		 self.save=function(){
+			 if(_.isEmpty(self.domainLogo())){
+				 alert("请上传logo");
+				 return false;
+			 }
+			 if(ko.validation.group(self)().length>0){
+				 ko.validation.group(self).showAllMessages();
+				 return false;
+			 }
+			 var data={
+				domainURL	:	self.domainURL(),
+				domainLogo	:	self.domainLogo(),
+				domainName	:	self.domainName(),
+				indexPage	:	self.indexPage(),
+				memo		:	self.memo(),
+				id			:	self.id(),
+				originalDomainURL:self.orginalDomainURL(),
+			 }
+			 
+			 $.post("/manage/domain/save.html",
+					 data,
+					 function(res){
+								alert(res.msg,function(){
+									setTimeout(function(){
+										window.location.href=window.location.href;	
+									},400)
+								
+								});
+							 }
+				 )
+		 };
+		 
+	 };
+	 var model=new Domian(domain);
+	 
+	 ko.applyBindings(model);
+})
+
+</script>
+</body>
+</html>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>资源设置-首页显示</title>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body>
+    <div class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north',split:false,border:false">
+	<div class="box form">
+		<div class="labelBox">
+			<div class="labelLine250">
+             <div class="labelWidth90">资源名称：</div>
+			 <input class="easyui-validatebox width130" id="resName" maxlength="100" placeholder="资源名称"/>
+			</div>
+		</div>
+		<div class="labelBox">
+			<div class="labelLine300">
+             <div class="labelWidth90">显示类别：</div>
+			   <input class="easyui-combobox" id="setType"
+							data-options="
+							valueField: 'value',
+							textField: 'label',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{
+								label: '全部',
+								value: '',
+								selected:true
+							},{
+								label: '顶部横幅',
+								value: '0'
+							},{
+								label: '最新',
+								value: '1'
+				           },{
+								label: '最热',
+								value: '2'
+				           },{
+				                label:'特色资源',
+				                value:'11'
+				           }
+				           <#if (resTypeL2List?exists && resTypeL2List?size>0)>
+							  		<#list resTypeL2List as typeL2>
+							  			,{value:'${typeL2.code}', label:'${typeL2.name?default('&nbsp;')}'}
+							  		</#list>
+						   </#if>
+				           ]"/>
+			</div>
+		</div>
+		<div class="btnBox">
+		    <a id="btnAdd" class="btn btnBlue l10" onclick="resSetting()">资源设置</a>
+			<a id="btnSearch" class="btn btnBlue search" onclick="query()">查询</a>
+		</div>
+	</div>
+	</div>
+	<div data-options="region:'center',border:false"> 
+    <table id="dg" class="easyui-datagrid"
+		data-options="
+		    pagination:true,
+		    fit:true,
+		    rownumbers:true,
+		    onBeforeLoad:dgOnBeforeLoad,
+		    singleSelect:true,
+		    url:'/manage/resSettingsHome/search.html'
+	    ">
+		<thead>
+			<tr>
+			    <th data-options="field:'operate',width:100,align:'center',formatter:operatefmt,halign:'center'">操作</th>
+				<th data-options="field:'resName',width:280,align:'left',halign:'center'">资源名称</th>  
+				<th data-options="field:'setTypeName',width:80,align:'left',halign:'center'">显示类别</th>
+				<th data-options="field:'resTypeL1Name',width:100,align:'left',halign:'center'">资源一级分类</th>
+				<th data-options="field:'resTypeL2Name',width:100,align:'left',halign:'center',formatter:commonfmt">资源二级分类</th>
+				<th data-options="field:'resSpecialTypeL1Name',width:80,align:'left',halign:'center',formatter:commonfmt">类别</th>
+				<th data-options="field:'resSpecialTypeL2Name',width:80,align:'left',halign:'center',formatter:commonfmt">项目</th>
+				<th data-options="field:'coverPath',width:90,align:'center',halign:'center',formatter:coverPathfmt">封面图片</th> 
+				<th data-options="field:'thumbnailPath',width:90,align:'center',halign:'center',formatter:thumbnailPathfmt">缩略图</th>
+				<!-- <th data-options="field:'dispOrder',width:70,align:'right',halign:'center'">显示顺序</th> -->
+				<!-- <th data-options="field:'flagAvailable',width:70,align:'center',halign:'center',formatter:flagAvailablefmt">是否使用</th> -->
+				<th data-options="field:'sectionName',width:80,align:'center',halign:'center',formatter:commonfmt">所属学段</th>
+				<th data-options="field:'subjectName',width:80,align:'left',halign:'center',formatter:commonfmt">所属学科</th>
+				<th data-options="field:'ck',width:80,halign:'center',halign:'center',formatter:ckfmt">是否使用</th>
+				<th data-options="field:'id',hidden:true"></th>
+				<th data-options="field:'setType',hidden:true"></th>
+				<th data-options="field:'sectionCode',hidden:true"></th>
+				<th data-options="field:'subjectCode',hidden:true"></th>
+				<th data-options="field:'resCode',hidden:true"></th>
+			</tr>
+		</thead>
+	</table>
+	</div>
+	</div>
+	<script type="text/javascript">
+		//查询参数
+		function dgOnBeforeLoad(param) {
+			param["resName"]=$('#resName').val();
+			param["setType"]=$('#setType').combobox('getValue');  
+		}
+
+		//查询
+		function query() {
+			$("#dg").datagrid("reload");
+		}
+		
+		//操作格式化
+		function operatefmt(value,row){
+			var str="";
+			str="<a href='javascript:void(0)' onclick='edit(this)'>编辑</a>&nbsp;&nbsp;<a href='javascript:void(0)' onclick='del(this)'>删除</a>";
+			return str;
+		}
+		
+		function commonfmt(value,row){
+			if(value==null||value==""){
+				return "-";
+			}else{
+				return value;
+			}
+		}
+		
+		//是否使用列格式化
+		function ckfmt(value,row){
+			var str="";
+			if(row.flagAvailable=="1"){
+				str="<center><input type='checkbox' checked='checked' onclick='changeFlagAvailable(this)'/></center>";
+			}else{
+				str="<center><input type='checkbox' onclick='changeFlagAvailable(this)'/></center>";
+			}
+			return str;
+		}
+		
+		//格式化缩略图
+		function thumbnailPathfmt(value,row){
+			var str="";
+			if(value!=null&&value!=""){
+				str="<a href='javascript:void(0)' onclick='showThumbnailPic(this)'>查看图片</a>";
+			}else{
+				str="-";
+			}
+			return str;
+		}
+		
+		//格式化封面图片
+		function coverPathfmt(value,row){
+			var str="";
+			if(value!=null&&value!=""){
+				str="<a href='javascript:void(0)' onclick='showCoverPic(this)'>查看图片</a>";
+			}else{
+				str="-";
+			}
+			return str;
+		}
+		
+		//是否使用格式化
+		function flagAvailablefmt(value,row){
+			var str="";
+			if(value=="0"){
+				str="否";
+			}else{
+				str="是";
+			}
+			return str;
+		}
+		
+		//资源设置
+		function resSetting(){
+			easyui_openTopWindow("资源设置", 1100, 900, "/manage/resSettingsHome/resSet.html",
+					function(r) {
+				      if(r){
+					      $('#dg').datagrid('reload'); 
+				      }
+			});
+		}
+		
+		//删除功能
+		function del(obj){
+			var index=$(obj).closest("tr").index();
+			$('#dg').datagrid('selectRow',index);
+			var row=$('#dg').datagrid('getSelected');
+			var opts={
+					url:'/manage/resSettingsHome/delete.html',
+					data:{
+						id:row.id
+					},
+					success:function(json){
+						var res=json;
+						$.messager.alert('信息',res.msg,'info',function(r){
+							$('#dg').datagrid('reload');
+						})
+					},
+					error : function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("网络繁忙请稍后再试");
+					}
+			}
+			$.messager.confirm("提示", "确定删除该资源？", function (r){
+		    	  if(r){
+		    	       $.ajax(opts);
+		    	  }
+		    });
+		}
+		
+		//显示缩略图
+		function showThumbnailPic(obj){
+			var index=$(obj).closest("tr").index();
+			$('#dg').datagrid('selectRow',index);
+			var row=$('#dg').datagrid('getSelected');
+			easyui_openTopWindow("查看资源缩略图", 500, 500, "/manage/resSettingsHome/showPic.html?picUrl="+row.thumbnailPath,
+					function(r) {
+				      
+			});
+		}
+		
+		//显示资源封面图片
+		function showCoverPic(obj){
+			var index=$(obj).closest("tr").index();
+			$('#dg').datagrid('selectRow',index);
+			var row=$('#dg').datagrid('getSelected');
+			easyui_openTopWindow("查看资源封面图片", 400, 400, "/manage/resSettingsHome/showPic.html?picUrl="+row.coverPath,
+					function(r) {
+				      
+			});
+		}
+		
+		//资源设置修改
+		function edit(obj){
+			var index=$(obj).closest("tr").index();
+			$('#dg').datagrid('selectRow',index);
+			var row=$('#dg').datagrid('getSelected');
+			var setType=row.setType.trim();
+			var param={};
+			param["coverPath"]=row.coverPath; 
+			param["id"]=row.id;
+			param["setType"]=setType;
+			if(setType!="11"){
+				param["thumbnailPath"]=row.thumbnailPath;
+				easyui_openTopWindow("资源设置修改", 650, 520, "/manage/resSettingsHome/edit.html",
+						function(r) {
+					     if(r){
+					    	 query();
+					     } 
+				},param);
+			}else{
+				easyui_openTopWindow("资源设置修改", 650, 520, "/manage/resSettingsHome/editSpec.html",
+						function(r) {
+					     if(r){
+					    	 query();
+					     } 
+				},param);
+			}
+		}
+		
+		//修改是否使用
+		function changeFlagAvailable(obj){
+			var index=$(obj).closest("tr").index();
+			$('#dg').datagrid('selectRow',index);
+			var row=$('#dg').datagrid('getSelected');
+			//请求参数
+			var data={};
+			if(obj.checked){
+				data={
+					id:row.id,
+					setType:row.setType,
+					sectionCode:row.sectionCode,
+					subjectCode:row.subjectCode,
+					flagAvailable:1,
+					resSpecialTypeL2:row.resSpecialTypeL2
+				}
+			}else{
+				data={
+						id:row.id,
+						flagAvailable:0
+				}
+			}
+			var opts = {
+					url : '/manage/resSettingsHome/changeFlagAvailable.html',
+					type : "post",
+					data : data,
+					success : function(res) {
+						window.top.$.messager.alert("提示", res.msg, "info",function(){
+							query();
+						});
+					},
+					error : function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("网络繁忙请稍后再试");
+					},
+					complete : function() {
+
+					}
+				}
+			$.ajax(opts);
+		}
+	</script>
+</body>
+</html>

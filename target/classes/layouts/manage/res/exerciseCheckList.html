@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/> <#include
+"/manage/res/common/resCheckCommon.html"/>
+</head>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript" src="/manage/template/res/resCommon.js"></script>
+<script type="text/javascript" src="/manage/template/res/exercise.js"></script>
+<script type="text/javascript" src="/manage/template/resCheck/check.js"></script>
+<script type="text/javascript" src="/manage/template/resCheck/export.js"></script>
+
+<title>测验资源</title>
+<style type="text/css">
+.datagrid-cell-rownumber {
+	width: 50px;
+	text-align: center;
+	margin: 0px;
+	padding: 3px 0px;
+}
+
+.datagrid-header-rownumber {
+	width: 50px;
+	text-align: center;
+	margin: 0px;
+	padding: 3px 0px;
+}
+</style>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'" title=" " style="height: 175px">
+		<div class="box">
+			<div class="labelBox">
+				<span class="labelLine440"> <span id="timeQuery"
+					class="labelWidth60">日期:</span> <input id="checkTimeStart"
+					class="Wdate"
+					onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'checkTimeEnd\')}',dateFmt:'yyyy-MM-dd',lang:'zh-cn'})"
+					type="text"> <span style="width: 10px; line-height: 20px">~</span>
+					<input id="checkTimeEnd" class="Wdate"
+					onFocus="WdatePicker({minDate:'#F{$dp.$D(\'checkTimeStart\')}',dateFmt:'yyyy-MM-dd',lang:'zh-cn'})"
+					type="text">
+				</span>
+				<div class="clear10"></div>
+				<span class="labelLine240"> <span class="labelWidth60">测验分类：</span>
+					<input id="resTypeL2" class="easyui-combobox"
+					data-options="data:[{name:'不限',code:'',selected:true}],textField:'name',valueField:'code',editable:false">
+				</span>
+				<div class="clear10"></div>
+				<span class="labelLine240"> <span class="labelWidth60">学段：</span>
+					<input id="section" class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false,onSelect:sectionSelect">
+				</span> <span class="labelLine240"> <span class="labelWidth60">学科：</span>
+					<input id="subject" class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false">
+				</span> <span class="labelLine240"> <span class="labelWidth60">年级：</span>
+					<input id="grade" class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false">
+				</span>
+				<div class="clear10"></div>
+				<#if "${areaAdmin}"==1> <span class="labelLine240"> <span
+					class="labelWidth60">机构名称：</span> <input id="orgName"
+					placeholder="请输入机构名称">
+				</span> </#if> <span class="labelLine240"> <span
+					class="labelWidth60">资源名称：</span> <input id="resName"
+					placeholder="请输入资源名称">
+				</span> <span class="labelLine240"> <span class="labelWidth60">作者：</span>
+					<input id="makerName" placeholder="请输入作者">
+				</span>
+			</div>
+			<div class="btnBox">
+				<a class="btn btnBlue search" onclick="query()">查询</a>
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<div id="tb">
+			<@btnBar "${checkStatus}" 30/>
+			<div class="btnBox">
+				<form id="fm" method="post">
+					<a class="btn btnBlue"
+						onclick="exportExerciseCheck('${checkStatus}','${areaAdmin}')">导出</a>
+				</form>
+			</div>
+		</div>
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+			    pagination:true,
+			    fit:true,
+			    toolbar:'#tb',
+			    rownumbers:true,
+			    onBeforeLoad:onBeforeLoad,
+			    url:'/manage/exercise/exerciseList.html'
+        ">
+			<thead>
+				<tr>
+					<th
+						data-options="field:'ck',checkbox:true,width:80,halign:'center',headalign:'center'"></th>
+					<th
+						data-options="field:'testName',formatter:exercisefmt,width:260,align:'left',halign:'center'">资源名称</th>
+					<th
+						data-options="field:'resTypeL2Name',width:80,align:'center',halign:'center'">测验分类</th>
+					<th data-options="field:'makerOrgName',width:180,halign:'center'">机构名称</th>
+					<th
+						data-options="field:'sectionName',width:70,align:'center',halign:'center'">学段</th>
+					<th
+						data-options="field:'subjectName',width:80,align:'left',halign:'center'">学科</th>
+					<th
+						data-options="field:'gradeName',width:70,align:'left',halign:'center'">年级</th>
+					<!-- 			<th data-options="field:'shareCheckLevel',formatter:shareLevelfmt,width:90,align:'center',halign:'center'">共享审核级别</th> -->
+					<th
+						data-options="field:'shareCheckStatus',formatter:checkStatusfmt,width:120,align:'center',halign:'center'">共享审核状态</th>
+					<th
+						data-options="field:'makerName',width:90,align:'left',halign:'center'">作者</th>
+					<#if "${checkStatus}"!=10>
+					<th
+						data-options="field:'applyTime',width:140,align:'center',halign:'center',formatter:timeLongfmt">申请时间</th>
+					<th data-options="field:'checkerName',width:80,halign:'center'">审核人</th>
+					<th
+						data-options="field:'shareCheckTime',width:140,align:'center',halign:'center',formatter:timeLongfmt">审核时间</th>
+					<th
+						data-options="field:'checkComments',width:420,halign:'center',formatter:lengthSubfmt">审核意见</th>
+					<th
+						data-options="field:'checkCommentsDetail',width:100,halign:'center',formatter:detailPreviewfmt">审核意见详情</th>
+					<!-- <th data-options="field:'detail',formatter:detailfmt,width:120,align:'center',halign:'center'">审核情况</th> -->
+					<#else>
+					<th
+						data-options="field:'shareTime',width:140,align:'center',halign:'center',formatter:timeLongfmt">提交审核时间</th>
+					</#if>
+					<!-- 				<th data-options="field:'browseCount',width:90,align:'right',halign:'center'">观看次数</th>
+				<th data-options="field:'downloadCount',width:90,align:'right',halign:'center'">下载次数</th>
+				<th data-options="field:'goodCount',width:60,align:'right',halign:'center'">点赞数</th>
+				<th data-options="field:'referCount',width:60,align:'right',halign:'center'">引用数</th>
+				<th data-options="field:'favoriteCount',width:60,align:'right',halign:'center'">收藏数</th>
+				<th data-options="field:'commentCount',width:60,align:'right',halign:'center'">评论数</th> -->
+					<th
+						data-options="field:'resDesc',width:300,align:'left',halign:'center'">资源描述</th>
+				</tr>
+			</thead>
+		</table>
+
+		<!--通过对话框  -->
+		<@dialog 30/>
+		<!--/通过对话框 -->
+	</div>
+	<script type="text/javascript">
+		var sectionList = ${sectionList};
+		var resTypeL2List = ${resTypeL2List};
+	
+		//dom
+		var _subjectCombo = $('#subject');
+		var _gradeCombo = $('#grade');
+		var _sectionCombo = $('#section');
+		var _checkStausCombo = $('#shareCheckStatus');
+		var _resTypeL2Combo = $('#resTypeL2');
+		var model = {
+			deny : ko.observable(true),
+			adviceList : ko.observableArray([]),
+		};
+		$(function() {
+			ko.applyBindings(model);
+			UIChange("${checkStatus}");
+			sectionList.splice(0, 0, defaultOpt);
+			resTypeL2List.splice(0, 0, defaultOpt);
+			_sectionCombo.combobox('loadData', sectionList);
+			_resTypeL2Combo.combobox('loadData', resTypeL2List);
+			_sectionCombo.combobox('select', -1);
+			_resTypeL2Combo.combobox('select', -1);
+
+		})
+		//查询参数传递 
+		function onBeforeLoad(param) {
+			$.extend(param,getExerciseCheckParam())
+		}
+		//获取参数
+		function getExerciseCheckParam(){
+			var param={};
+			param["gradeCode"] = _gradeCombo.combobox('getValue');
+			param["subjectCode"] = _subjectCombo.combobox('getValue');
+			param["sectionCode"] = _sectionCombo.combobox('getValue');
+			param["shareCheckStatus"] = "${checkStatus}";
+			if ("${shareCheckLevel}") {
+				param["shareCheckLevel"] = "${shareCheckLevel}";
+			}
+			param["resName"] = $('#resName').val();
+			if ("${checkStatus}" == 10) {
+				param["shareTimeStart"] = $('#checkTimeStart').val();
+				param["shareTimeEnd"] = $('#checkTimeEnd').val()
+			} else {
+				param["checkTimeStart"] = $('#checkTimeStart').val();
+				param["checkTimeEnd"] = $('#checkTimeEnd').val()
+			}
+			param["resTypeL2"] = _resTypeL2Combo.combobox('getValue');
+			<#if "${areaAdmin}"==1>
+			param["orgName"] = $('#orgName').val();
+			</#if>
+			param["resName"] = $('#resName').val();
+			param["userName"] = $('#makerName').val();
+			return param;
+		}
+		// 删除测验
+		function deleteRes() {
+			var rows = $('#dg').datagrid('getSelections');
+			var testIds = new Array();
+			if (rows == undefined || rows.length <= 0) {
+				$.messager.alert("信息", "请选择要删除的测验！", "info")
+				return;
+			}
+			if (rows.length != 1) {
+				$.messager.alert("信息", "请选择一份测验进行删除！", "info")
+				return;
+			}
+			$.each(rows, function(i, data) {
+				testIds.push(data.id);
+			});
+			var url = "/exercise/delete/" + testIds.join(",") + "?uid=" + "${uid}";
+			$.messager.confirm("信息", "确认要删除测验吗？已使用的测验删除将会对教学产生难以估量的负面影响", function(r) {
+				if (r) {
+					var opts = {
+						url : url,
+						data : {
+							flagDeleteQuestion : 0
+						// 默认不删除作业题目
+						},
+						success : function(json) {
+							var res = json;
+							$.messager.alert('信息', res.bizMsg, 'info', function(r) {
+								if (res.success) {
+									query();
+								}
+							})
+						},
+						error : function(XMLHttpRequest, textStatus, errorThrown) {
+							alert("网络繁忙请稍后再试！");
+						}
+					}
+					$.ajax(opts);
+				}
+			})
+		}
+	</script>
+</body>
+</html>

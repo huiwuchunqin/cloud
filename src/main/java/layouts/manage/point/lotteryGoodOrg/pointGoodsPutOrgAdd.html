@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商品入库</title>
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+</head>
+<style type="text/css">
+.attrDiv{
+    width: 436px;
+}
+.goodsName{
+    display: inline-block;
+     width: 304px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    line-height: 38px;
+    height: 25px;
+}
+</style>
+<body class="easyui-layout">
+<div data-options="region:'north',fit:true">
+<form id="fm" style="padding:10px">
+	<div class="attrDiv" >
+	 <span>礼品名称</span> <span class="goodsName" title="${goodsName}">${goodsName}</span>
+	</div>
+	<div class="attrDiv" >
+	 <span>入库数量</span> <input id="goodsAmount" class="easyui-numberbox " data-options="required:true,min:1,max:10000000">
+	</div>
+</form>
+</div>
+<div data-options="region:'south'" style="height:50px;text-align:center">
+<a class="btn btnConfirm" onclick="save()">保存</a>
+&nbsp;
+<a class="btn btnCancel"  onclick="easyui_closeTopWindow()">取消</a>
+</div>
+<script type="text/javascript">
+function save(){
+if($('#fm').form('validate')){
+	$.ajax({
+		url:"/manage/pointGoodsPutOrg/goodsPutPlatformAdd.html",
+		data:{
+			goodsCode:"${goodsCode}",
+			goodsAmount:$('#goodsAmount').numberbox('getValue'),
+			
+		},
+		success:function(res){
+			$.messager.alert("信息",res.msg,"info",function(){
+				easyui_closeTopWindow(res.success);
+			})
+		}
+	})	
+}
+}
+</script>
+</body>
+</html>

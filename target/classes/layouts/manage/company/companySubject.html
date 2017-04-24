@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+</head>
+<body>
+	<div id="tb">
+		<div class="box">
+			<a class="btn btnBlue align-right add" onclick="addSubject()">新增</a>
+			<!-- <a class="easyui-linkbutton" data-options="iconCls:'icon-search'" onclick="search()">查询</a> -->
+		</div>
+	</div>
+	<table id="dg" class="easyui-datagrid"
+		data-options="
+	    pagination:true,
+	    toolbar:'#tb',
+	    fit:true,
+	    rownumbers:true,
+	    singleSelect:true,
+	    url:'/manage/companySubject/subjectPageList.html'
+	    ">
+		<thead>
+			<tr>
+				<th
+					data-options="field:'questionType',formatter:questionTypeFmt,align:'center',width:130,halign:'center',headalign:'center'">操作</th>
+				<!-- <th
+					data-options="field:'gradeSet',width:80,align:'center',formatter:gradeFmt,halign:'center',headalign:'center'">开课年级</th> -->
+				<th
+					data-options="field:'name',width:100,halign:'center',align:'left'">学科</th>
+				<th
+					data-options="field:'modifyTime',width:140,halign:'center',align:'center',formatter:timefmt">设置时间</th>
+				<!-- <th
+					data-options="field:'dispOrder',halign:'center',width:50,align:'right'">顺序</th> -->
+				<th
+					data-options="field:'description',width:200,halign:'center',align:'left'">描述</th>
+				<th data-options="field:'id',width:120,hidden:true">id</th>
+			</tr>
+		</thead>
+	</table>
+
+	<script type="text/javascript">
+		//新增学科
+		function addSubject() {
+			easyui_openNoResizeWindow("添加学科", 1000, 700,
+					"/manage/companySubject/toSubjectAdd.html", function(r) {
+						$('#dg').datagrid('reload');
+
+					})
+		}
+		function search() {
+			$('#dg').datagrid('reload');
+		}
+		//开课年级
+		function gradeFmt(value, row) {
+			if (row == "" || row == undefined)
+				return;
+			return "<a href='javascript:void(0)'onclick='subjectGrade(this)'>开课年级</a>";
+		}
+		function timefmt(value, row) {
+			if (value != "" && value != undefined) {
+				return moment(value).format("YYYY-MM-DD  HH:mm");
+			}
+		}
+		//题型设置
+		function questionTypeFmt(value, row) {
+			return "<a href='javascript:void(0)'onclick='questionTypeSet("
+					+ row.code + ",\"" + row.name + "\")'>题型设置</a>";
+		}
+		//学科年级设置
+		function subjectGrade(object) {
+			var index = $(object).closest("tr").index();
+			$('#dg').datagrid('selectRow', index);
+			var row = $('#dg').datagrid('getSelected');
+			easyui_openTopWindow("设置 <span >" + row.name
+					+ "</span> 对应的年级", 500, 500,
+					"/manage/companySubject/toSubjectGrade.html?subjectCode="
+							+ row.code + "&subjectName="
+							+ encodeURI(encodeURI(row.name)), function() {
+
+					})
+		}
+		//学科题型
+		function questionTypeSet(code, name) {
+			easyui_openNoResizeWindow("设置 <span>" + name
+					+ "</span> 的题型", 500, 500,
+					"/manage/questionType/toQuestionType.html?subjectCode="
+							+ code + "&subjectName="
+							+ encodeURI(encodeURI(name)), function() {
+
+					})
+		}
+	</script>
+</body>
+</html>

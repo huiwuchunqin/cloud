@@ -1,0 +1,38 @@
+<#macro dialog examinType>
+<!--ͨ审核对话框  -->
+<div id="dlg" class="easyui-dialog"
+	data-options="
+		 closed:true,
+		 width:480,
+		 height:280,
+		 modal:true,
+ ">
+	<div class=box>
+		<textarea id="comment" maxlength="200" cols="60" rows="8"></textarea>
+		<div data-bind="if:deny()"
+			style="text-align: center; height: 40px; line-height: 45px;">
+			<input id="commentCheck" type="checkbox" onclick="checkChange(this)">常见回复
+			<select style="width: 320px; margin-left: 20px"
+				onChange="selectChange(this)" id="commentSelect"
+				data-bind="foreach:adviceList">
+				<option data-bind="text:advice"></option>
+			</select>
+		</div>
+		<div style="width: 100%" class="textCenter">
+			<a class="btn btnConfirm" onclick="saveExamine(${examinType})">确定</a>
+			<a class="btn btnCancel" onclick="$('#dlg').dialog('close')">取消</a>
+		</div>
+	</div>
+</div>
+<!--/ͨ审核对话框-->
+</#macro> 
+
+<#macro btnBar checkStatus resType> 
+
+	<#if "${checkStatus}"=="10">
+	<a class="btn btnPass" onclick="examine(20)">通过</a>
+	<a class="btn btnReturn" onclick="examine(05)">退回</a>
+	</#if>
+
+	<a class="btn btnDelete" onclick="deleteRes('${resType}')">删除</a>
+</#macro>

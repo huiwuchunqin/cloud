@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/manage/template/compoment/menu.css">
+<link rel="stylesheet" href="/manage/resources/css/res/resEdit.css">
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<#include "/manage/common/resourceDisplay.html">
+<#include "/manage/res/common/resCheckCommon.html"/>
+<script type="text/javascript"  src="/manage/moveToCommon/js/knockout-easyui-Lite/knockout-easyui.js"></script>
+<script type="text/javascript"  src="/manage/template/compoment/components.loader.js"></script>
+<script type="text/javascript" src="/manage/template/compoment/flippedClassroom.js"></script>
+<script type="text/javascript" src="/manage/template/helper/helper.js"></script>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript" src="/manage/template/resCheck/check.js"></script>
+<script type="text/javascript" src="/manage/template/js/photoSwipe.js"></script>
+<title>资源修改</title>
+</head>
+
+<body>
+	<div class="windowContent">
+		<div>
+			<div id="container" style="position: relative" class="resContainer">
+				<@resourceDisplay r_resource=resource/>
+				<!--  <div style="position:absolute;left:0px;top:0px">
+                <img style="height:326px;width:580px" id="cover"   data-bind="attr:{src:coverPath}">
+            </div> -->
+			</div>
+			<div id="attribute" class="attributeContainer">
+				<h4>资源来源:</h4>
+				<div class="line280" style="position: relative">
+					<span class="labelwidth60" style="position: relative">学 校:</span><input
+						id="makerOrgName" name="makerOrgName" maxlength="100"
+						data-bind="value:makerOrgName" />
+					<div id="orgList" style="display: none" class="newSelect"></div>
+				</div>
+				<div class="line280">
+					<span class="labelWidth60">作者:</span> <input id="userName"
+						class="easyui-combobox"
+						data-bind="comboboxSource:user.source,comboboxValue:user.val,easyuiOptions:user.viewSettings" />
+				</div>
+				<div class="line280">
+					<span class="labelWidth60">允许下载:</span><input
+						id="flagAllowDownload" class="easyui-combobox"
+						data-bind="comboboxSource:flagAllowDownload.source,comboboxValue:flagAllowDownload.val,easyuiOptions:flagAllowDownload.viewSettings" />
+				</div>
+				<div class="attribute">
+					<span>上传时间:</span><span class="secondSpan"
+						data-bind="text:makeTime"></span>
+				</div>
+				<div class="attribute">
+					<span>共享级别:</span><span class="secondSpan"
+						data-bind="text:shareLevelStr"></span>
+				</div>
+				<!-- <div class="attribute">
+					<span>浏览次数:</span><span class="secondSpan"  data-bind="text:browseCount"></span>
+				</div>
+				<div class="attribute">
+					<span>引用次数:</span><span class="secondSpan"  data-bind="text:referCount"></span>
+				</div>
+				<div class="attribute">
+					<span>点赞数:</span><span class="secondSpan"  data-bind="text:goodCount"></span>
+				</div> -->
+				<div class="line"></div>
+
+			</div>
+			<div style="clear: both"></div>
+		</div>
+		<div class="editArea">
+			<!-- 	<div>
+    <div class="line280 align-left">
+        <span class="labelWidth60">资源名称:</span><input id="resName" name="resName" maxlength="100" data-bind="value:resName"/>
+    </div>
+    <div class="line280 align-left" style="position:relative">
+    <span class="labelWidth60">上传学校:</span><input id="makerOrgName" name="makerOrgName" maxlength="100" data-bind="value:makerOrgName"/>
+    <div id="orgList" style="display:none"class="newSelect"> </div>
+    </div>
+</div> -->
+			<h4>资源属性:</h4>
+			<div>
+				<div class="line240 align-left">
+					<span class="labelWidth60">资源名称:</span><input id="resName"
+						name="resName" maxlength="100" data-bind="value:resName" />
+				</div>
+				<div class="line240 align-left" data-bind="if:!hasTypeL2()">
+					<span class="labelWidth60">资源分类：</span><input
+						data-options="required:true,editable:false"
+						data-bind="comboboxSource:resTypeL2.source,comboboxValue:resTypeL2.val,easyuiOptions:resTypeL2.viewSettings" />
+				</div>
+			</div>
+			<div>
+				<div class="line240 align-left">
+					<span class="labelWidth60">学段：</span><input
+						data-options="required:true,editable:false"
+						data-bind="comboboxSource:section.source,comboboxValue:section.val,easyuiOptions:section.viewSettings" />
+				</div>
+				<div class="line240 align-left">
+					<span class="labelWidth60">学科：</span><input
+						data-options="required:true,editable:false"
+						data-bind="comboboxSource:subject.source,comboboxValue:subject.val,easyuiOptions:subject.viewSettings" />
+				</div>
+				<div class="line240 align-left">
+					<span class="labelWidth60">年级：</span><input
+						data-options="required:true,editable:false"
+						data-bind="comboboxSource:grade.source,comboboxValue:grade.val,easyuiOptions:grade.viewSettings" />
+				</div>
+			</div>
+
+		</div>
+		<span class="clear"></span>
+		<div class="resTag">
+			<span class="labelWidth60" style="color: #666666">资源标签：</span>
+			<div style="float: left">
+				<!--ko foreach:tags  -->
+				<div class="res-tag">
+					<span data-bind="text:$data">13123</span> <i
+						class="red fa fa-close"
+						data-bind="click:$root.deleteTag.bind($data)"></i>
+				</div>
+				<!--/ko -->
+				<div class="res-tag text-color-theme add-res-tag"
+					data-bind="click:addTag,attr:{disabled:$root.tags().length==5}">
+					<i class="fa fa-plus"></i> <span>添加标签</span>
+				</div>
+			</div>
+		</div>
+		<span class="clear"></span>
+		<div class="relatedDiv">
+			<div class="align-left width80">
+				<span style="line-height: 31px">教材章节：</span>
+			</div>
+			<div class="align-left">
+				<ul data-bind="foreach:selectedChapterList">
+					<li class="selected">
+						<span class="indexBak" id="bookChapter" data-bind="text:$index()+1"></span>
+						<span class="inline-block" data-bind="foreach:$data">
+							<span data-bind="text:$data[$root.currentTitle()]"></span>
+							<!--  <span data-bind="text:$data['code']"></span> -->
+							<!--ko if:$parent[$parent.length-1]!=$data-->
+							<span>></span>
+							<!--/ko-->
+						</span>
+						<span class="second" data-bind="click:$root.delChapter.bind($data[$data.length-1])"></span>
+					</li>
+				</ul>
+				<input class="button" type="button" value="+章节"
+					data-bind="click:toggleChapterMenu" />
+				<div data-bind="if:isShowChapterMenu">
+					<div class="nav_temp" id="chapterMenu"
+						data-bind="component: { name: 'bzt-menu', params: {options:chapterMenuOptions }}"></div>
+				</div>
+			</div>
+		</div>
+		<div style="clear: both; width: 100%"></div>
+
+		<div class="relatedDiv">
+			<div  class="align-left width80">
+				<span style="line-height: 31px">知识点：</span>
+			</div>
+			<div class="align-left">
+				<ul data-bind="foreach:selectedKnowledgeList">
+					<li class="selected">
+						<span class="indexBak" id="KnowledgePoints" data-bind="text:$index()+1"></span>
+						<span class="inline-block" data-bind="foreach:$data">
+							<span data-bind="text:$data[$root.currentTitle()]"></span>
+							<!-- <span data-bind="text:$data['code']"></span> -->
+							<!--ko if:$parent[$parent.length-1]!=$data-->
+							<span>></span>
+							<!--/ko-->
+						</span>
+						<span class="second" data-bind="click:$root.delKnowledge.bind($data[$data.length-1])"></span>
+					</li>
+				</ul>
+				<input class="button" type="button" value="+知识点"
+					data-bind="click:toggleKnowlegepoints" />
+				<div data-bind="if:isShowKnowlegePoints">
+					<div class="nav_temp" id="knowledgeMenu"
+						data-bind="component: { name: 'bzt-menu', params: {options:knowledgeMenuOptions }}"></div>
+				</div>
+			</div>
+		</div>
+		<div class="clear0"></div>
+
+		<#if "${resource.resTypeL1}"=="10"||"${resource.resTypeL1}"=="15">
+		<p>
+			<span class="red">*</span>封面设置
+		</p>
+		<div class="cover-content">
+			<div class="cover-preview-box">
+				<!--图片封面 -->
+				<div class="cover-img-box">
+					<img id="mediaCover" onclick="$(this).photoSwipe()"
+						data-bind="attr:{src:coverPath}">
+				</div>
+				<!--上传按钮 -->
+				<div class="uploadBtn">
+					<form enctype="multipart/form-data" method="post"
+						action="/manage/company/uploadImage.html">
+						<input name="fileType" value="media" hidden="hidden" /> <input
+							id="file" name="file" type="file" hidden="hidden"
+							accept=".jpg,.png,.gif" />
+					</form>
+					<button id="uploadBtn" onclick="javascript:$('#file').click()"
+						class="btn btnBlue">上传封面</button>
+				</div>
+			</div>
+			<div class="cover-info text-small text-color-light">
+				<div>图片格式：.jpg、.png或.gif</div>
+				<div>最佳尺寸：512*288像素</div>
+				<div>图片比例：16:9</div>
+				<div>封面内容：资源名称、学校、作者</div>
+			</div>
+			<#if "${resource.resTypeL1}"=="10">
+			<div style="width: 20px; float: left; margin-left: 16px"
+				class="title-small text-color-theme">推荐封面</div>
+			<div class="imgList" data-bind="foreach:thumbnailList">
+				<img data-bind="attr:{src:coverPath,realPath:realPath}"
+					onclick="$(this).photoSwipe()">
+			</div>
+			</#if>
+		</div>
+		</#if>
+		<div style="width: 100%; margin-top: 5px; overflow: hidden">
+			<div class=" width80">
+				<span>资源描述：</span>
+			</div>
+			<div class="align-left">
+				<textarea rows="3" cols="123" maxlength="200"
+					data-bind="value:resDesc" style="margin-top: 10px"></textarea>
+			</div>
+
+		</div>
+	</div>
+	<div class="btnDiv">
+
+		<!-- 	<a style="float:left" class="btn btnBlue"  	onclick="recommend()">推荐至资源首页</a> -->
+		<div class="btnBox">
+			<#if "${check}"==1&&"${currentStatus}"=="10">
+				<a class="btn btnPass" onclick="examine(20)">通过</a>
+				<a class="btn btnReturn" onclick="examine(05)">退回</a>
+			</#if>
+				<a class="btn btnConfirm" onclick="update()">保存</a>
+				<a class="btn btnCancel" onclick="easyui_closeTopWindow()">取消</a>
+		</div>
+	</div>
+	<div id="tagAdd" style="padding:30px 10px; display: none">
+		<input placeholder="请输入标签" data-bind="value:tagToAdd">
+		<div class="btnBox">
+			<button class="btn btnConfirm" data-bind="click:pushTag">保存</button>
+			<button class="btn btnCancel" onclick="layer.closeAll()">取消</button>
+		</div>
+	</div>
+	<!--通过对话框  -->
+		<@dialog "${resource.resTypeL1}"/>
+	<!--/通过对话框 -->
+<script type="text/javascript">
+		var _res=eval(${res});
+		var defaultOption={code:"-1",name:"不确定"};
+		var sectionList=eval(${sectionList});
+		var teacherList=eval(${teacherList});
+		var relateGrade=eval(${relateGrade})||"";
+		var relateSubject=eval(${relateSubject})||"";
+		var relateSection=eval(${relateSection})||"";
+		var selectedChapterList=eval(${relateChapterList});
+		var selectedKnowledgeList=eval(${relateKnowledgeList});
+		var resTypeL2=eval(${typeList});
+		var imgHost="${imgHost}";
+		var videoHost="${videoHost}";
+		var thumbnailList=eval(${thumbnailList})||[];
+		var resId=_res.id;
+		
+	</script>
+<script type="text/javascript" src="/manage/template/res/resEdit.js"></script>	
+	
+	
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/user/modifyPwd.js"></script>
+<title>行政班级学生</title>
+
+</head>
+<body >
+	<div id="lay" class="easyui-layout" data-options="fit:true">
+     <div data-options="region:'north'" style="height:130px"  >
+	     <div style="height:60px;line-height:50px;border-bottom:1px solid #E1E1E1">
+	     <span class="text-color-theme l20 cursor text-md" style="position:absolute;" onclick="back()"> ＜返回班级列表</span>
+	     <span class="text-md" style="margin-left:30%">${adminClass.className}</span>
+	     </div> 
+    	 <div  id="queryBox" data-bind="if:!opting(),css:{box:!opting()}" >
+			<div class="labelLine250">
+				<span class="labelWidth60">姓名：</span> <input 
+					id="userName" placeholder="请输入姓名" />
+			</div>
+			<div class="labelLine250">
+				<span class="labelWidth60">账号：</span> <input 
+					id="loginAccount" placeholder="请输入登录账号" />
+			</div>
+			<div class="labelLine250">
+				<span class="labelWidth60">学号：</span> <input 
+					id="studentNumber" placeholder="请输入学号" />
+			</div>
+			<div class="btnBox">
+			<a class="btn btnBlue search" onclick="reSearch()">查询</a>
+		    <a class="btn btnBlue add" onclick="addStudent()">新增</a>
+			</div>
+	    </div>
+	   
+	   <div data-bind="if:opting(),css:{toolBar:opting(),box:opting()}" >
+	   	   <span class="align-left cursor l20  text-lg" style="position:absolute" onclick="cancelCheck()">取消选择</span>
+		   <div class="btnBox">
+		   <a class="cursor" onClick="batchModify()">批量重置密码</a>
+		   <a class="l20 cursor" onclick="move()">批量移动</a>
+		   <a class="l20 cursor" onclick="removeStudent()">批量移出</a>
+		   </div>
+	   		 <span style="margin-left:30%"> 选中了<span data-bind="text:selectNums"></span>项 </span>
+	   </div>  
+    </div>
+	<div data-options="region:'center'" >
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+				fitColumns:true,
+			    rownumbers:true,
+			    pagination:true,
+			    fit:true,
+			    onBeforeLoad:onBeforeLoad,
+			    url:'/manage/student/studentPageInfo.html',
+			    onCheck:checkEvent,
+			    onCheckAll:checkEvent,
+			    onUncheck:checkEvent,
+			    onUncheckAll:checkEvent,
+			    onLoadSuccess:onLoadSuccess,
+		    ">
+			<thead>
+				<tr>
+					<th data-options="field:'ck',checkbox:true"></th>
+					<th data-options="field:'opt',width:170,formatter:optfmt,halign:'center'">操作</th>
+					<th
+						data-options="field:'userName',width:120,halign:'center',align:'left'">姓名</th>
+					<th
+						data-options="field:'loginAccount',halign:'center',width:120,align:'left'">登录账号</th>
+					<th
+						data-options="field:'genderStr',width:60,halign:'center',align:'center'">性别</th>
+					<th
+						data-options="field:'gradeName',width:90,halign:'center',align:'left',align:'center'">年级</th>
+					<th
+						data-options="field:'enterSchoolDate',formatter:timefmt,width:120,align:'center',halign:'center'">入学年月</th>
+				
+					<th data-options="field:'studentHardNo',width:90,halign:'center',align:'center'">学生硬件编号</th>
+					<th
+						data-options="field:'mobilePhone',width:120,align:'center',halign:'center'">手机号</th>
+					<th
+						data-options="field:'mail',width:120,halign:'center',align:'left'">邮箱</th>
+					<th
+						data-options="field:'studentNumber',width:120,halign:'center',align:'left'">学号</th>
+				</tr>
+			</thead>
+		</table> 
+	</div>
+ 	 	<div id="dlg" class="easyui-dialog" style="padding:25px 15px" data-options="
+	 	closed:true,
+	 	title:'提示',
+	 	width:425,
+	 	height:180,
+	 	modal:true,
+	 	">
+			<div class="attrDiv">
+			<span>调班到：</span><input id="classes" class="easyui-combobox" data-options="textField:'className',valueField:'classCode',eidtable:'false'">
+			<div class="align-right t20">
+			<a class="btn btnConfirm" onclick="saveMove()">确定</a>
+			<a class="btn btnCancel" onclick="cancelMove()">取消</a>
+			</div>
+			</div>
+	 	</div>  
+	 	</div>
+	<script type="text/javascript">
+		var model={
+				opting:ko.observable(false),
+				selectNums:ko.observable(0)
+		}
+		model.opting.subscribe(function(){
+			$('#lay').layout('resize');
+		})
+		
+		$(function(){
+			ko.applyBindings(model);
+		    var classes=eval(${classList});
+			 $('#classes').combobox('loadData',classes); 
+		})
+		
+		//数据列表加载前 参数传递
+		function onBeforeLoad(param) {
+			param["adminClassCode"]="${adminClassCode}"; 
+			$.extend(param,getParam("queryBox"));
+		}
+		
+		
+		function onLoadSuccess(){
+			model.opting(false);
+		}
+		
+		//选中事件
+		function checkEvent(){
+			var checkRow=$('#dg').datagrid('getChecked');
+			model.opting(checkRow.length>0);
+			model.selectNums(checkRow.length);
+		}
+		
+		
+		
+		//操作
+		function optfmt(value,row){
+			 return "<a href='javascript:void(0)' onclick='modifyPwd(this)'>重置密码</a>"
+				+"&nbsp;&nbsp;<a href='javascript:void(0)' onclick='move(this)'>移动</a>"
+				+"&nbsp;&nbsp;<a href='javascript:void(0)' onclick='removeStudent(this)'>移出</a>" 
+		}
+		
+		//返回事件
+		function back(){
+			window.location.href=window.localStorage.prevUrl;
+		}
+		
+		//查询
+		function reSearch(){
+			$('#dg').datagrid('reload');
+		}
+		//选择学生
+		function addStudent(){
+			easyui_openTopWindow("行政班级学生选择",1100,800,"/manage/company/toSchoolStudentInfo.html?adminClassCode="+encodeURI("${adminClassCode}")+"&studentChoose=1&gradeCode=${gradeCode}",function(r){
+				if(r){
+					$('#dg').datagrid('reload');
+					parent.$('#dg').datagrid('reload');
+					
+				}
+			})
+		}
+		//取消选择
+		function cancelCheck(){
+			$('#dg').datagrid('unselectAll');
+			model.opting(false);
+		}
+		 //获取选中的学生编码
+		function getSelectUserCodes(){
+			var selections=$('#dg').datagrid('getSelections');
+			if(!selections||selections.length<=0){
+				return [];
+			}
+			return _.pluck(selections,"studentCode");
+		}
+		 
+		//获取选中的学生姓名
+		function getSelectUserName(){
+			var selections=$('#dg').datagrid('getSelections');
+			if(!selections||selections.length<=0){
+				return [];
+			}
+			return _.pluck(selections,"userName");
+		} 
+		
+		/* ---------------------------密码 ----------------------------------- */
+		
+		//修改密码
+		 function modifyPwd(obj){
+			var row=getRow(obj);
+			modifypwd(row.studentCode);
+		}
+		
+		//批量修改密码
+		function batchModify(){
+			var userCodes=getSelectUserCodes();
+			if(userCodes.length<0){
+				alert("请选中要修改密码的学生");
+				return false;
+			}
+			batchModifyPwd(userCodes);
+		}
+
+		
+		/* ---------------------------学生移动班级 ----------------------------------- */
+		
+		//移动
+		function move(obj){
+			var row=getRow(obj);
+			saveMove.studentCode=row.studentCode;
+			saveMove.studentName=row.userName;
+			$('#dlg').dialog({title:'提示'}).dialog('open');
+		} 
+		
+ 		//批量移动
+		function saveMove(){
+			 var adminClassCode=$('#classes').combobox('getValue');
+			 var userCodes=getSelectUserCodes();
+			 var userNames=getSelectUserName();
+			if(userCodes==""){
+				userCodes=[saveMove.studentCode];
+				userNames=[saveMove.studentName];
+			}
+			var opt={
+					url:'/manage/adminClassStudent/addClassStudent.html',
+					data:{
+						userCode:userCodes,
+						userName:userNames,
+						adminClassCode:adminClassCode,
+					},
+					success:function(res){
+						alert(res.msg,function(){
+							if(res.success){
+								cancelMove();	
+								$('#dg').datagrid('reload');
+							}
+						})
+					}
+				};
+			$.messager.confirm("提示","确认要移动吗?",function(r){
+				if(r){
+					$.ajax(opt)
+				}
+			})
+		} 
+ 		
+		//取消移动
+		function cancelMove(){
+			selectComboFirst($('#classes'));
+			$('#dlg').dialog('close');	
+		} 
+		
+		//移出
+ 		function removeStudent(obj){
+			var row=getRow(obj);
+			var userCodes;
+			if(row.studentCode){
+				userCodes=[row.studentCode]
+			}else{
+				 userCodes=getSelectUserCodes();
+			}
+			if(userCodes.length<=0){
+				alert("请选择要移出的学生");
+				return false;
+			}
+			$.messager.confirm("提示","确认要踢出班级吗?",function(r){
+				if(r){
+					console.info(userCodes);
+					$.ajax({
+						url:'/manage/adminClassStudent/deleteClassStudents.html',
+						data:{
+							userCode:userCodes,
+							adminClassCode:"${adminClass.adminClassCode}",
+						},
+						success:function(res){
+							alert(res.msg,function(){
+								$('#dg').datagrid('reload');
+							})
+						}
+					})
+				}
+			})
+		} 
+	</script>
+</body>
+</html>

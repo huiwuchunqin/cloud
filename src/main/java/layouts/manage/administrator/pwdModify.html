@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>修改密码页面</title>
+<style type="text/css">
+div.column {
+	margin-top: 18px;
+	/*width: 299px*/
+}
+div.column>span:first-child {
+	display: inline-block;
+	width: 60px;
+}
+div.column>input:first-of-type {
+	width: 220px
+}
+.btnBox{
+	position: absolute;
+	bottom: 10px;
+	right: 5px;
+}
+.red{
+	margin-left: 10px;
+}
+</style>
+</head>
+<body>
+<div style="margin:0px 30px;padding-top:1px">
+	<form id="fm">
+<!-- 	<#if !isArea>
+	 <div class="column">
+		<span>原密码</span> <input type="password" id="oldPwd"  class="easyui-validatebox" data-options="required:true,validType:'length[0,50]'"/>
+	</div>
+	</#if> -->
+	<div class="column">
+		<span>新密码:</span><input type="password" id="loginPwd" class="easyui-validatebox" data-options="required:true,validType:['password','length[6,20]']" placeholder="请输入新密码" />
+		<span class="red">*该输入项为必输项</span>
+	</div>
+	<div class="column">
+		<span>确认密码:</span><input type="password" id="loginPwdConfirm" class="easyui-validatebox" data-options="required:true,validType:['password','length[6,20]']" placeholder="请输入新密码" />
+		<span class="red">*该输入项为必输项</span>
+	</div>
+	</form>
+	<div class="btnBox">
+		<a class="btn btnConfirm"  onclick="save()">确认</a>
+		<a class="btn btnCancel"  onclick="cancel()">取消</a>
+	</div>
+	</div>
+	<script type="text/javascript">
+		function cancel(){
+			easyui_closeTopWindow(false);
+		}
+		
+	    var userCodes="${userCodes}";
+		//保存
+		function save(){
+			if(!$('#fm').form('validate'))return false;
+			var password=$('#loginPwd').val();
+			var loginPwdConfirm=$('#loginPwdConfirm').val();
+		 	if(password!=loginPwdConfirm){
+				$.messager.alert("信息","两次密码输入不一致请重新输入","info");
+				$('#loginPwd').val("");
+				$('#loginPwdConfirm').val("");
+				return false;
+			}
+		 	/* var oldPwd=$('#oldPwd').val(); */
+			var url="/manage/updatePwd.html";
+			$.ajax({
+				url:url,
+				data:{
+					password:password,
+				/* 	oldPwd:oldPwd, */
+					userCodes:userCodes
+				},
+				type:'post',
+				success:function(res){
+					$.messager.alert("信息",res.msg,"info",function(){
+						if(res.success){
+							easyui_closeTopWindow(res.success);
+						}
+					});
+				}
+			})
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<link rel="stylesheet" href="/manage/template/js/zTree_v3/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<script type="text/javascript" src="/manage/moveToCommon/js/plugins/zTree_v3/js/jquery.ztree.core-3.5.js"></script>
+<script type="text/javascript" src="/manage/template/js/manageRes/ztreeUtil.js"></script>
+<title>设置教材章节</title>
+</head>
+<body>
+	<div class="btnBox" style=" float: initial;">
+		<a class="btn btnConfirm" onclick="save()" group="" id="">保存</a>
+		&nbsp;
+		<a class="btn btnCancel"  onclick="easyui_closeTopWindow()" group="" id="">取消</a>
+	</div>
+	<ul class="ztree" id="ztreeNode"></ul>
+<script>
+
+//ztree 配置
+var setting = {
+	data: {
+		simpleData: {//设置简单数据格式
+			enable: true,
+			idKey: "code",
+			pIdKey: "pcode",
+			rootPId: null
+		},
+		key: {//设置节点显示key
+			name: "name"
+		}
+	},view:{//去除图标
+		showIcon:false
+	},async: {//异步加载数据
+		enable: true,
+		type:'post',
+		contentType:"application/x-www-form-urlencoded",  
+		url: "/manage/textbook/getContentVersion.html",
+		autoParam: ["subjectCode","textbookVerCode","code"]
+	},callback: {
+		onClick: zTreeClick,
+		onAsyncSuccess:onAsyncSuccess,
+	}
+};
+function zTreeClick(){}
+/**
+ * ko 数据绑定
+ */
+var viewModel=function(){
+	var self=this;
+	self.list=ko.observableArray([]);
+}
+var selectedList=eval(${relateChapterList});
+//传入类型，学段学科，
+const initData={
+	subjectCodes:"${subjectCodes}",
+	textbookVerCodes:"${versionCodes}",
+}
+
+var ztreeObj=null,
+	ary=[];
+$(function(){
+	var ztreeData=getKnowledeg_initData(initData);
+	if(ztreeData.length){
+		ztreeObj=$.fn.zTree.init($("#ztreeNode"), setting,ztreeData);
+		treeStateInitial("ztreeNode",selectedList);
+	}else{
+		$.messager.alert("信息","当前学科,教材版本下没有教材章节。","info");
+		$(".icon-save").parents(".easyui-linkbutton").hide();
+	}
+});
+var  defaultAjax={
+		type:'post',
+		async:false,
+}
+function getKnowledeg_initData(data){
+	var obj=[];
+	$.ajax($.extend(
+			defaultAjax,{
+				url:"/manage/textbook/getVersionRoot.html",
+				data:data,
+				success:function(json){
+					obj=json;
+				}
+			})
+	);
+	return obj;
+}
+/**
+ * 保存按钮
+ */
+function save(){
+	$.messager.confirm("信息","确定保存?",function(data){
+		if(data){
+			easyui_closeTopWindow(ary);	
+		}
+	});
+}
+
+ 
+function zTreeClick(){
+	var checkedNodes=[];
+	//获取所有被选中的最底层节点
+	_.each(ztreeObj.getSelectedNodes(),function(checkedNode,index){
+		if(checkedNode.rel!="rootNode"){										//非根节点
+			if(!checkedNode.children){											//没有子节点，加入数组
+				checkedNodes.push(checkedNode);
+			}else{
+				if($("#"+checkedNode.tId).find(".curSelectedNode").length==1){  //虽然有子节点，但子节点没有被选中，加入数组
+					checkedNodes.push(checkedNode);
+				}
+			}
+		}
+	});
+	ary=[];
+	_.each(checkedNodes,function(checkedNode){
+		var obj=$.extend({},initData,{
+					code:checkedNode.code,
+					name:checkedNode.name,
+
+			});
+		ary.push(obj);
+	});
+}
+ 
+
+</script>
+</body>
+</html>

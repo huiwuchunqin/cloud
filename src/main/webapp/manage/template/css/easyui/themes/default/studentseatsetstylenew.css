@@ -1,0 +1,252 @@
+body{
+	font-family: arial;
+	position:absolute;
+	top:0px;
+	left:0px;
+	right:0px;
+	bottom:0px;
+}
+ 
+/* make drag container visible */
+#drag{
+	border: 1px solid LightBlue;
+	padding: 2px;
+	display: table;
+	width: 1200px;
+	height:830px;
+	margin-top:10px;
+	margin-bottom:10px;
+	margin-left:auto;
+	margin-right:auto;
+	background:#eee;
+}
+
+	div#drag #left table {
+		border-collapse: collapse;
+		background: #DDDDDD;
+	}
+	
+	div#drag #right table {
+		border-collapse: collapse;
+		background:#eee;
+		float:left;
+		width:970px;
+		/* height:650px; */
+	}
+	
+	/* table cells */
+	div#drag #left td{
+		border: 1px solid #839DAC;
+		height: 50px;
+		width:200px;
+		
+	}
+	
+	div#drag #right td{
+		border: 1px solid #839DAC;
+		height: 50px;
+		width:78px;
+	}
+
+	div#drag #left td div{
+		width:163px;
+	}
+	
+	div#drag #right td div{
+	 		
+	}
+	
+	div#drag #left td div span{
+		width:73px;
+		height:20px;
+		margin-left:8px;
+		
+	}
+	
+	div#drag #right td div span{
+		width:65px;
+		height:20px;
+		float:left;
+		line-height:35px;
+	}
+
+#left {
+	margin-top:10px;
+	margin-left:8px;
+	float: left;
+	display: table;
+	 
+}
+	#left .setting{
+		width:190px;
+		height:163px;
+		margin-top:10px;
+		float:left;
+	}
+	
+	#left .setting .btn{
+		width:85px;
+		height:35px;
+		margin-left:5px;
+	}
+	
+	.setting_div{
+		margin-top:8px;
+		width:100%;
+		height:73.5%;
+	}
+
+	.setting_span{
+		float:left;
+		clear:both;
+		width:100%;
+		height:24px;
+	}
+#resetTable{
+	float:right;
+	margin-top:10px;
+	margin-right:10px;
+	width: 971px;
+	height:30px;
+	line-height:24px;
+	background:#A9A9AA;
+}
+	.resetTable_tr{
+		width:970px;
+		height:25px;
+		background:#DDDDDD; 
+		text-align:center;
+	}
+	
+	.resetTable_tr td{
+		width:970px;
+		height:20px;
+		background:#DDDDDD; 
+	}
+	
+
+	
+#right {
+	float:right;
+	margin-top:35px;
+	margin-left:220px;
+	display: table;
+	width: 971px;
+	height:auto;
+}
+	#cols_Number{
+		float:clear;
+		margin-left:41px;
+		width:803px;
+		height:40px;
+		line-height:55px;
+		text-align:center;
+	}
+	
+	#rows_Number{
+		position:relative;
+		float:left;
+		width:40px;
+		height:608px;
+		text-align:center;
+	}
+	
+	#sticky_table {
+		width: 300px;
+		height: 155px;
+		margin-bottom: 10px;
+	}
+	#sticky_table table {
+		position: fixed;
+	}
+
+	/* scrollable drag container */
+	#scrollable {
+		overflow: auto;
+		width: 200px;
+		height: 550px;
+	}
+
+/* drag object (DIV inside table cell) */
+#left .drag{
+	margin: auto;
+	width: 87px;
+	height: 35px;
+	font-size: 12pt;
+	line-height: 35px;
+	border: 1.9px solid SteelBlue;
+	text-align:center;
+}
+
+#right #right_table div{
+	text-align: center;
+	font-size: 10pt;
+	line-height: 35px;
+	width:67px;
+	height:45px;
+	margin:0.5px;
+	border: 1px solid SteelBlue;
+	margin-left:auto;
+	margin-right:auto;
+	margin-bottom:3px;
+	margin-top:3px;
+}
+
+.class_Seat_bottom{
+	margin-top:15px;
+	width:100%;
+	height:50px;
+	line-height:50px;
+}
+	.class_Seat_bottom .platform{
+		position:relative;
+		top:0px;
+		margin-right:350px;
+		width:200px;
+		height:50px;
+		text-align:center;
+		line-height:50px;
+		float:right;
+		background:#DDDDDD;
+	}
+
+	.class_Seat_bottom .seat_msg{
+		position:relative;
+		width:150px;
+		height:50px;
+		margin-left:40px;
+		text-align:center;
+		line-height:50px;
+		float:left;
+	}
+ 
+/* .seat_footer{ */
+/* 	position:relative; */
+/* 	top:0px; */
+/* 	left:280px; */
+/* 	width:800px; */
+/* 	height:40px; */
+/* 	background:red; */
+/* }  */
+/* .seat_footer span{ */
+/* 	margin-left:10px; */
+/* } */
+
+.hideStudentNumber{
+	display:none!important;	
+}
+.rows_cols_number{
+	display:none;
+}
+.setting_div_isShow{
+	display:none;
+}
+.top_num_style{
+	text-align:center;
+}
+.left_num_style{
+	width:30px;
+	height:63px;
+	text-align:center;
+}
+

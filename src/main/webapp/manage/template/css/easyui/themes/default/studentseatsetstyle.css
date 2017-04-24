@@ -1,0 +1,92 @@
+*{
+	 -webkit-user-select: none;   -moz-user-select: none;   -ms-user-select: none;   user-select: none;
+}
+.seats >.students,
+.seats {
+	border: 1px solid #efefef;
+}
+.seats >.students {
+	width: 115px;
+	height: 500px;
+	position: absolute;
+	left: -99px;
+}
+.seats {
+	height: 500px;
+	width: 1000px;
+	margin-left: 120px;
+	position: relative;
+}
+.seats >.students>ul {
+	margin-top: -1px;
+	list-style: none;
+	padding: 0;
+	height: 500px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+.student {
+	height: 35px;
+	width: 90px;
+	text-align: center;
+	font-size: 10px;
+	background-repeat: no-repeat;
+	border: 1px solid #EFEFEF;
+	position: relative;
+	margin-top: 2px;
+	margin-left: 2px;
+	margin-right: 2px;
+	background: white;
+	line-height: 10px;
+}
+.student>div {
+	width: 35px;
+	height: 35px;
+	position: absolute;
+	background-repeat:no-repeat;
+	left:0;
+	top:0;
+}
+.student>label {
+	line-height: 10px;
+	position: absolute;
+	left: 35px;
+	width: 55px;
+	height: 20px;
+	bottom: 0;
+}
+.seats>.seat {
+	position:absolute;
+	border: 2px solid SteelBlue;
+	background-color: white;
+	border-radius: 20px;
+	-moz-border-radius: 20px;
+	width: 27px;
+	height: 27px;
+}
+
+span{
+	margin-left: 38px;
+}
+
+.setting_div{
+	width: auto;
+	height: auto;
+	margin-top: 10px;
+	margin-left: 100px;	
+}
+
+.hideStudentNumber{
+	display:none;
+	
+}
+
+.womans{
+	background:#F0CFD1;
+}
+.mans{
+	background:#21A5D1;
+}
+.white{
+	background:white;
+}

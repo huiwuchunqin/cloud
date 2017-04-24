@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>审核情况查看详细页面</title>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+   <div data-options="region:'center'">
+	   <table id="dg" class="easyui-datagrid" data-options="
+			 onBeforeLoad:onBeforeLoad,
+			 rownumbers:true,
+			  fitColumns:true,
+			 fit:true,
+			 url:'/manage/resMediaSpecial/checkDetail/search.html'
+		     ">
+	 <thead>
+	 	<tr>
+	 		<th data-options="field:'resName',formatter:namefmt,width:250,halign:'center',align:'left'">资源名称</th>
+	 		<th data-options="field:'applyTime',width:110,align:'center',halign:'center',formatter:timefmt">申请时间</th>
+	 		<th data-options="field:'checkTime',width:110,align:'center',halign:'center',formatter:timefmt">审核时间</th>
+	 		<th data-options="field:'checkerName',width:80,align:'left',halign:'center'">审核人</th>
+	 		<th data-options="field:'shareCheckStatus',width:90,align:'left',halign:'center',formatter:checkStatusfmt">审核状态</th>
+	 		<th data-options="field:'checkComments',width:280,align:'left',halign:'center'">审核意见</th>
+	 	</tr>
+	 </thead>
+	 </table>
+	</div>
+	
+	<script type="text/javascript">
+		function onBeforeLoad(param) {
+			param["resCode"]="${resCode}";
+			param["resTypeL1"]="${resTypeL1}";
+		}
+	
+		function timefmt(value,row){
+			if (value != "" && value != null) {
+				return moment(value).format("YYYY/MM/DD HH:mm");
+			}
+		}
+		
+		function checkStatusfmt(value,row){
+			var str="";
+			if(value=="5"){
+				str="已退回"
+			}else if(value=="10"){
+				str="待审核";
+			}else if(value=="20"){
+				str="已通过";
+			}else{
+				str="未提交";
+			}
+			return str;
+		}
+		
+		function namefmt(value,row){
+			if(row.resTypeL1=="50"){
+				return row.resCode;
+			}else{
+				return value;
+			}
+		}
+	</script>
+</body>
+</html>

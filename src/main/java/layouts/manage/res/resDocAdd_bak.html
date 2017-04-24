@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<#include "/manage/common/fileUpload.html"/>
+<script type="text/javascript" src="/manage/template/js/manageRes/commonConstant.js"></script>
+<script type="text/javascript" src="/manage/template/js/manageRes/resUpload.js"></script>
+<script type="text/javascript" src="/manage/template/js/manageRes/docResAdd.js"></script>
+<script type="text/javascript" src="/manage/template/js/manageRes/resCommon.js"></script>
+<script type="text/javascript" src="/manage/template/js/manageRes/model.js"></script>
+<script type="text/javascript" src="/manage/template/js/common.validatebox.js"></script>
+<script type="text/javascript" src="/manage/moveToCommon/js/knockout-easyui-Lite/knockout-easyui.js"></script>
+<title>新增文档资源</title>
+<style>
+.row_list li>span {min-width: 100px;display: inline-block;text-align: right;}
+.row_list li>span.required {min-width: 0px;}
+.row_list li{float:left}
+.childList{margin-left:100px};
+.childList>div{padding:5	px}
+.childList>div>span{min-width:97px}
+a.cursor{color:blue;}
+.combobox-item{min-height:20px;}
+</style>
+</head>
+<body class="easyui-layout">
+<div data-options="region:'center'">
+		<div id="fileUpload" class="upload_btn" >					
+			<!-- <button>上传视频</button>	 -->				
+			<input type="file" multiple accept=".f4v,.wmv,.mkv,.mov,.flv,.rm,.ppt,.pdf,.doc,.xls,.docx,.pptx,.xlsx,.ppt,.pptx,.aac,.ape,.ogg,.wav,.wma"/>
+			<button id="uploadAllBtn">上传所有文件</button>	
+			<span id="upload-msg"></span>
+			<ul class="PoyTop">
+				<li class="Poy_yi checkbox">
+					<input id="top_checkbox" type="checkbox">
+				</li>
+				<li class="Poy_yi" style="height: 28px;">文件名</li>
+				<li class="Poy_sa" style="height: 28px;">上传进度</li>
+			
+				<li class="Poy_si" style="padding: 0px; height: 28px;">操作</li>
+			</ul>				
+		</div>
+		
+			<div>
+		
+			<div id="progressContainer" ></div>
+			<ul class="PoyBt" style="display: none;" id="custom-queue-item">
+				<li class="Poy_yi checkbox">
+					<input id="item_checkbox" type="checkbox" >
+				</li>
+				<li style="height: 32px;" class="Poy_yi FileName"></li>						
+				<li class="Poy_sa ProgressBar">
+					<dl>
+						<p style="margin:0px;" class="ProgressBarValue"></p>
+						<p style="margin:0px;" class="ProgressBarIcon"></p>
+						<p style="margin:0px;" class="ProgressBarMsg"></p>
+					</dl>
+				</li>
+				<li class="Poy_yi operation">
+					<button class="btn btnDelete" onclick="deleteUploadFile(this);">删除</button>
+				</li>
+			</ul>					
+		</div>
+				<div>
+			<form id="fm">
+				<ul class="row_list float">
+					<li> 
+						<span>公开权限：</span><!-- {label:'3',text:'区县'},{label:'4',text:'地市'},{label:'5',text:'省级'}, --><!-- class="easyui-combobox"data-options="editable:false,textField:'text',valueField:'label',data:[{label:'10',text:'私有'},{label:'20',text:'机构'},{label:'60',text:'完全'}]" -->
+						<input   data-options="required:true,editable:false" data-bind="comboboxSource:shareLevel.source,comboboxValue:shareLevel.val,easyuiOptions:shareLevel.viewSettings"/>
+						<span class="required">*</span>
+					</li>
+					<li>
+						<span>下载点数：</span>
+						<input class="easyui-validatebox" data-options="required:true,validType:'Percentage[0]'" data-bind="value:downloadPoints" value="0" type="text"/>
+						<span class="required">*</span>
+					</li>
+					<li> 
+						<span>允许下载?：</span>
+						<input   data-options="required:true,editable:false" data-bind="comboboxSource:flagAllowDownload.source,comboboxValue:flagAllowDownload.val,easyuiOptions:flagAllowDownload.viewSettings"/>
+						<span class="required">*</span>
+					</li>
+					<li> 
+						<span>允许浏览?：</span>
+						<input   data-options="required:true,editable:false" data-bind="comboboxSource:flagAllowBrowse.source,comboboxValue:flagAllowBrowse.val,easyuiOptions:flagAllowBrowse.viewSettings"/>
+						<span class="required">*</span>
+					</li>
+				<!-- 	<li>
+						<span><a href="javasript:void(0);" data-bind="event:{click:openSupplier}" class="cursor">供应商</a>：</span>
+						<input  readOnly="true" type="text" data-bind="value:library().supplierName" />
+					</li> -->
+					<li  style="clear:both;height:20px;display:block"></li >
+					<li>
+						<span>适用学段</span>
+						<input data-options="required:true,editable:false" data-bind="comboboxSource:suitableSection.source,comboboxValue:suitableSection.val,easyuiOptions:suitableSection.viewSettings"/>
+						
+						<span class="required">*</span>
+					</li>
+					
+					<li>
+						<span>适用年级：</span>
+						<input data-options="required:true,editable:false" data-bind="comboboxSource:suitableGrade.source,comboboxValue:suitableGrade.val,easyuiOptions:suitableGrade.viewSettings"/>
+						<span class="required">*</span>
+					</li>
+					<li>
+						<span>适用学科</span>
+						<input data-options="required:true,editable:false" data-bind="comboboxSource:suitableSubject.source,comboboxValue:suitableSubject.val,easyuiOptions:suitableSubject.viewSettings"/>
+						<span class="required">*</span>
+					</li>
+					<li  style="clear:both;height:20px;display:block"></li >
+					 <li>
+						<span>所属年级：</span>
+						<input data-options="editable:false" data-bind="comboboxSource:grade.source,comboboxValue:grade.val,easyuiOptions:grade.viewSettings"/>
+						<ul class="row_list" data-bind="template:{name:'grade_template',foreach:selectedGrade}">
+							
+						</ul>
+						<script type="text/html" id="grade_template">
+							<li>
+								<span id="selectedGrade" data-bind="text:name"></span>
+  								<button		data-bind="click:$root.deleteGrade.bind($data,$index())">删除  </button>
+                                 
+							</li>
+						</script>
+					</li>
+					<li  style="clear:both;height:20px;display:block"></li >
+					<li>
+						<span>所属学科</span>
+						<input data-options="editable:false" data-bind="comboboxSource:subject.source,comboboxValue:subject.val,easyuiOptions:subject.viewSettings"/>
+						<ul 	data-bind="template:{name:'subject_template',foreach:selectedSubject}">
+							
+						</ul>
+						<script type="text/html" id="subject_template">
+							<li>
+								<span id="selectedSubject" data-bind="text:name"></span>
+	                            <button class="btn btnDelete" data-bind="click:$root.deleteSubject.bind($data,$index())">删除</button>
+
+							</li>
+						</script>
+					</li>
+					<li  style="clear:both;height:20px;display:block"></li >
+					<li>
+						<span>所属教材版本：</span>
+						<input data-options="editable:false" data-bind="comboboxSource:version.source,comboboxValue:version.val,easyuiOptions:version.viewSettings"/>
+						<ul 	data-bind="template:{name:'version_template',foreach:selectedVersion}">
+							
+						</ul>
+						<script type="text/html" id="version_template">
+							<li>
+								<span id="selectedVersion" data-bind="text:name"></span>
+								<span style="max-width:500px;overflow:hidden;text-align:center">备注:</span><span style="width:40px" id="description" data-bind="text:description"></span>
+	                            <button class="btn btnDelete" data-bind="click:$root.deleteVersion.bind($data,$index())">删除</button>
+
+							</li>
+						</script>
+					</li>
+					<li  style="clear:both;height:20px;display:block"></li >
+					<li >
+						<span><a href="javasript:void(0);" data-bind="event:{click:chooseKnowledge}" class="cursor">知识点</a>：</span>
+						<ul		data-bind="template:{name:'knowledge_template',foreach:knowledgeArray}"></ul>
+						<script type="text/html" id="knowledge_template">
+							<li>
+								<span style="margin-left:100px" id="textbook_rel" data-bind="text:name"></span>
+								<button class="btn btnDelete" data-bind="click:$root.delknowledge.bind($data,$index())">删除</button>
+							</li>
+						</script>
+					</li>
+					<li  style="clear:both;height:20px;display:block"></li >
+					<li >
+						<span><a href="javasript:void(0);" data-bind="event:{click:chooseChapter}" class="cursor">教材章节</a>：</span>
+						<ul		data-bind="template:{name:'chapter_template',foreach:chapterArray}"></ul>
+						<script type="text/html" id="chapter_template">
+							<li>
+								<span  style="margin-left:100px" id="textbook_rel" data-bind="text:name"></span>
+								<button class="btn btnDelete" data-bind="click:$root.delchapter.bind($data,$index())">删除</button>
+							</li>
+						</script>
+					</li>
+					<li style="clear:both;height:20px;display:block"></li >
+					<li>
+						<span>资源描述：</span>
+						<textarea data-bind="value:resDesc" type="text" class="easyui-validatebox" data-options="validType:'maxLength[400]'"style="width:800px;height:100px;"></textarea>
+					</li>
+					<li style="clear:both;height:20px;display:block"></li>
+					<li>
+						<div class="btnBox" style="margin:20px;text-align:right">
+							<a class="btn btnConfirm" onclick="save()">保存</a>
+							&nbsp;
+							<a class="btn btnCancel" onclick="easyui_closeTopWindow()">取消</a>
+						</div>
+					</li>
+				</ul>
+			</form>
+		</div>
+</div>
+<script type="text/javascript">
+ //后台数据
+var sectionList=eval(${sectionList});
+var defaultOptions=[{name:"请选择",code:"-1"}];
+var resInfoAddUrl="/manage/res/docAdd.html";
+var suitableSection=new easyuiDefaultModel();
+var section=new easyuiDefaultModel();
+var subject=new easyuiDefaultModel();
+var  grade=new easyuiDefaultModel();
+var version=new easyuiDefaultModel();
+//ko对象初始化
+var vm=new ViewModel();
+vm.shareLevel.source(shareLevel);
+vm.flagAllowDownload.source(flagAllowDownload);
+vm.flagAllowBrowse.source(flagAllowBrowse);
+$(function(){
+		vm.suitableSection.source(sectionList);
+	    ko.applyBindings(vm);
+	    uploadBind($("#fileUpload"))
+})
+
+//ko对象
+function ViewModel(){
+	suitableSection.viewSettings.onChange=suitSectionChange;
+	section.viewSettings.onSelect=sectionSelect
+	subject.viewSettings.onSelect=subjectSelect;
+	grade.viewSettings.onSelect=gradeSelect;
+	version.viewSettings.onSelect=versionSelect;
+	var self=this;
+	self.downloadPoints=ko.observable();				//下载点数
+	self.resDesc=ko.observable();						//资源描述
+	self.flagAllowDownload= new easyuiDefaultModel();	//允许下载
+	self.flagAllowBrowse=new easyuiDefaultModel();		//允许浏览
+	self.shareLevel=new easyuiDefaultModel();			//分享等级
+	self.library=ko.observableArray([]),				//资源
+	self.suitableSection=suitableSection;				//适用学段
+	self.suitableSubject=new easyuiDefaultModel();		//适用学科
+	self.suitableGrade=new easyuiDefaultModel();		//适用年级
+	
+	//所属学段
+	self.section=section;
+	self.selectedSection=ko.observableArray([]);
+	self.deleteSection=function(index,data){
+		$.messager.confirm("信息","删除操作将重置已选择的学科,年级,教材版本,知识点,教材章节,确认要删除吗？",function(r){
+			vm.selectedSection.splice(index,1)
+			vm.section.source.push(data);
+			versionIni();
+			vm.chapterArray([]);
+			vm.knowledgeArray([]);
+		})
+	};
+	//所属学科
+	self.subject=subject;
+	self.selectedSubject=ko.observableArray([]);
+	self.deleteSubject=function(index,data){
+		$.messager.confirm("信息","删除操作将重置已选择的教材版本,知识点,教材章节,确认要删除吗？",function(r){
+			vm.selectedSubject.splice(index,1)
+			vm.subject.source.push(data);
+			versionIni();
+			vm.chapterArray([]);
+			vm.knowledgeArray([]);
+		})
+	};
+	//所属年级
+	self.grade=grade;
+	self.selectedGrade=ko.observableArray([]);
+	self.deleteGrade=function(index,data){
+		vm.selectedGrade.splice(index,1);
+		vm.grade.source.push(data);
+	};
+	//所属版本
+	self.version=version;
+	self.selectedVersion=ko.observableArray([]);
+	self.deleteVersion=function(index,data){
+		vm.selectedVersion.splice(index,1);
+		vm.version.source.push(data);
+	};
+	//知识点
+	self.knowledgeArray=ko.observableArray([]);
+	self.delknowledge=function(index,data){
+		vm.knowledgeArray.splice(index,1);	
+	};
+	//教材章节
+	self.chapterArray=ko.observableArray([]);
+	self.delchapter=function(index,data){
+		vm.chapterArray.splice(index,1);
+	};
+	self.chooseKnowledge=function(){
+		var subjectCodeArray=getCodeArray(vm.selectedSubject());
+		var versionCodeArray=getCodeArray(vm.selectedVersion());
+		easyui_openTopWindow("知识点选择",800,700,"/manage/res/knowledgeChoose.html?subjectCodes="+arryToString(subjectCodeArray)+"&versionCodes="+arryToString(versionCodeArray),function(r){
+			if(r){
+				vm.knowledgeArray(r);
+				}
+		})
+	};
+	self.chooseChapter=function(){
+		var subjectCodeArray=getCodeArray(vm.selectedSubject());
+		var versionCodeArray=getCodeArray(vm.selectedVersion());
+		easyui_openTopWindow("教材章节选择",800,700,"/manage/res/chapterChoose.html?subjectCodes="+arryToString(subjectCodeArray)+"&versionCodes="+arryToString(versionCodeArray),function(r){
+			if(r){
+				vm.chapterArray(r);	
+			}
+		})
+		
+	};
+	return self;
+
+}
+	/**
+	 * 文件上传事件绑定
+	 */
+	function uploadBind(document){
+		$(document).bztUpload({
+	 		'url'      	     : '${datadepotHost}/chunkedDiskUpload.shtml', 
+	 		'queryUrl'		 : '${datadepotHost}/chunkedInfoQuery.shtml',
+	 		'uploadParam' 	 : {'type':"1", 'key':"00000930", 'enc':"875b9057d7bf96c401cf5505e13365b8", 'remain':"1073741824"},
+	 		'uniqueCodeName' : 'uniqueCode',
+	 		'buttonImg'      : '/manage/template/css/chapterUploadBtn.gif',
+	 		'method'		 : 'POST',
+	 		'uniqueCodeName' :'uniqueCode',
+	 		'multi'          : false,
+	 		maxFileLength : 10,
+	 		'auto'           : true,
+	 		'fileExt'        : '.f4v,.wmv,.mkv,.mov,.avi,.flv,.rm,.mp4,.ppt,.pdf,.doc,.xls,.docx,.pptx,.xlsx,.ppt,.pptx;',
+			'fileDesc' 	     : '所有文件(*.*)',
+	 		'height'         : 38,
+	 		'width'          : 138,
+	 		'sizeLimit'		 : (1024 * 1024 * 1000),
+	 		'fileNameLen'	 : 30,
+	 		'queueID'        : 'custom-queue',
+	 		'removeCompleted': true,
+	 		'onSelect'   : function(event,item,ID,fileObj,data) {
+				//alert("选择文件");
+			},'onCheck'		 : function(event, item, ID, fileObj){
+	 			
+	 		},'onCheckComplete' :checkComplete
+	 		,'onUpload' 			: function(event, item, ID, uniquecode,fileObj, data) {
+	 			
+	 		},'onCancelComplete'  : function(event, queueItem, ID,fileObj, data, clearFast) {
+	 			
+	 		},'onComplete'	    :onFileComplete,
+	        uploadAllBtn: "#uploadAllBtn",//批量上传所有文件选择器
+	        progressContainer:"#progressContainer"
+	 	});
+	}
+	
+</script>
+</body>
+</html>

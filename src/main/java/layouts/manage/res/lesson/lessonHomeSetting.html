@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>课程首页设置</title>
+</head>
+<body>
+	<div id="tb" style="height:80px">
+	    <div class="box form">
+		<div class="labelBox" id="queryBox">
+			<div class="labelLine240">
+				<span class="labelWidth60">学段：</span><input id="sectionCode"
+					class="easyui-combobox width100"
+					data-options="
+					valueField: 'code',
+					textField: 'name',
+					panelHeight: 'auto',
+					editable: false,
+					onSelect:sectionSelect
+					"/>
+			</div>
+			<div class="labelLine240">
+				<div class="labelWidth60">学科：</div>
+				<input class="easyui-combobox width100" id="subjectCode"
+					data-options="
+					valueField: 'code',
+					textField: 'name',
+					panelHeight: 'auto',
+					editable: false,
+					data:[{name:'请选择',code:'',selected:true}]
+					"/>
+			</div>
+			<div class="labelLine240">
+				<div class="labelWidth60">年级：</div>
+				<input class="easyui-combobox width100" id="gradeCode"
+					data-options="
+					valueField: 'code',
+					textField: 'name',
+					panelHeight: 'auto',
+					editable: false,
+					data: [{code: '',name: '请选择',selected:true}]
+					"/>
+			</div>
+			<span class="clear10"></span>
+			<div class="labelLine240">
+				<span class="labelWidth60">课程名称</span>
+				<input id="lessonName" placeholder="请输入课程名称"/>
+			</div>
+		</div>
+		<div class="btnBox">
+			<button class="btn btnBlue l10" onclick="set()">课程设置</button> 
+			<button class="btn btnBlue search"
+				onclick="javascript:$('#dg').datagrid('reload')">查询</button>
+		</div>
+	</div>
+	</div>
+	<table id="dg" class="easyui-datagrid"
+		data-options="
+	 	pagination:true,
+		onBeforeLoad:onBeforeLoad,
+		rownumbers:true,
+		toolbar:'#tb',
+		fit:true,
+		url:'/manage/lesson/homePage.html',
+		singleSelect:true
+        ">
+		<thead>
+			<tr>
+				<th data-options="field:'opt',formatter:optfmt,width:80,halign:'center',align:'center'">操作</th>
+				<th data-options="field:'lessonName',width:280,halign:'center',align:'left'">课程名称</th>
+				<th data-options="field:'orgName',width:280,halign:'center',align:'left'">机构名称</th>
+				<th data-options="field:'sectionName',width:90,align:'center',halign:'center'">学段</th>
+				<th data-options="field:'subjectName',width:90,align:'left',halign:'center'">学科</th>
+				<th data-options="field:'gradeName',width:90,align:'left',halign:'center'">年级</th>
+				<th data-options="field:'coverPath',width:90,align:'center',halign:'center',formatter:coverPathfmt">封面图片</th>
+				<th data-options="field:'thumbnailPath',width:90,align:'center',halign:'center',formatter:thumbnailPathfmt">缩略图</th>
+				<th data-options="field:'ck',width:80,halign:'center',halign:'center',formatter:ckfmt">是否使用</th>
+			</tr>
+		</thead>
+	</table>
+	<script type="text/javascript">
+		var sectionList=eval(${sectionList});
+		$(function(){
+			sectionList.unshift({code:" ",name:"不限",selected:"selected"}); 
+			$('#sectionCode').combobox('loadData',sectionList);
+		})
+			function onBeforeLoad(param) {
+			$.extend(param, getParam("queryBox"));
+		}
+		
+		function sectionSelect(data){
+			sectionSubject(data.code,$('#subjectCode'));
+			sectionGrade(data.code,$('#gradeCode')); 
+	    }
+		
+		function optfmt(value,row){
+			return "<a href='javascript:void(0)' onclick='deleteCourse(\""+row.lessonId+"\")'>删除</a>";
+		}
+		
+		function deleteCourse(id){
+			confirm("信息","确认要删除吗",function(r){
+				if(r){
+					$.post("/manage/lesson/deleteHomeCourse.html",{lessonId:id},function(res){
+						alert(res.msg,function(){
+							$('#dg').datagrid('reload');
+						})
+					})
+				}
+			})
+		}
+		//格式化缩略图
+		function thumbnailPathfmt(value,row){
+			var str="";
+			if(value!=null&&value!=""){
+				return "<a href='javascript:void(0)' onclick='showThumbnailPic(this)'>查看图片</a>";
+			}else{
+				return "-";
+			}
+		}
+		
+		//格式化封面图片
+		function coverPathfmt(value,row){
+			if(value!=null&&value!=""){
+				return "<a href='javascript:void(0)' onclick='showCoverPic(this)'>查看图片</a>";
+			}else{
+				return "-";
+			}
+		}
+		//显示缩略图
+		function showThumbnailPic(obj) {
+			var row=getRow(obj);
+			easyui_openTopWindow("查看课程缩略图", 500, 500,
+					"/manage/resSettingsHome/showPic.html?picUrl="
+							+ row.thumbnailPath);
+		}
+
+		//显示资源封面图片
+		function showCoverPic(obj) {
+			var row=getRow(obj);
+			easyui_openTopWindow("查看课程封面图片", 400, 400,
+					"/manage/resSettingsHome/showPic.html?picUrl="
+							+ row.coverPath);
+		}
+		
+		//是否使用列格式化
+		function ckfmt(value, row) {
+			var str = "";
+			if (row.flagAvailable == "1") {
+				str = "<center><input type='checkbox' checked='checked' onclick='changeFlagAvailable(this)'/></center>";
+			} else {
+				str = "<center><input type='checkbox' onclick='changeFlagAvailable(this)'/></center>";
+			}
+			return str;
+		}
+		
+		//修改是否使用
+		function changeFlagAvailable(obj) {
+			var row = getRow(obj);
+			//请求参数
+			var data = {
+				id : row.lessonId,
+				available : obj.checked?1:0,
+			}
+			$.post("/manage/lesson/avaliableUpdate.html", data, function(res) {
+				window.top.$.messager.alert("提示", res.msg, "info", function() {
+					$('#dg').datagrid('reload');
+				});
+			})
+		}
+		
+		//首页设置
+		function set(){
+			easyui_openTopWindow("课程首页设置",1200, 520,"/manage/lesson/toSetting.html",function(r){
+				if(r){
+					$('#dg').datagrid('reload'); 
+				}
+			})
+		}
+	</script>
+</body>
+</html>

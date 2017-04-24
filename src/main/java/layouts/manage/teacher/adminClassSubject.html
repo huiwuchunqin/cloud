@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>老师信息-任教信息</title>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/comboChange/orgComboChange.js"></script>
+</head>
+<style type="text/css">
+.attrDiv {
+	width: 250px;
+}
+</style>
+<body>
+<div id="tb">
+<div class="btnBox">
+<a class="btn btnBlue search" onclick="reloadDg()" >查询</a>
+<a class="btn btnBlue add" onclick="add()" >新增</a>
+</div>
+</div>
+<table id="dgClass" class="easyui-datagrid" data-options="
+		 pagination:true,
+		 fit:true,
+		 toolbar:'#tb',
+		 rownumbers:true,
+		 fitColumns:true,
+		 singleSelect:true,
+		 onBeforeLoad:onBeforeLoad,
+		 url:'/manage/adminClassSubject/pageList.html'
+         ">
+	<thead>
+			<tr>
+				<th data-options="field:'opt',width:130,formatter:optfmt">操作</th>
+				<th data-options="field:'teacherName',width:120,halign:'center',align:'left'">老师姓名</th>
+				<th data-options="field:'className',width:70,halign:'center',align:'left'">班级名称</th>
+				<th data-options="field:'gradeName',halign:'center',width:70,align:'left'">年级名称</th>
+				<th data-options="field:'subjectName',width:100,halign:'center',align:'left'">学科名称</th>
+				<th data-options="field:'beginTime',formatter:timefmt,width:120,halign:'center',align:'center'">开始时间</th>
+				<th data-options="field:'endTime',formatter:timefmt,width:120,halign:'center',align:'center'">结束时间</th>
+			</tr>
+	</thead>
+</table>
+<div id="dlg" class="easyui-dialog" data-options="
+		width:650,
+		height:250,
+		closed:true,
+		draggable:true,
+		buttons:[
+		{
+		iconCls:'icon-save',
+		text:'保存',
+		handler:save,
+		},
+		{
+		iconCls:'icon-cancel',
+		text:'取消',
+		handler:function(){
+			$('#dlg').dialog('close');
+		}
+		}
+		],
+		modal:true,
+">
+<form id="fm" style="padding:10px;">
+<ul data-bind="visible:add()">
+<div class="attrDiv">
+	<span>老师</span><input id="teacher" class="easyui-combobox" data-options="required:true,textField:'userName',valueField:'teacherCode'">
+</div>
+<div class="attrDiv">
+	<span>学段</span><input  id="section"class="easyui-combobox" data-options="required:true,onChange:addSectionChange,textField:'name',valueField:'code',editable:false">
+</div>
+
+<div class="attrDiv">
+	<span>学科</span><input  id="subject"class="easyui-combobox" data-options="required:true,textField:'name',valueField:'code',editable:false">
+</div>
+<div class="attrDiv">
+	<span>年级</span><input id="grade" class="easyui-combobox" data-options="onChange:addGradeChange,required:true,textField:'name',valueField:'code',editable:false">
+</div>
+<div class="attrDiv">
+	<span>行政班级</span><input id="adminClass" class="easyui-combobox" data-options="required:true,textField:'className',valueField:'classCode',editable:false">
+</div>
+</ul>
+<div class="attrDiv">
+	<span>开始时间</span><input id="beginTime" class="wdate width130" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'#F{$dp.$D(\'endTime\')}'})" >
+</div>
+<div class="attrDiv">
+	<span>结束时间</span><input id="endTime" class="wdate width130" onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',minDate:'#F{$dp.$D(\'beginTime\')}'})" >
+</div>
+<input id="gid" style="display:none"/>
+</form>
+</div>
+<script type="text/javascript">
+var teacherList=eval(${teacherList});
+var sectionList=eval(${sectionList});
+var beginTime,endTime;
+var model={
+		add:ko.observable(true),
+}
+ko.applyBindings(model);
+$(function(){
+	var month=new moment(new Date()).month();
+	var year=new moment(new Date()).year();
+	if(month>=9){
+		beginTime=year+"-09-01";
+		endTime=(year+1)+"-08-31"
+	}else{
+		beginTime=(year-1)+"-09-01";
+		endTime=(year)+"-08-31"
+	}
+	$('#teacher').combobox('loadData',teacherList);
+	$('#section').combobox('loadData',sectionList)
+})
+function onBeforeLoad(param){
+	param["teacherCode"]="${teacherCode}";
+}
+function reloadDg(){
+	$('#dgClass').datagrid('reload');
+}
+//保存
+function save(){
+	if($('#fm').form('validate')||!model.add()){
+	
+	var data={
+			beginTimeStr:$('#beginTime').val(),
+			endTimeStr:$('#endTime').val(),
+			gid:$('#gid').val(),
+	}	
+	if(!data.gid){
+	var _teacherCode=$('#teacher').combobox('getValue');
+	var teacher=_.find(teacherList,function(item){
+		return  item.teacherCode==_teacherCode;
+	})
+	$.extend(data,{
+		subjectCode:$('#subject').combobox('getValue'),
+		gradeCode:$('#grade').combobox('getValue'),
+		adminClassCode:$('#adminClass').combobox('getValue'),
+		teacherName:teacher.userName,
+		teacherCode:teacher.teacherCode
+	})
+	}
+	$.ajax({
+		url:'/manage/adminClassSubject/saveAdminClassSubject.html',
+		data:data,
+		success:function(res){
+			$.messager.alert("信息",res.msg)
+			if(res.success){
+				$('#dgClass').datagrid('reload');
+				 $('#dlg').dialog('close'); 
+			}
+		}
+	})
+	}
+}
+//时间格式化
+function timefmt(value,row){
+	return value?moment(value).format("YYYY-MM-DD"):"";
+}
+//班主任手动输入过滤
+var teacherSelectRow,adminClassSelectRow,teacherChanged,changed;
+ $('#teacher').combobox({
+	onChange:function(record){
+		teacherChanged=true;
+		var select=_.find(teacherList,function(item){return item.teacherCode==record});
+		if(select){
+			teacherSectionLock(select,$('#teacher'),$('#section'));	
+		}
+	},
+	onHidePanel:function(){
+		var t = $(this).combobox('getText');//当前value值
+		var datas=$(this).combobox('getData');
+		var _textField=$(this).combobox('options').textField;//文本key
+		var exist=_.find(datas,function(item){
+			return item[_textField]==t
+		})
+		if(!exist){
+			alert("请不要手动输入");
+			$(this).combobox('setValue','')
+		}
+	},
+	onSelect:function(row,index){
+		teacherSelectRow=row;
+	}
+})
+//新增对话框学段选择事件
+function addSectionChange(record){
+	orgSectionSubject(record,$('#subject'));
+	orgSectionGrade(record,$('#grade'));
+
+}
+//年级改变事件
+function addGradeChange(record){
+	orgGradeAdminClass(record,$('#adminClass'));
+}
+//行政班级输入过滤
+$('#adminClass').combobox({
+	onChange:function(){
+		changed=true;
+	},
+	onHidePanel:function(){
+		var t = $(this).combogrid('getValue');
+		if(changed){
+			if(adminClassSelectRow==null||t!=adminClassSelectRow.classCode){
+				alert("请不要手动输入");
+				$(this).combobox('setValue','')
+			}
+			changed=false;
+			adminClassSelectRow=null;
+		}
+	},
+	onSelect:function(row,index){
+		adminClassSelectRow=row;
+	}
+})
+
+
+//新增
+function add(){
+	$('#fm').form('clear');
+	model.add(true);
+	$('#dlg').dialog({title:'新增'}).dialog({height:'250'}).dialog('open').dialog('center');
+	 if("${teacherCode}"){
+		$('#teacher').combobox('setValue',"${teacherCode}").combobox('disable');
+	} 
+	 $('#beginTime').val(beginTime);
+	 $('#endTime').val(endTime);
+	
+}
+
+//操作格式化
+function optfmt(value,row){
+	return "<a href='javascript:void(0)' onclick='edit(this)'>修改 </a><a href='javascript:void(0)' onclick='deleteClassSubject(\""+row.gid+"\")'>删除 </a>";
+}
+//修改
+function edit(obj){
+	var beginTime,enTime;
+	var month=new moment(new Date()).month();
+	var year=new moment(new Date()).year();
+	if(month>=9){
+		beginTime=year+"-09-01";
+		endTime=(year+1)+"-08-31"
+	}else{
+		beginTime=(year-1)+"-09-01";
+		endTime=(year)+"-08-31"
+	}
+	$('#fm').form('clear');
+	var index=$(obj).closest("tr").index();
+	$('#dgClass').datagrid('selectRow',index);
+	var row=$('#dgClass').datagrid('getSelected');
+	if(moment(row.endTime).isBefore(beginTime)){
+		$.messager.alert("信息","课程已结束","info");
+		return false;
+	}
+	model.add(false);
+	 $('#gid').val(row.gid);
+	if(row.beginTime){
+		$('#beginTime').val(moment(row.beginTime).format("YYYY-MM-DD"));	
+	}
+	if(row.endTime){
+		$('#endTime').val(moment(row.endTime).format("YYYY-MM-DD"));	
+	} 
+	$('#dlg').dialog({title:'修改'}).dialog({height:'180'}).dialog('open').dialog('center');
+	
+}
+//删除行政班级学科
+function deleteClassSubject(gid){
+	$.messager.confirm("信息","确认要删除吗?",function(r){
+		if(r){
+			$.ajax({
+				url:"/manage/adminClassSubject/deleteAdminClassSubject.html",
+				data:{
+					gid:gid,
+				},
+				success:function(res){
+					$.messager.alert("信息",res.msg);
+					$('#dgClass').datagrid('reload');
+				}
+			})
+		}
+	})
+}
+</script>
+</body>
+</html>

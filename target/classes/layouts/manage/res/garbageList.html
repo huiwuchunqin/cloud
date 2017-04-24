@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<title>资源回收站页面</title>
+<style type="text/css">
+</style>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'">
+		<div class="box form">
+			<div class="labelBox">
+				<span class="labelLine240"> <span
+					class="labelWidth60">学段：</span> <input id="section"
+					class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false,panelHeight:'auto',onSelect:sectionSelect">
+				</span>
+				<span class="labelLine240"> <span
+					class="labelWidth60">学科：</span> <input id="subject"
+					class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false,panelHeight:'auto',data:[
+							{name:'全部',code:'',selected:true}]">
+				</span>
+				 <span class="labelLine240"> <span
+					class="labelWidth60">年级：</span> <input id="grade"
+					class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false,panelHeight:'auto',data:[
+							{name:'全部',code:'',selected:true}]">
+				</span> 
+				<div class="clear10"></div>
+				<span class="labelLine240">
+					<span class="labelWidth60">资源类型：</span> <input
+						class="easyui-combobox" id="resTypeL1"
+						data-options="
+						valueField: 'code',
+						textField: 'name',
+						panelHeight: 'auto',
+						editable: false,
+						data:[
+							{name:'全部',code:'',selected:true},
+							{name:'视频',code:'10'},
+							{name:'特色资源',code:'11'},
+							{name:'互动资源',code:'15'},
+							{name:'文档',code:'20'},	  
+						    {name:'测验',code:'30'},
+						    {name:'题库',code:'50'}
+						]"/>
+				</span>
+				 <span class="labelLine240"> <span
+					class="labelWidth60">机构名称：</span> <input id="orgName" placeholder="请输入机构名称"/>
+				</span>
+				<span class="labelLine240"> <span
+					class="labelWidth60">资源名称：</span> <input id="resName" placeholder="请输入资源名称"/>
+				</span>
+			</div>
+			<div class="btnBox">
+				<button class="btn btnBlue search" onclick="query()">查询</button>
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+	    <div id="bar" class="btnToolbar">
+		    <a class="btn btnBlue" data-options="iconCls:'icon-undo',plain:true" onclick="recovery()">恢复</a>
+		    <!--<div class="datagrid-btn-separator"></div>-->
+			<a class="btn btnDelete" data-options="iconCls:'icon-remove',plain:true" onclick="deleteRes()">删除</a>
+	    </div>
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+			    pagination:true,
+			    fit:true,
+			    toolbar:'#bar',
+			    rownumbers:true,
+			    onBeforeLoad:onBeforeLoad,
+			    url:'/manage/res/garbageRes/search.html'
+                ">
+			<thead>
+				<tr>
+					<th data-options="field:'ck',checkbox:true,width:80,halign:'center',headalign:'center'"></th>
+					<th data-options="field:'operate',formatter:operateFmt,width:130,align:'center',halign:'center'">操作</th>
+					<th data-options="field:'resName',width:350,align:'left',halign:'center'">资源名称</th>
+					<th data-options="field:'orgName',width:350,align:'left',halign:'center'">机构名称</th>
+					<th data-options="field:'userName',width:90,align:'left',halign:'center'">作者</th>
+					<th data-options="field:'resTypeL1',width:70,align:'center',formatter:resTypefmt,halign:'center'">资源类型</th>
+					<th data-options="field:'sectionName',width:80,align:'center',halign:'center',formatter:commonfmt">学段</th>
+					<th data-options="field:'subjectName',width:80,align:'left',halign:'center',formatter:commonfmt">学科</th>
+					<th data-options="field:'gradeName',width:80,align:'left',halign:'center',formatter:commonfmt">年级</th>
+					<th data-options="field:'makeTime',width:130,align:'center',halign:'center'">上传时间</th>
+					<th data-options="field:'modifyTime',width:130,align:'center',halign:'center',formatter:timefmt">删除时间</th>   
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<script type="text/javascript">
+		var _sectionCombo = $('#section');
+		var _subjectCombo = $('#subject');
+		var _gradeCombo = $('#grade');
+		var defaultOpt = {
+			name : "全部",
+			code : ''
+		};
+		$(function() {
+			var sectionList = ${sectionList};
+			sectionList.splice(0, 0, defaultOpt);
+			_sectionCombo.combobox('loadData', sectionList);
+			_sectionCombo.combobox('select', '');
+		})
+		
+	    //类型格式化
+		function resTypefmt(value,row){
+			var str="";
+	 		if(value==10){
+	 			str="视频";
+	 		}else if(value==20){
+	 			str="文档";
+	 		}else if(value==11){
+	 			str="特色资源";
+	 		}else if(value==30){
+	 			str="测验";
+	 		}else if(value==15){
+	 			str="互动资源";
+	 		}else{
+	 			str="题库";
+	 		}
+	 		return str;
+	 	}
+		
+		//共通格式化
+		function commonfmt(value,row){
+			if(value!=null&&value!=""){
+				return value;
+			}else{
+				return "-";
+			}
+		}
+		
+	    //ajax请求
+		function Ajax_request(url, data) {
+			var result = [];
+			$.ajax({
+				url : url,
+				data : data,
+				async : false,
+				type : 'post',
+				success : function(json) {
+					result = json;
+				}
+			})
+			return result;
+		}
+	    
+		//学段下拉框选择事件
+		function sectionSelect(record) {
+			sectionSubject(record.code,$('#subject'));
+			sectionGrade(record.code,$('#grade'));
+		}
+		
+		//时间格式化
+		function timefmt(value, row) {
+			if (value != "" && value != undefined) {
+				return moment(value).format("YYYY-MM-DD H:mm");
+			}else{
+				return "";
+			}
+		}
+		
+		//操作列格式化
+		function operateFmt(value,row){
+			var str="<a href='javascript:void(0)' onclick='deleteSingle("+row.id+","+row.resTypeL1+")'>删除</a>"
+			str=str+"&nbsp;<a href='javascript:void(0)' onclick='recoverySingle("+row.id+","+row.resTypeL1+")'>恢复</a>";
+			/* str=str+"&nbsp;<a href='javascript:void(0)' onclick='preview("+row.id+","+row.resTypeL1+",\""+row.resAccessPath+"\")'>预览</a>";  */
+			return str; 
+		}
+		
+		//单个删除
+		function deleteSingle(id,resTypeL1){
+			var param={};
+			if(resTypeL1==10){
+				param.mediaIds=id;
+			}else if(resTypeL1==20){
+				param.docIds=id;
+			}else if(resTypeL1==11){
+				param.mediaSpecialIds=id;
+			}else if(resTypeL1==30){
+				param.exerciseIds=id;
+			}else if(resTypeL1==50){
+				param.questionIds=id;
+			}else if(resTypeL1==15){
+				param.flashIds=id;
+			}else{
+				param.lessonIds=id;
+			}
+			param.operateType=1;//删除操作
+			$.messager.confirm("信息","确认要删除这个资源吗？一旦删除将不可恢复 ",function(r){
+				if(r){
+					var result=Ajax_request("/manage/res/operateGarbageRes.html",param);
+					$.messager.alert("信息",result.msg,"info",function(){
+						if(result.success){
+							query();
+						}
+					})	
+				}
+			})
+		}
+		
+		//单个恢复
+		function recoverySingle(id,resTypeL1){
+			var param={};
+			if(resTypeL1==10){
+				param.mediaIds=id;
+			}else if(resTypeL1==20){
+				param.docIds=id;
+			}else if(resTypeL1==11){
+				param.mediaSpecialIds=id;
+			}else if(resTypeL1==30){
+				param.exerciseIds=id;
+			}else if(resTypeL1==50){
+				param.questionIds=id;
+			}else if(resTypeL1==15){
+				param.flashIds=id;
+			}else{
+				param.lessonIds=id;
+			}
+			param.operateType=2;//恢复操作
+			$.messager.confirm("信息","确认要恢复选中的资源吗？",function(r){
+				if(r){
+					var result=Ajax_request("/manage/res/operateGarbageRes.html",param);
+					$.messager.alert("信息",result.msg,"info",function(){
+						if(result.success){
+							query();
+						}
+					})	
+				}
+			});
+		}
+		
+		//预览
+		/* function preview(id,resType,path){
+			var url="";
+			if(resType==20){
+				url="/manage/res/resDocPreview.html?isExamine=0&resId="+id;	
+				easyui_openTopWindow("资源预览", 1100, 600,url);
+			}else if(resType==10){
+				url="/manage/res/resMediaPreview.html?isExamine=0&resId="+id;
+				easyui_openTopWindow("资源预览", 1100, 600,url); 
+			}else if(resType==11){
+				//特色资源
+				url="/manage/res/resMediaSpecialPreview.html?resId="+id;
+				easyui_openTopWindow("资源预览", 1100, 600,url); 
+			}else if(resType==30){
+				easyui_openTopWindow("资源预览",1100,800,path);
+			}else if(resType==50){
+				easyui_openTopWindow("资源预览",825,800,path);
+			}else if(resType==60){
+				easyui_openTopWindow("资源预览",1100,800,path);
+			}
+		} */
+		
+		//批量删除资源（彻底删除）
+		function deleteRes(){
+			var rows=$('#dg').datagrid('getSelections');
+			var docIds=new Array();
+			var lessonIds=new Array();
+			var exerciseIds=new Array();
+			var mediaSpecialIds=new Array();
+			var mediaIds=new Array();
+			var questionIds=new Array();
+			var flashIds=new Array();
+			if(rows==undefined||rows.length<=0){
+				$.messager.alert("信息","请选择要删除的资源！","info");
+				return ;
+			}
+			$.each(rows,function(i,data){
+				if(data.resTypeL1==10){
+					mediaIds.push(data.id);
+				}else if(data.resTypeL1==20){
+					docIds.push(data.id);
+				}else if(data.resTypeL1==11){
+					mediaSpecialIds.push(data.id);
+				}else if(data.resTypeL1==30){
+					exerciseIds.push(data.id);
+				}else if(data.resTypeL1==50){
+					questionIds.push(data.id);
+				}else if(data.resTypeL1==15){
+					flashIds.push(data.id);
+				}else{
+					lessonIds.push(data.id);
+				}
+			})
+			$.messager.confirm("信息","确认要删除资源吗？一旦删除将不可恢复",function(r){
+				if(r){
+					var result=Ajax_request("/manage/res/operateGarbageRes.html",{
+							mediaIds:mediaIds.join(","),
+							docIds:docIds.join(","),
+							mediaSpecialIds:mediaSpecialIds.join(","),
+							exerciseIds:exerciseIds.join(","),
+							questionIds:questionIds.join(","),
+							lessonIds:lessonIds.join(","),
+							flashIds:flashIds.join(","),
+							operateType:1
+						})
+					$.messager.alert("信息",result.msg,"info",function(){
+						if(result.success){
+							query()
+						}
+					})	
+				}
+			})
+		}
+		
+		//批量恢复资源
+		function recovery(){
+			var rows=$('#dg').datagrid('getSelections');
+			var docIds=new Array();
+			var lessonIds=new Array();
+			var exerciseIds=new Array();
+			var mediaSpecialIds=new Array();
+			var mediaIds=new Array();
+			var questionIds=new Array();
+			var flashIds=new Array();
+			if(rows==undefined||rows.length<=0){
+				$.messager.alert("信息","请选择要恢复的资源！","info")
+				return ;
+			}
+			$.each(rows,function(i,data){
+				if(data.resTypeL1==10){
+					mediaIds.push(data.id);
+				}else if(data.resTypeL1==20){
+					docIds.push(data.id);
+				}else if(data.resTypeL1==11){
+					mediaSpecialIds.push(data.id);
+				}else if(data.resTypeL1==30){
+					exerciseIds.push(data.id);
+				}else if(data.resTypeL1==50){
+					questionIds.push(data.id);
+				}else if(data.resTypeL1==15){
+					flashIds.push(data.id);
+				}else{
+					lessonIds.push(data.id);
+				}
+			})
+			$.messager.confirm("信息","确认要恢复选中的资源吗？",function(r){
+				if(r){
+					var result=Ajax_request("/manage/res/operateGarbageRes.html",{
+							mediaIds:mediaIds.join(","),
+							docIds:docIds.join(","),
+							mediaSpecialIds:mediaSpecialIds.join(","),
+							exerciseIds:exerciseIds.join(","),
+							questionIds:questionIds.join(","),
+							lessonIds:lessonIds.join(","),
+							flashIds:flashIds.join(","),
+							operateType:2
+					    })
+					$.messager.alert("信息",result.msg,"info",function(){
+						if(result.success){
+							query();
+						}
+					})	
+				}
+			})
+		}
+		
+		//查询按钮
+		function query() {
+			$('#dg').datagrid('reload');
+		}
+		
+		//查询参数传递 
+		function onBeforeLoad(param) {
+			param["sectionCode"] = _sectionCombo.combobox('getValue');
+			param["subjectCode"] = _subjectCombo.combobox('getValue');
+			param["gradeCode"] = _gradeCombo.combobox('getValue');
+			param["resTypeL1"]=$("#resTypeL1").combobox('getValue');
+			param["orgName"] =$('#orgName').val();
+			param["resName"] =$("#resName").val();
+		}
+		
+	</script> 
+</body>
+</html>

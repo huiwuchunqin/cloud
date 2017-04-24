@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>机构学科题型</title>
+	<style>
+		.datagrid-view{
+			width: 99% !important;
+			height: 90% !important;
+		}
+	</style>
+<#include "/manage/common/meta_js.html"/><#include
+"/manage/common/meta_css.html"/>
+</head>
+<body>
+<div id="tb">
+<a class="btn btnBlue align-right"  onclick="questionTypeSet()">题型设置</a>
+</div>
+	<table id="dg" class="easyui-datagrid"
+		data-options="
+			toolbar:'#tb',
+			rownumbers:true,
+			fit:true,
+			fitColumns:true,
+			singleSelect:true,
+			onBeforeLoad:onBeforeLoad,
+			url:'/manage/questionType/getOrgQuestionTypeList.html'
+        ">
+		<thead>
+			<tr>
+				<th data-options="field:'name',width:120,halign:'center',align:'left'">题型名称</th>
+				<th data-options="field:'flagSysEvaluate',formatter:evaluatefmt,width:120,halign:'center',align:'center'">支持系统批阅</th>
+				<th data-options="field:'dispOrder',width:120,halign:'center',align:'right'">排序</th>
+			</tr>
+		</thead>
+	</table>
+	<script type="text/javascript">
+	function onBeforeLoad(param){
+		param["subjectCode"]="${subjectCode}";
+	}
+	
+	function questionTypeSet(){
+		easyui_openNoResizeWindow("机构学科题型设置",700,600,"/manage/questionType/toQuestionTypeSet.html?subjectCode=${subjectCode}",function(r){
+				$('#dg').datagrid('reload');
+			})
+	}
+	function evaluatefmt(value,row){
+		switch(value){
+		case "1":return "是";break;
+		case "0":return "否";break;
+		default:return "";break;
+		}
+	}
+	</script>
+</body>
+</html>

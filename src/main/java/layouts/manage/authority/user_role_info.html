@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>用户角色信息</title>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north',split:false,border:false">
+		<div class="box form">
+		<div class="labelBox">
+			    <div class="labelLine300">
+				<div class="labelWidth60">角色</div>
+						<input id="roleId"
+					     class="easyui-combobox" style="width:120px;margin-top: 5px;" 
+					     data-options="editable:false,textField:'name',valueField:'id'"/>
+				</div>
+				<div class="labelLine300">
+					<div class="labelWidth60">登录账号</div>
+					<input class="easyui-validatebox" id="loginAccount" maxlength="50" placeholder="登录账号"/>
+				</div>
+				<div class="labelLine300">
+					<div class="labelWidth60">用户姓名</div>
+					<input class="easyui-validatebox" id="userName" maxlength="50" placeholder="用户姓名"/>
+				</div>
+		</div>
+			<div class="btnBox">
+				<a class="btn btnBlue search"  onclick="query()">查询</a>
+			</div>
+	   </div>
+      </div>
+    <div data-options="region:'center',border:false">
+	<table id="dg" class="easyui-datagrid"
+		data-options="
+	    pagination:true,
+	    fit:true,
+	    rownumbers:true,
+	    onBeforeLoad:dgOnBeforeLoad,
+	    singleSelect:true,
+	    url : '/manage/userRole/search.html'
+	    ">
+		<thead>
+			<tr>
+			  <th data-options="field:'operate',width:130,align:'center',formatter:operatefmt,halign:'center'">操作</th>
+                <th data-options="field:'userName',halign:'center',align:'left',width:120">用户姓名</th>
+				<th data-options="field:'loginAccount',halign:'center',align:'left',width:120">登录账号</th>
+				<th data-options="field:'status',halign:'center',align:'center',width:120,formatter:statusfmt">状态</th>
+				<th data-options="field:'gender',width:50,halign:'center',align:'center',formatter:genderfmt">性别</th>
+				<!-- <th data-options="field:'birthday',width:120,halign:'center',align:'center'">出生年月</th> -->
+				<th data-options="field:'mobilePhone',halign:'center',width:120,align:'center'">手机号</th>
+				<th data-options="field:'mail',halign:'center',width:180">邮箱</th> 
+				<th data-options="field:'userCode',width:90,hidden:true">userCode</th>
+				<th data-options="field:'role',width:400,align:'left',halign:'center'">角色</th>	 	
+                
+			</tr>
+		</thead>
+	</table>
+	</div>
+	</div>
+	<script type="text/javascript">
+		//查询条件
+		function dgOnBeforeLoad(param) {
+			param["loginAccount"] = $('#loginAccount').val();
+			param["userName"] = $('#userName').val();
+			param["roleId"] = $('#roleId').combobox('getValue');
+		}
+		$(function() {
+			loadRole();
+		})
+
+		//查询用户角色信息
+		function query() {
+			$('#dg').datagrid('reload');
+		}
+
+		//加载角色信息
+		function loadRole() {
+			var opts = {
+				url : "/manage/role/getRoleList.html",
+				type : "POST",
+				data : {},
+				success : function(data) {
+					$('#roleId').combobox('loadData', data);
+				},
+				error : function(XMLHttpRequest, textStatus, errorThrown) {
+					alert("网络繁忙请稍后再试");
+				}
+			}
+			$.ajax(opts);
+		}
+
+		//操作列格式化
+		function operatefmt(value, row) {
+			var str = "<a href='javascript:void(0)' onclick='manageRole(this)'>角色分配</a>";
+			return str;
+		}
+
+		//状态格式化 
+		function statusfmt(value, row) {
+			if (value == 0) {
+				return "无效";
+			} else if (value == 1) {
+				return "有效";
+			} else if (value == 2) {
+				return "锁定";
+			} else {
+				return "";
+			}
+		}
+
+		//性别格式化
+		function genderfmt(value, row) {
+			if (value == 2) {
+				return "女";
+			} else if (value == 1) {
+				return "男";
+			} else {
+				return "";
+			}
+		}
+
+		//用户角色分配功能
+		function manageRole(obj) {
+			var index = $(obj).closest("tr").index();
+			$('#dg').datagrid('selectRow', index);
+			var row = $('#dg').datagrid('getSelected');
+			if (row) {
+				easyui_openTopWindow("用户角色分配", 350, 350,
+						"/manage/userRole/roleList.html?userCode=" + row.userCode,
+						function(r) {
+							if (r) {
+								$('#dg').datagrid('reload');
+							}
+						});
+			} else {
+				$.messager.alert("系统提示", "请先选择一个要分配角色的用户!");
+			}
+		}
+
+	</script>
+</body>
+</html>
+

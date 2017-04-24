@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<style type="text/css">
+.labelBox input{width:100px}
+</style>
+<title>音视频推荐资源</title>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'" style="height: 80px;">
+		<div class="labelBox"
+			style="margin-top: 10px; margin-left: 10px; height: 68px">
+			<span style="float: left; width: 220px"> <span
+				class="labelWidth60">学段</span> <input id="section"
+				class="easyui-combobox"
+				data-options="textField:'name',valueField:'code',editable:false,onSelect:function(record){
+								sectionSelect(record);}">
+			</span> <span style="float: left; width: 220px"> <span
+				class="labelWidth60">年级</span> <input id="grade"
+				class="easyui-combobox"
+				data-options="textField:'name',valueField:'code',editable:false,data:[{name:'不限',code:''}]">
+			</span> <span style="float: left; width: 220px"> <span
+				class="labelWidth60">学科</span> <input id="subject"
+				class="easyui-combobox"
+				data-options="textField:'name',valueField:'code',editable:false,data:[{name:'不限',code:''}]">
+			</span>
+			<div class="clear10"></div>
+			<span style="float: left; width: 440px"> <span
+				class="labelWidth60">推荐时间</span> <input id="recommendTimeStart"
+				class="Wdate"
+				onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'recommendTimeEnd\')}',dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn'})"
+				type="text" class="width130"> <span
+				style="width: 10px; line-height: 20px">~</span> <input
+				id="recommendTimeEnd" class="Wdate"
+				onFocus="WdatePicker({minDate:'#F{$dp.$D(\'recommendTimeStart\')}',dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn'})"
+				type="text" class="width130">
+			</span> 
+			<span style="float: left; width: 280px"> <span
+				class="labelWidth60">资源名称</span> <input id="resName"
+				style="width: 170px" placeholder="请输入资源名称">
+			</span>
+		</div>
+		<div class="btnBox">
+			<a style="float: right; margin-top: 10px; margin-right: 10px;"
+				class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+				onclick="query()"><img src="/manage/template/images/search.png">查询</a>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<div id="tb" class="btnToolbar">
+			<a href="javascript:void(0)" onclick="cancelRecommend()"
+				data-options="iconCls:'icon-remove',plain:true"
+				class="easyui-linkbutton">取消推荐</a>
+			<div class="datagrid-btn-separator"></div>
+			<a href="javascript:void(0)" onclick="addRecommendRes()"
+				data-options="iconCls:'icon-add',plain:true"
+				class="easyui-linkbutton">添加推荐资源</a>
+		</div>
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+				    pagination:true,
+				    fit:true,
+				    toolbar:'#tb',
+				    rownumbers:true,
+				    onBeforeLoad:dgonBeforeLoad,
+				    url:'/manage/recommendMediaRes/search.html'">
+			<thead>
+				<tr>
+					<th data-options="field:'ck',checkbox:true"></th>
+					<th
+						data-options="field:'operate',formatter:operateFmt,width:130,align:'center',halign:'center'">操作</th>
+					<th
+						data-options="field:'resName',width:200,align:'left',halign:'center'">资源名称</th>
+					<th
+						data-options="field:'sectionName',width:80,align:'left',halign:'center'">所属学段</th>
+					<th
+						data-options="field:'gradeName',width:80,align:'left',halign:'center'">所属年级</th>
+					<th
+						data-options="field:'subjectName',width:80,align:'left',halign:'center'">所属学科</th>
+					<th
+						data-options="field:'userName',width:90,align:'left',halign:'center'">上传人</th>
+					<th
+						data-options="field:'recommendTime',formatter:timefmt,width:150,align:'center',halign:'center'">推荐设置时间</th>
+					<th
+						data-options="field:'resDesc',width:400,align:'left',halign:'center'">资源描述</th>
+					<th
+						data-options="field:'browseCount',width:90,align:'right',halign:'center'">资源观看次数</th>
+					<th
+						data-options="field:'downloadCount',width:90,align:'right',halign:'center'">资源下载次数</th>
+					<th
+						data-options="field:'goodCount',width:80,align:'right',halign:'center'">点赞总数</th>
+					<th
+						data-options="field:'commentCount',width:80,align:'right',halign:'center'">评论总数</th>
+					<!-- <th data-options="field:'downloadPoints',width:80,align:'right',halign:'center'">下载点数</th> -->
+					<th data-options="field:'id',width:50,hidden:true">id</th>
+					<th data-options="field:'resId',width:50,hidden:true">resId</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<script type="text/javascript">
+		var _subjectCombo = $('#subject');
+		var _gradeCombo = $('#grade');
+		var _sectionCombo = $('#section');
+		var defaultOpt = {
+			name : "不限",
+			code : ''
+		};
+
+		//查询参数传递 
+		function dgonBeforeLoad(param) {
+			param["sectionCode"] = _sectionCombo.combobox('getValue');
+			param["gradeCode"] = _gradeCombo.combobox('getValue');
+			param["subjectCode"] = _subjectCombo.combobox('getValue');
+			param["resName"] = $('#resName').val();
+			param["recommendStartTime"] = $('#recommendTimeStart').val();
+			param["recommendEndTime"] = $('#recommendTimeEnd').val();
+		}
+		$(function() {
+			var sectionList = eval(${sectionList});
+			sectionList.unshift(defaultOpt);
+			_sectionCombo.combobox('loadData', sectionList);
+			_sectionCombo.combobox('select', '');
+
+		});
+
+		function timefmt(value, row) {
+			if (value != "" && value != undefined) {
+				return moment(value).format("YYYY-MM-DD H:mm:ss");
+			}
+		}
+		//ajax请求
+		function Ajax_request(url, data) {
+			var result = [];
+			$.ajax({
+				url : url,
+				data : data,
+				async : false,
+				type : 'post',
+				success : function(json) {
+					result = json;
+				}
+			})
+			return result;
+		}
+		//学段下拉框选择事件
+		function sectionSelect(record) {
+			if (record.code == '') {
+
+			}
+			var gradeList = Ajax_request(
+					"/manage/sectionGradeRef/sectionGrade.html", {
+						sectionCode : record.code
+					})
+			//查询学段年级
+			gradeList.splice(0, 0, defaultOpt);
+			_gradeCombo.combobox('loadData', gradeList);
+			_gradeCombo.combobox('setValue', '');
+			var subjectList = Ajax_request(
+					"/manage/sectionSubjectRef/sectionSubject.html", {
+						sectionCode : record.code
+					})
+			//查询学段学科
+			subjectList.splice(0, 0, defaultOpt);
+			_subjectCombo.combobox('loadData', subjectList);
+			_subjectCombo.combobox('setValue', '');
+		}
+
+		//查询功能
+		function query() {
+			$('#dg').datagrid('reload');
+		}
+
+		//操作列格式化
+		function operateFmt(value, row) {
+			var str = "<a href='javascript:void(0)' onclick='cancelMediaRecommend(\""
+					+ row.resId
+					+ "\")'>取消推荐 </a>&nbsp;"
+					+ "<a href='javascript:void(0)' onclick='preview(\""
+					+ row.resId + "\")'>预览</a>";
+			return str;
+		}
+
+		//添加推荐资源
+		function addRecommendRes() {
+			easyui_openTopWindow("设置推荐资源", 1045, 700,
+					'/manage/recommendMediaRes/chooseMediaRes.html',
+					function() {
+						//关闭推荐资源窗口需刷新父页面
+						$('#dg').datagrid('reload');
+					});
+		}
+
+		//批量取消推荐
+		function cancelRecommend() {
+			var rows = $("#dg").datagrid("getChecked");
+			var resIdArray = new Array();
+			if (rows == null || rows.length <= 0) {
+				$.messager.alert("信息", "请先选择要取消推荐的资源", "info")
+				return false;
+			}
+			$.each(rows, function(i) {
+				resIdArray.push(rows[i].resId)
+			})
+			var opts = {
+				url : '/manage/recommendMediaRes/delBatchRecommendMediaRes.html',
+				data : {
+					resIds : resIdArray,
+				},
+				type : 'post',
+				success : function(result) {
+					$('#dg').datagrid('reload');
+				}
+			}
+			$.messager.confirm("信息", "确认要取消推荐吗", function(r) {
+				if (r) {
+					$.ajax(opts);
+				}
+			})
+		}
+
+		//取消音视频资源推荐 
+		function cancelMediaRecommend(resId) {
+			var opts = {
+				url : '/manage/recommendMediaRes/delRecommendMediaRes.html',
+				data : {
+					resId : resId,
+				},
+				type : 'post',
+				success : function(result) {
+					if (result.success) {
+						$('#dg').datagrid('reload');
+					} else {
+						$.messager.alert("信息", result.msg, "info")
+					}
+				}
+			}
+			$.messager.confirm("信息", "确认要取消推荐吗", function(r) {
+				if (r) {
+					$.ajax(opts);
+				}
+			})
+
+		}
+
+		//音视频预览
+		function preview(resId) {
+			easyui_openTopWindow("资源预览", 1100, 700,
+					"/manage/res/resMediaPreview.html?resId=" + resId
+							+ "&isExamine=0", function(r) {
+
+					})
+		}
+	</script>
+</body>
+</html>

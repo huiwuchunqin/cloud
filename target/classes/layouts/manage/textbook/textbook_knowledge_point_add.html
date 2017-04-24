@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>新增知识点</title>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/textbook/comboManage.js"></script>
+<script type="text/javascript" src="/manage/template/helper/helper.js"></script>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true" >
+			<div data-options="region:'center',border:false">
+					<form id="fm" method="post">
+				<div class="box form">
+					<div class="labelBox">
+						<div class="labelLine300">
+					<span class="labelWidth60">知识点名称<span class="required">*</span></span>
+					<input class="easyui-validatebox" id="name" name="name" data-options="required:true" maxlength="40" placeholder="请输入知识点名称" value=""/>
+				</div>
+				<span class="clear10"></span>
+				<div class="labelLine440">
+					<span class="labelWidth60">备注</span>
+					<textarea class="easyui-validatebox textareaWidth250 textareaHeight100 "id="description" name="description" maxlength="40"></textarea>
+				</div>
+					</div>
+				</div>
+				</form>
+			</div>
+			<div data-options="region:'south',border:false" style="text-align: right; padding:0 10px 10px 0;">
+				<a class="btn btnBlue" id="btnSave" onclick="saveKnowledge()" >保存</a>
+				<a class="btn btnGrey" onclick="cancel()" style="margin-left: 5px;" id="btnCancel" >关闭</a>
+			</div>
+		
+	</div>
+	<script type="text/javascript">
+	 //体系编码 
+    var kpSerialCode="${kpSerialCode}";
+    //父节点编码
+    var pcode="${pcode}";
+    //当前层数
+    var level="${level}"
+	//保存知识点
+	function saveKnowledge(){
+			if ($("#fm").form("validate")) {
+				$.ajax({
+					url : "/manage/textbook/addKnowledge.html",
+					data : {
+						name:$("#name").val(),
+						description:$("#description").val(),
+						level:level,
+						<#if pcode!="null" && pcode!="">
+						pcode:pcode,
+						</#if>
+						kpSerialCode:kpSerialCode
+					},
+					type : "POST",
+					dataType : "json",
+					success : function(result) {
+						if (result.success) {
+							easyui_closeTopWindow(result.data);
+						} else {
+							window.top.$.messager.alert("错误", result.msg, "error");
+						}
+					}
+				});
+			}
+	}
+  //取消按钮
+	function cancel(){
+		easyui_closeTopWindow(false);
+	}
+	</script>
+</body>
+</html>

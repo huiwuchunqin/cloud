@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>按学校统计</title>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body class="easyui-layout">
+	<div data-options="region:'north'">
+		<div class="box">
+			<div class="labelBox">
+				<div class="labelLine440">
+					<span class="labelWidth60">日期：</span>
+					<input id="startDate" class="Wdate" onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})" />
+					~ <input id="endDate" class="Wdate" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})" />
+				</div>
+				<span class="clear10"></span>
+				<div class="labelLine240">
+					<span class="labelWidth60">共享级别：</span>
+					<input id="shareLevel" class="easyui-combobox" data-options="textField:'name',valueField:'value',editable:false">  
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60">学段：</span>
+					<input id="section" class="easyui-combobox" data-options="onChange:sectionChange,textField:'name',valueField:'code',editable:false">
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60">学校：</span>
+					<input id="schoolName" placeholder="请输入学校名称关键字">
+				</div>
+			</div>
+			<div class="btnBox">
+				<button class="btn btnBlue search" onclick="javascript:$('#dg').datagrid('reload')">查询</button>
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'" >
+	<div id="tb" class="tbClass" >
+			<span class="attr"><span>课程数：</span><label id="lessonTotal"></label></span> <span
+				class="attr"><span>翻转课堂模式：</span><label id="flipLessonTotal"></label></span> <span
+				class="attr"><span>自主创建模式：</span><label id="autonomousLessonTotal"></label></span> 
+				<button class="btn btnBlue align-right" onclick="exportExcel()">导出</button>
+		</div>
+		<table id="dg" class="easyui-datagrid" data-options="
+		fit:true,
+		rownumbers:true,
+		toolbar:'#tb',
+		onBeforeLoad:onBeforeLoad,
+		onLoadSuccess:onLoadSuccess,
+		pagination:true,
+		singleSelect:true,
+		url:'/manage/courseSchool/search.html',
+		">
+		<thead>
+			<tr>
+				<th data-options="field:'orgName',halign:'center',width:180">学校</th>
+				<th data-options="field:'sectionName',halign:'center',align:'center',width:80">学段</th>
+				<th data-options="field:'lessonNum',halign:'center',align:'center',width:80">课程数</th>
+				<th data-options="field:'flipLessonNum',halign:'center',align:'center',width:100">翻转课堂模式</th>
+				<th data-options="field:'autonomousLessonNum',halign:'center',align:'center',width:100">自主创建模式</th>
+			</tr>
+		</thead>
+		</table>
+	</div>
+		<script type="text/javascript">
+	$(function(){
+	var sectionList=eval(${sectionList});
+	sectionList.unshift({name:"全部",code:""});
+	$('#shareLevel').combobox('loadData',_SHARELEVEL);
+	$('#section').combobox('loadData',sectionList)
+	})
+	function onBeforeLoad(param){
+		$.extend(param,getParam());
+	}
+	
+	function onLoadSuccess(){
+		$.ajax({
+			url:"/manage/courseSchool/searchTotal.html",
+			data:getParam(),
+			success:function(res){
+				$('#teacherTotal').html(res.teacherTotal||0);
+				$('#lessonTotal').html(res.lessonTotal||0);
+				$('#flipLessonTotal').html(res.flipLessonTotal||0);
+				$('#autonomousLessonTotal').html(res.autonomousLessonTotal||0);
+			 }
+		})
+	}
+	function getParam(){
+		return{
+			startDate:$('#startDate').val(),
+			endDate:$('#endDate').val()||moment().format("YYYY-MM-DD"),
+			shareLevel:$('#shareLevel').combobox('getValue'),
+			sectionCode:$('#section').combobox('getValue'),
+		    orgName:$('#schoolName').val(),
+		}
+	}
+	function sectionChange(newValue, oldValue){
+		sectionSubject(newValue,$('#subject'))
+	}
+	//导出
+	function exportExcel(){
+		var param=getParam();
+		var url="/manage/courseSchool/export.html?fileName="+getExportName();
+		downloadHelper(urlWithParam(url,getParam()));
+	}
+	</script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>云盘设置</title> 
+<style type="text/css">
+    .content{
+       margin-top: 10px;
+       margin-bottom: 10px;
+    }
+    .content input{
+      cursor: pointer;
+      height: 20px;
+      width:100px;
+      text-align: center;
+      background-color: white;
+    }
+    .container{
+        padding: 20px;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <div>云盘空间大小设置</div>
+        <div class="content">
+            <span>教师：</span>
+            <input type="text" id="teacher" value="${teacher.capacityQuota}" readonly="readonly" onclick="editTeacher()"/>&nbsp;&nbsp;GB
+        </div>
+        <div class="content">
+            <span>学生：</span>
+            <input type="text" id="student" value="${student.capacityQuota}" readonly="readonly" onclick="editStudent()"/>&nbsp;&nbsp;GB
+        </div>
+    </div>
+    <script type="text/javascript">
+        function editTeacher(){
+        	var userRole="${teacher.userRole}";
+        	easyui_openTopWindow("教师",350,200,"/manage/otherSettings/cloudDisk/edit.html?userRole="+userRole,function(r){
+        		if(r){
+	        		window.location.href="/manage/otherSettings/cloudDisk.html";
+        		}
+        	});
+        }
+     
+        function editStudent(){
+        	var userRole="${student.userRole}";
+        	easyui_openTopWindow("学生",350,200,"/manage/otherSettings/cloudDisk/edit.html?userRole="+userRole,function(r){
+        		if(r){
+	        		window.location.href="/manage/otherSettings/cloudDisk.html";
+        		}
+        	});
+        }
+    </script>
+</body>
+</html>

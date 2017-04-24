@@ -1,0 +1,46 @@
+package com.baizhitong.resource.manage.point.service;
+
+import java.util.Map;
+
+import com.baizhitong.common.Page;
+import com.baizhitong.resource.common.core.vo.ResultCodeVo;
+import com.baizhitong.resource.model.point.PointLotteryGoodsOrg;
+
+public interface IPointLotteryGoodsOrgService {
+    /**
+     * 添加商品 ()<br>
+     * 
+     * @param good
+     * @return
+     */
+    ResultCodeVo add(PointLotteryGoodsOrg good);
+
+    /**
+     * 查询商品列表 ()<br>
+     * 
+     * @param goodsName
+     * @param orgCode
+     * @param role
+     * @param page
+     * @param rows
+     * @return
+     */
+    Page getPageList(String orgCode, String goodsName, Integer role, Integer page, Integer rows);
+
+    /**
+     * 查询商品 ()<br>
+     * 
+     * @param id
+     * @return
+     */
+    PointLotteryGoodsOrg getOrgGoods(Integer id);
+
+    /**
+     * 删除商品 ()<br>
+     * 
+     * @param id
+     * @return
+     */
+    public ResultCodeVo deleteGood(Integer id);
+
+}

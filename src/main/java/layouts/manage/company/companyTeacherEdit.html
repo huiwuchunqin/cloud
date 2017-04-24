@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<script type="text/javascript"
+	src="/manage/template/comboChange/orgComboChange.js"></script>
+</head>
+<style type="text/css">
+.attrDiv>span:first-of-type {
+	width: 120px;
+}
+</style>
+<body>
+	<form id="fm" style="padding: 10px">
+		<div class="attrDiv">
+			<span>老师名称</span><input id="addUserName" maxLength="30"
+				class="easyui-validatebox width130"
+				data-options="required:true,validType:'length[0,30]'"
+				disabled="disabled" />
+		</div>
+		<div class="attrDiv">
+			<span>性别</span><input id="gender" class="easyui-combobox"
+				data-options="
+					textField:'name',
+					valueField:'code',
+					editable:false,
+					data:[
+					{'name':'女','code':'2'},
+					{'name':'男','code':'1'}
+					]">
+		</div>
+		<span class="clear10"></span>
+		<div class="attrDiv">
+			<span>学段</span><input id="addSection" class="easyui-combobox"
+				data-options="
+					onChange:addSectionChange,
+					textField:'name',
+					valueField:'code',
+					required:true,
+					editable:false
+					">
+		</div>
+		<div class="attrDiv">
+			<span>学科</span><input id="addSubject" class="easyui-combobox "
+				data-options="
+					textField:'name',
+					valueField:'code',
+					editable:false,
+					">
+		</div>
+		<span class="clear10"></span>
+		<div class="attrDiv">
+			<span>年级</span><input id="addGrade" class="easyui-combobox"
+				data-options="
+					textField:'name',
+					valueField:'code',
+					editable:false,
+					">
+		</div>
+		<div class="attrDiv">
+			<span>工号</span><input id="workNo" class="easyui-validatebox width130"
+				maxLength="20" data-options="validType:'alphaCharactor[0,20]'" />
+		</div>
+		<span class="clear10"></span>
+		<div class="attrDiv">
+			<span>邮箱</span><input id="mail" class="easyui-validatebox width130"
+				data-options="validType:'email'">
+		</div>
+		<!-- 	<div class="attrDiv">
+			<span>第一天工作时间</span><input id="workFirstDay" class="Wdate width130"
+				onfocus="WdatePicker({dataFmt:'yyyy-MM-dd'})" />
+		</div> -->
+		<div class="attrDiv">
+			<span>手机号</span><input id="mobilePhone"
+				class="easyui-validatebox width130"
+				data-options="validType:'mobile'" />
+		</div>
+		<span class="clear10"></span> <input id="gid" style="display: none">
+		<input id="teacherCode" style="display: none"> <span
+			class="clear"></span>
+		<div class="align-right">
+			<a class="btn btnConfirm" onclick="saveTeacher()">保存</a> <a
+				class="btn btnCancel" onclick="closeTop()">取消</a>
+		</div>
+	</form>
+	<script type="text/javascript">
+			var teacher=eval(${teacher});
+			var loginUser=eval(${loginUser});
+			var sectionList=eval(${sectionList});
+			$(function(){
+				$('#addSection').combobox('loadData',sectionList);
+				$('#gid').val(teacher.gid);
+				$('#teacherCode').val(teacher.teacherCode);
+				$('#addUserName').val(teacher.userName);
+				$('#gender').combobox('setValue',teacher.gender);
+				$('#addSection').combobox('setValue',teacher.sectionCode);
+				$('#addGrade').combobox('setValue',teacher.gradeCode);
+				$('#addSubject').combobox('setValue',teacher.subjectCode);
+				$('#workNo').val(teacher.workNo);
+				if(teacher.workFirstDay){
+					$('#workFirstDay').val(moment(teacher.workFirstDay).format("YYYY-MM-DD"));
+				}
+				$('#mail').val(loginUser.mail);
+				$('#mobilePhone').val(loginUser.mobilePhone);
+			})
+			
+			//关闭学生编辑窗口
+			function closeTop(){
+				easyui_closeTopWindow(false)
+			}
+			
+			//保存老师
+			function saveTeacher(){
+				var data={
+						userName:$('#addUserName').val(),
+						gender:$('#gender').combobox('getValue'),
+						sectionCode:$('#addSection').combobox('getValue'),
+						gradeCode:$('#addGrade').combobox('getValue'),
+						subjectCode:$('#addSubject').combobox('getValue'),
+						workNo:$('#workNo').val(),
+						workFirstDayStr:$('#workFirstDay').val(),
+						loginPwd:$('#addLoginPwd').val(),
+						loginAccount:$('#addLoginAccount').val(),
+						mail:$('#mail').val(),
+						mobilePhone:$('#mobilePhone').val(),
+						gid:$('#gid').val(),
+						teacherCode:$('#teacherCode').val(),
+				};
+				_.extend(teacher,data);
+				delete teacher.modifyTime;
+				delete teacher.workFirstDay;
+				if($('#fm').form('validate')){
+					$.ajax({
+						url:"/manage/teacher/saveTeacher.html",
+						data:teacher,
+						success:function(res){
+							alert(res.msg);
+							if(res.success){
+								easyui_closeTopWindow(true);
+							}
+						}
+					})
+				}
+			}
+			
+			//新增对话框学段选择事件
+			function addSectionChange(record){
+				orgSectionSubject(record,$('#addSubject'));
+				orgSectionGrade(record,$('#addGrade'));
+			}
+</script>
+</body>
+</html>

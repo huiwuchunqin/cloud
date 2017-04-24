@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>升级</title>
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body>
+<div id="tab" class="easyui-tabs" data-options="fit:true">
+	<div id="tb1" title="待升级班级">
+		<div id="tb">
+			<a id="update" class="align-right btn btnBlue" >升级</a>
+		</div>
+		<table id="dg">
+		<thead>
+			<tr>
+			  <th data-options="field:'className',width:130,halign:'center',align:'center'">行政班级名称</th>
+			  <th data-options="field:'gradeName',width:130,halign:'center',align:'center'">当前年级</th>
+			  <th data-options="field:'gradeToUp',width:130,halign:'center',align:'center'">待升年级</th>
+			  <th data-options="field:'entryYear',width:130,halign:'center',align:'center'">入学年份</th>
+			</tr>
+		</thead>
+		</table>
+	</div>
+	<div id="tb2" title="班级任课信息升级">
+		<div id="tInfodgTb">
+			<a id="updateTInfo" class="align-right btn btnBlue" >升级</a>
+		</div>
+		<table id="tInfodg">
+		<thead>
+			<tr>
+			  <th data-options="field:'ck',checkbox:true"></th>
+			  <th data-options="field:'opt',width:130,formatter:optFmt,halign:'center',align:'center'">操作</th>
+			  <th data-options="field:'className',width:130,halign:'center',align:'center'">行政班级名称</th>
+			  <th data-options="field:'studentCount',formatter:stufmt,width:70,halign:'center',align:'right'">学生人数</th>
+			</tr>
+		</thead>
+		</table>
+	</div>	
+</div>
+<script>
+$(function(){
+	var patt=new RegExp("tabIndex=([^&]*)","g")
+	var url=window.location.href;
+	var res=patt.exec(url);
+	debugger;
+	if(res!=null){
+		$('#tab').tabs('disableTab',0).tabs('select',1);
+	}
+})
+$('#dg').datagrid({
+	url:'/manage/furtherEducation/adminClassToUpdate.html',
+	toolbar:'#tb',
+	fit:true,
+	singleSelect:true,
+	rownumbers:true,
+	onBeforeLoad:onBeforeLoad,	
+})
+
+$('#tInfodg').datagrid({
+	url:'/manage/furtherEducation/tInfoToUpdate.html',
+	toolbar:'#tInfodgTb',
+	fit:true,
+	rownumbers:true,
+	onBeforeLoad:onBeforeLoad,	
+})
+
+//升级班级信息
+$('#update').click(function(){
+	openSocket();
+	$("#p").remove()
+	var p=$("<div id='p'>")
+	$('#tb1').prepend(p);
+	$('#p').progressbar({value:0,width:500});
+	$.post("/manage/furtherEducation/updateAdminClass.html").then(function(res){
+		alert(res.msg);
+		$('#dg').datagrid('reload');
+		if(res.success){
+			$('#tab').tabs('disableTab',0).tabs('select',1);
+			$('#p').remove();
+		}
+	})
+})
+
+function openSocket(){
+	var socket=new WebSocket('ws://'+window.location.host+'/websocketTest');
+	socket.onopen=function(event){
+		socket.send("i am listening");
+	}
+	socket.onmessage=function(event){
+		var data=event.data;
+		console.info(data);
+		$('#p').progressbar('setValue',data);
+	};
+	socket.onclose=function(event){
+		console.info("结束了");
+	};	
+}
+
+
+//升级任课信息
+$('#tInfodg').click(function(){
+	openSocket();
+	$("#p").remove()
+	var p=$("<div id='p'>")
+	$('#tb2').prepend(p);
+	$('#p').progressbar({value:0,width:500});
+	$.messager.confirm("信息","请在升级教学班级前确认任课信息和班级学生信息正确",function(r){
+		if(r){
+			$.post("/manage/furtherEducation/updateTInfo.html.html").then(function(res){
+				alert(res.msg);
+				$('#p').remove();
+			})
+		}
+	})
+})
+function onBeforeLoad(param){
+	
+}
+function optFmt(value,row){
+	return "<a href='javascript:void(0)' onClick='modify(this)'>修改</a>&nbsp;&nbsp;"
+	
+}
+//班级学生
+function stufmt(value,row){
+	return "<a href='javascript:void(0)' onClick='classStudent(this)'>"+value+"</a>"
+}
+//修改行政班级信息
+function  modify(obj){
+	var index=$(obj).closest("tr").index();
+	$("#tInfodg").datagrid('selectRow',index);
+	var row=$('#tInfodg').datagrid('getSelected');
+	easyui_openNoResizeWindow("班级修改",720,400,"/manage/adminClass/toAdminClassEdit.html?adminClassCode="+row.classCode,function(r){
+		$('#tInfodg').datagrid('reload');
+	})
+}
+
+function classStudent(obj){
+	var index=$(obj).closest("tr").index();
+	$("#tInfodg").datagrid('selectRow',index);
+	var row=$('#tInfodg').datagrid('getSelected');
+	var url=window.location.pathname+"?tabIndex=1";
+	window.localStorage.prevUrl=url;
+	window.location.href="/manage/adminClassStudent/toAdminClassStudent.html?gid="+row.gid+"&gradeCode="+row.gradeCode;
+}
+</script>
+</body>
+</html>

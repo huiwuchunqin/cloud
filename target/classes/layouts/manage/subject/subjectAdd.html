@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>新增学科</title>
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+</head>
+<style type="text/css">
+.inlinSpan {
+	display: inline-block;
+	width: 90px
+}
+
+.box>div {
+	line-height: 54px;
+	margin-left: 20px
+}
+/* input[type="radio"]{width: 32px;margin:0px} */
+</style>
+<body>
+	<form id="fm">
+		<div class="box" style="height: 90%; margin: 0px auto">
+			<div>
+				<span class="inlinSpan">学科名称：</span><input id="name" placeholder="请输入学科名称"
+					class="easyui-validatebox width130" maxlength="20"
+					data-options="required:true,length:[0,20]">
+			</div>
+			<div>
+				<span class="inlinSpan">适用学段：</span><input class="easyui-combobox" id="section"
+							data-options="
+							required:true,
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{code: '',name: '请选择',selected:true}
+								<#if (sectionList?exists && sectionList?size>0)>
+							  		<#list sectionList as section>
+							  			,{code:'${section.code}', name:'${section.name?default('&nbsp;')}'}
+							  		</#list>
+								</#if>
+							]" />
+			</div>
+			<div>
+				<span class="inlinSpan">备注：</span><textarea id="description" rows="4" maxlength="40" cols="40"> </textarea>
+			</div>
+			<div>
+				<span class="inlinSpan"></span>
+				<a class="btn btnConfirm" onclick="save()">确定</a>
+				<a class="btn btnCancel" onclick="javascript:easyui_closeTopWindow(false)">取消</a>
+			</div>
+		</div>
+	</form>
+	<script type="text/javascript">
+	//保存学科信息
+		function save(){
+			/* var sectionCode=$("input[name='sectionCode']:checked").val(); */
+			var sectionCode=$('#section').combobox('getValue');
+			var description=$('#description').val();
+			var name=$('#name').val().trim();
+			if(sectionCode==""||sectionCode==undefined){
+				$.messager.alert("信息","请选择适用学段","info");
+				return false;
+			}
+			if(name==""){
+				$.messager.alert("信息","学科名称不能为空","info");
+				return false;
+			}
+			if($('#fm').form('validate')){
+				$.ajax({
+					url:'/manage/subject/addSubject.html',
+					data:{
+						name:name,
+						sectionCode:sectionCode,
+						description:description,
+					},
+					type:'post',
+					success:function(res){
+						$.messager.alert("信息",res.msg,"info");
+						if(res.success){
+							easyui_closeTopWindow(res.success);	
+						}
+					}
+				})
+			}
+		}
+	</script>
+</body>
+</html>

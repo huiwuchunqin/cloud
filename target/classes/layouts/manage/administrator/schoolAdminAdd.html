@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <script type="text/javascript" src="/manage/template/js/jquery-1.8.3.min.js"></script>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<!--   <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>   -->
+<!--    <script src="//code.jquery.com/jquery-1.10.2.js"></script>   -->
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+  <script type="text/javascript" src="${bztSyscommHost}/static/plugins/layer-v1.9.3/layer/layer.js"></script>
+</head>
+<style type="text/css">
+
+div.column{
+margin-top:18px;
+}
+div.column>span:first-child{
+display:inline-block;
+width:60px;
+}
+div.column>input:first-of-type{
+width:220px
+}
+div.column>select{
+width:220px
+}
+ .custom-combobox {
+   position: relative;
+   display: inline-block;
+ }
+ .custom-combobox-toggle {
+   position: absolute;
+   top: 0;
+   bottom: 0;
+   margin-left: -1px;
+   padding: 0;
+ }
+ .custom-combobox-input {
+   margin: 0;
+   padding: 5px 10px;
+ }
+ .newSelect{
+    margin-top: 5px;
+    position: absolute;
+    z-index: 999999;
+    height: 192px;
+    width: 227px;
+    background-color: #fff;
+    overflow: auto;
+    overflow-x: hidden;
+    
+ }
+  .newSelect>div{
+  	height: 22px;
+	line-height: 22px;
+	padding-left: 6px;
+  }
+.newSelect>div:hover{
+  background-color: #1790C2;
+    color:#fff;
+ }
+ .span{
+    border: 1px solid #d3d3d3;
+    display: block;
+    width: 24px;
+    height: 25px;
+    position: absolute;
+    top: 0px;
+    right: -26px;
+    background:url("/manage/template/images/combo_arrow.png") no-repeat  center center;
+    background-color: #e6e6e6;
+ }
+</style>
+  <script>
+    $.fn.combobox=function(){
+	  var self=this;
+	  _create();
+	  function _create(){
+		  self.wrapper = $( "<span>" )
+          .addClass( "custom-combobox" )
+          .insertAfter( $(self)	);
+		  $(self).hide();
+		  _createAutocomplete();
+	  } 
+		function _createAutocomplete(){
+	        var selected = $(self).children(":selected");
+	          value = selected.val() ? selected.text() : "";
+	          self.input = $( "<input>" )
+	          .appendTo( self.wrapper )
+	          .val( value )
+	          .attr( "title", "" )
+	          .attr("id","inputId")
+	          .addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
+			self.span=$("<span>").appendTo(self.wrapper).addClass("span")[0].onclick=function(){
+	        	  $("div.newSelect").toggle();
+	          };
+	          self.newselect=$("<div>").addClass("newSelect").appendTo(self.wrapper).hide();
+	         $(self).children("option").each(function(i,object){
+	        	  $("<div>").text(object.text).val(object.value).appendTo(self.newselect)[0].onclick=function(){
+		        		 self.input.val(object.text);
+		        		 var selectedValue=object.value;
+		        		 $(self).children().each(function(i,object){
+		        			 if(object.value==selectedValue){
+		        				 $(object).attr("selected","selected"); 
+		        			 }
+		        			
+		        		 })
+		        		 $("div.newSelect").toggle();
+		        	 };
+	          })
+	 			self.input[0].oninput=function(){
+	        	 $("div.newSelect").show();
+	 			   var value = this.value,
+	 	          valueLowerCase = value.toLowerCase().trim(),
+	 	         	valid = false;
+	 	         self.newselect.find("div").each(function() {
+	 		          if ( $( this ).text().toLowerCase().indexOf(valueLowerCase)!=-1 ||valueLowerCase.trim()==="") {
+	 		            $(this).show();
+	 		           valid=true;
+	 		          }else{
+	 		        	  $(this).hide()
+	 		          }
+	 		        });
+	 		        // Found a match, nothing to do
+	 		        if ( valid ) {
+	 		          	return;
+	 		        }else{
+	 		        	$("div.newSelect").hide();
+	 		        }
+	 			}
+	         $('#inputId').focus();
+	        };	 
+		
+  }    
+   
+   /*  (function( $ ) {
+	    $.widget( "custom.combobox", {
+	      _create: function() {
+	        this.wrapper = $( "<span>" )
+	          .addClass( "custom-combobox" )
+	          .insertAfter( this.element );
+	 
+	        this.element.hide();
+	        this._createAutocomplete();
+	        this._createShowAllButton();
+	      },
+	 
+	      _createAutocomplete: function() {
+	        var selected = this.element.children( ":selected" ),
+	          value = selected.val() ? selected.text() : "";
+	 
+	        this.input = $( "<input>" )
+	          .appendTo( this.wrapper )
+	          .val( value )
+	          .attr( "title", "" )
+	          .addClass( "custom-combobox-input ui-widget ui-widget-content ui-state-default ui-corner-left" )
+	          .autocomplete({
+	            delay: 0,
+	            minLength: 0,
+	            source: $.proxy( this, "_source" )
+	          })
+	          .tooltip({
+	            tooltipClass: "ui-state-highlight"
+	          });
+	 
+	        this._on( this.input, {
+	          autocompleteselect: function( event, ui ) {
+	            ui.item.option.selected = true;
+	            this._trigger( "select", event, {
+	              item: ui.item.option
+	            });
+	          },
+	 
+	          autocompletechange: "_removeIfInvalid"
+	        });
+	      },
+	 
+	      _createShowAllButton: function() {
+	        var input = this.input,
+	          wasOpen = false;
+	 
+	        $( "<a>" )
+	          .attr( "tabIndex", -1 )
+	          .attr( "title", "显示所有" )
+	          .tooltip()
+	          .appendTo( this.wrapper )
+	          .button({
+	            icons: {
+	              primary: "ui-icon-triangle-1-s"
+	            },
+	            text: false
+	          })
+	          .removeClass( "ui-corner-all" )
+	          .addClass( "custom-combobox-toggle ui-corner-right" )
+	          .mousedown(function() {
+	            wasOpen = input.autocomplete( "widget" ).is( ":visible" );
+	          })
+	          .click(function() {
+	            input.focus();
+	 
+	            // Close if already visible
+	            if ( wasOpen ) {
+	              return;
+	            }
+	 
+	            // Pass empty string as value to search for, displaying all results
+	            input.autocomplete( "search", "" );
+	          });
+	      },
+	 
+	      _source: function( request, response ) {
+	        var matcher = new RegExp( $.ui.autocomplete.escapeRegex(request.term), "i" );
+	        response( this.element.children( "option" ).map(function() {
+	          var text = $( this ).text();
+	          if ( this.value && ( !request.term || matcher.test(text) ) )
+	            return {
+	              label: text,
+	              value: text,
+	              option: this
+	            };
+	        }) );
+	      },
+	 
+	      _removeIfInvalid: function( event, ui ) {
+	 
+	        // Selected an item, nothing to do
+	        if ( ui.item ) {
+	          return;
+	        }
+	 
+	        // Search for a match (case-insensitive)
+	        var value = this.input.val(),
+	          valueLowerCase = value.toLowerCase(),
+	          valid = false;
+	        this.element.children( "option" ).each(function() {
+	          if ( $( this ).text().toLowerCase() === valueLowerCase ) {
+	            this.selected = valid = true;
+	            return false;
+	          }
+	        });
+	 
+	        // Found a match, nothing to do
+	        if ( valid ) {
+	          return;
+	        }
+	 
+	        // Remove invalid value
+	        this.input
+	          .val( "" )
+	          .attr( "title", value + " 没有查到相关机构" )
+	          .tooltip( "open" );
+	        this.element.val( "" );
+	        this._delay(function() {
+	          this.input.tooltip( "close" ).attr( "title", "" );
+	        }, 2500 );
+	        this.input.autocomplete( "instance" ).term = "";
+	      },
+	 
+	      _destroy: function() {
+	        this.wrapper.remove();
+	        this.element.show();
+	      }
+	    });
+	  })( jQuery );  */
+   $(function() {
+    $( "#org" ).combobox();
+  }); 
+  </script>
+<body id="body">
+<div style="margin:0px 30px;padding-top:1px">
+	<form id="fm">
+	<div class="column">
+	<span>机构</span> 
+		<select id="org">
+		<#list orgList as org>
+		<option value="${org.orgCode}">${org.orgName}</option>
+		</#list >
+		</select>
+	<span style="color:#EA3860;margin-left: 25px;font-size: 14px;">(文本框可输入过滤条件)</span>	
+	</div>
+	<div class="column">
+		<span>登录账号</span> <input id="loginAccount" class="easyui-validatebox"  data-options="required:true,validType:'alphaChar[0,50]'"/>
+	</div>
+	<div class="column">
+		<span>姓名</span> <input id="name"  class="easyui-validatebox" data-options="required:true,validType:'length[0,36]'"/>
+	</div>
+	<div class="column">
+		<span>密码</span> <input type="password" id="password"  class="easyui-validatebox" data-options="required:true,validType:'length[0,50]'"/>
+	</div>
+	<div class="column">
+		<span>确认密码</span> <input type="password"  id="loginPwdConfirm"  class="easyui-validatebox" data-options="required:true,validType:'length[0,50]'"/>
+	</div>
+	<div class="column">
+		<span>手机号</span> <input id="mobilePhone"  class="easyui-validatebox" data-options="validType:'mobile'"/>
+	</div>
+	<div class="column">
+		<span>邮箱</span> <input id="mail" class="easyui-validatebox" data-options="validType:'email',length:[0,60]" maxlength="60"/>
+	</div>
+	</form>
+	<div class="column" style="text-align:right">
+		<a class="btn btnConfirm"  iconCls="icon-save" onclick="save()">保存</a>
+		<a class="btn btnCancel"  iconCls="icon-cancel" onclick="cancel()">取消</a>
+	</div>
+	</div>
+	<script type="text/javascript">
+	function cancel(){
+		easyui_closeTopWindow(false);
+	}
+	$('#body').click(function(){
+		if(!$(event.target).hasClass("span")){
+			$("div.newSelect").hide();	
+		}
+	})
+
+
+	//保存
+	function save(){
+		var loginAccount=$('#loginAccount').val();
+		var userName=$('#name').val();
+		var password=$('#password').val();
+		var loginPwdConfirm=$('#loginPwdConfirm').val();
+		var mobilePhone=$('#mobilePhone').val();
+		var mail=$('#mail').val();
+		var orgCode="";
+		var orgName="";
+		 var orgCode=$("#org option:selected").val();
+		var orgName=$("#org option:selected").text(); 
+		if(loginAccount.trim()==null||loginAccount.trim()==""){
+			/*  layer.alert("登录账号不能为空"); */ 
+			  $.messager.alert("信息","登录账号不能为空","info");  
+			return false
+		}
+		if(userName.trim()==null||userName.trim()==""){
+			/*  layer.alert("登录账号不能为空"); */ 
+			  $.messager.alert("信息","姓名不能为空","info");  
+			return false
+		}
+		if(password.trim()==null||password.trim()==""){
+			/* layer.alert("密码不能为空"); */
+		 	 $.messager.alert("信息","密码不能为空","info")
+			return false
+		}
+		 if(orgCode==null||orgCode==""){
+			/* layer.alert("请选择机构"); */
+			 $.messager.alert("信息","请选择机构","info");	 
+			return false
+		} 
+		if(password!=loginPwdConfirm){
+			/* layer.alert("2次密码输入不一致请重新输入"); */
+			$.messager.alert("信息","2次密码输入不一致请重新输入","info");
+			$('#password').val("");
+			$('#loginPwdConfirm').val("");
+			return false;
+		}
+		var url="";
+			if("${orgCode}"==""){
+				url="/manage/schoolLoginUserAdd.html";//区域管理员新增 
+			}else{
+				url="/manage/areaLoginUserAdd"//学校管理员新增
+			}
+			if($('#fm').form('validate')){
+				$.ajax({
+					url:url,
+					data:{
+						loginAccount:loginAccount,
+						userName:userName,
+						loginPwd:password,
+						mobilePhone:mobilePhone,
+						mail:mail,
+						orgCode:orgCode,
+						orgName:orgName,
+					},
+					type:'post',
+					success:function(res){
+						$.messager.alert("信息",res.msg,"info");
+						if(res.success){
+							easyui_closeTopWindow(res.success);
+			
+						}
+					
+					}
+				})		
+			}
+	}
+	</script>
+</body>
+</html>

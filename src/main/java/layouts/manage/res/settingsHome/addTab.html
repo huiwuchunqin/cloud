@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>资源首页设置-新增主页面</title>
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+<div data-options="region:'center'" data-options="fit:true">
+	<div id="tt" class="easyui-tabs" data-options="
+			fit:true,
+			onLoad:function(){$(this).tabs('resize')}
+	        ">
+	<div title="视频资源">
+	<iframe src="/manage/resSettingsHome/resSet/media.html" frameborder="0" height="100%" width="100%"></iframe> 
+	</div>
+	<#if "${deployLevel}"=="30">
+	<div title="特色资源">
+	<iframe src="/manage/resSettingsHome/resSet/mediaSpecial.html" frameborder="0" height="100%" width="100%"></iframe> 
+	</div>
+	</#if>
+	</div>
+</div>
+<script>
+	$(function() {
+		setTimeout(function(){
+			$('#tt').resize().tabs('scrollBy', 0);
+		}, 100);
+	});
+</script>
+</body>
+</html>

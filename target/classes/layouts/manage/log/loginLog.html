@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<title>登录日志</title>
+</head>
+<body>
+	<div id="tb">
+		<div class="box">
+			<div class="labelBox">
+				<div class="labelLine440">
+					<span class="labelWidth60">日期：</span> <input id="startDate"
+						class="Wdate"
+						onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})" />
+					~ <input id="endDate" class="Wdate"
+						onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})" />
+				</div>
+				<span class="clear10"></span>
+				<div class="labelLine240">
+					<span class="labelWidth60">角色：</span> <input id="userRole"
+						class="easyui-combobox"
+						data-options="editable:false,textField:'name',valueField:'code',data:[{name:'全部',code:'',selected:true},{name:'老师',code:'10'},{name:'学生',code:'20'}]">
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60">成功：</span> <input id="loginSuccess"
+						class="easyui-combobox"
+						data-options="editable:false,textField:'name',valueField:'code',data:[{name:'全部',code:''},{name:'成功',code:'1',selected:true},{name:'失败',code:'0'}]"> 
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60">设备类型：</span> <input id="deviceType"
+						class="easyui-combobox"
+						data-options="editable:false,textField:'name',valueField:'code',data:[{name:'全部',code:'',selected:true},{name:'PC',code:'10'},{name:'安卓平板',code:'20'},{name:'iPad',code:'21'},{name:'安卓手机',code:'30'},{name:'iPhone',code:'31'}]">
+				</div>
+				<span class="clear10"></span>
+				<div class="labelLine240">
+					<span class="labelWidth60">机构名称：</span> <input id="orgName" placeholder="请输入机构名称">
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60 ">用户姓名：</span> <input id="userName" placeholder="请输入用户名称">
+				</div>
+			</div>
+			<div class="btnBox">
+				<a class="btn btnBlue search" onclick="reload()">查询</a>
+				<a class="btn btnBlue" onclick="exportData()">导出</a>
+			</div>
+		</div>
+	</div>
+	<table id="dg" class="easyui-datagrid"
+		data-options="
+   pagination:true,
+   toolbar:'#tb',
+   fit:true,
+   rownumbers:true,
+   singleSelect:true,
+   onBeforeLoad:onBeforeLoad,
+   url:'/manage/loginLog/list.html'
+   ">
+		<thead>
+
+			<tr>
+				<th
+					data-options="field:'orgName',width:200,halign:'center',align:'left'">机构</th>
+				<th
+					data-options="field:'userName',width:100,halign:'center',align:'left'">用户姓名</th>
+				<th
+					data-options="field:'userRoleName',width:80,halign:'center',align:'center'">角色</th>
+				<!-- <th data-options="field:'sectionName',width:80,halign:'center',headalign:'center'">学段</th> -->
+				<th
+					data-options="field:'gradeName',width:80,halign:'center',align:'center'">年级</th>
+				<th
+					data-options="field:'loginType',formatter:loginTypefmt,width:140,halign:'center',align:'left'">登录类型</th>
+				<th
+					data-options="field:'loginTime',width:160,halign:'center',align:'center'">登录时间</th>
+				<th
+					data-options="field:'loginIP',width:140,halign:'center',align:'left'">登录IP</th>
+				<th
+					data-options="field:'deviceType',formatter:devicefmt,width:80,halign:'center',align:'left'">设备类型</th>
+				<th
+					data-options="field:'browserInfo',width:1000,halign:'center',align:'left'">浏览器信息</th>
+				<th
+					data-options="field:'appVerInfo',width:220,halign:'center',align:'left'">应用信息</th>
+				<th
+					data-options="field:'loginSuccess',width:80,halign:'center',align:'center'">是否成功</th>
+			</tr>
+		</thead>
+	</table>
+	<script type="text/javascript">
+		function onBeforeLoad(param) {
+			param["startDate"] = $('#startDate').val();
+			param["endDate"] = $('#endDate').val();
+			param["orgName"] = $('#orgName').val();
+			param["userName"] = $("#userName").val();
+			param["userRole"] = $('#userRole').combobox('getValue');
+			param["loginSuccess"] = $('#loginSuccess').combobox('getValue');
+			param["deviceType"] = $('#deviceType').combobox('getValue');
+		}
+		//查询
+		function reload() {
+			$('#dg').datagrid('reload');
+		}
+		//导出数据
+		function exportData() {
+			var startDate = $('#startDate').val();
+			var endDate = $('#endDate').val();
+			var orgName = $('#orgName').val();
+			var userName = $('#userName').val();
+			var userRole = $('#userRole').combobox('getValue');
+			var loginSuccess = $('#loginSuccess').combobox('getValue');
+			var deviceType = $('#deviceType').combobox('getValue');
+			downloadHelper("/manage/loginLog/export.html?startDate="
+					+ startDate + "&endDate=" + endDate + "&orgName=" + orgName
+					+ "&userName=" + userName + "&userRole=" + userRole
+					+ "&loginSuccess=" + loginSuccess + "&deviceType="
+					+ deviceType)
+		}
+
+		//设备格式化 
+		function devicefmt(value, row) {
+			switch (value) {
+			case '10':
+				return "PC";
+			case '20':
+				return "安卓平板";
+			case '21':
+				return "iPad";
+			case '30':
+				return "安卓手机";
+			case '31':
+				return "iPhone";
+			default:
+				return "";
+			}
+		}
+		//登录类型格式化
+		function loginTypefmt(value, row) {
+			switch (value) {
+			case '10':
+				return "用户账号+密码登录";
+			case '11':
+				return "手机号+密码登录";
+			case '12':
+				return "邮箱名+密码登录";
+			case '20':
+				return "手机APP扫码登录";
+			case '30':
+				return "手机验证码登录";
+			default:
+				return "";
+			}
+		}
+	</script>
+</body>
+</html>

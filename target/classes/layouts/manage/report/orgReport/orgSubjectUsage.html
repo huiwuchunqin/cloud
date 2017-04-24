@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学科使用情况统计页面</title>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+</head>
+<style type="text/css">
+
+.width130{
+    width: 150px;
+}
+</style>
+<body>
+<div class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'">
+		<div class="box">
+			<div class="labelBox">
+				<div class="labelLine240">
+					<div class="labelWidth60">学科：</div>
+					<input class="easyui-combobox width130" id="subject"
+						   data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{code: '',name: '全部',selected:true}
+								<#if (subjectList?exists && subjectList?size>0)>
+							  		<#list subjectList as subject>
+							  			,{code:'${subject.code}', name:'${subject.name?default('&nbsp;')}'}
+							  		</#list>
+								</#if>
+							]
+							"/>
+				</div>
+				<span class="clear10"></span>
+				<div class="labelLine500">
+					<span class="labelWidth60">日期：</span>
+					<input id="startDate" class="Wdate" onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})"/>
+					~
+					<input id="endDate" class="Wdate" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})"/>
+				</div>
+
+			</div>
+			<div class="btnBox">
+				<button class="btn btnBlue search" onclick="query()">查询</button> 
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<div id="tb" class="tbClass">
+			<span class="attr" style="margin-left: 10px;">学科数：<label id="subjectTotal"></label></span>
+			<span class="attr">查看数：<label id="browseCountTotal"></label></span>
+			<span class="attr">下载数：<label id="downloadCountTotal"></label></span>
+			<span class="attr">引用数：<label id="referCountTotal"></label></span>
+			<span class="attr">收藏数：<label id="favoriteCountTotal"></label></span>
+			<span class="attr">点赞数：<label id="goodCountTotal"></label></span>
+			<span class="attr">评论数：<label id="commentCountTotal"></label></span> 
+			<button class="btn btnBlue align-right" onclick="exportData()">导出</button>
+		</div>
+	 <table id="dg" class="easyui-datagrid" data-options="
+		 pagination:true,
+		 onBeforeLoad:onBeforeLoad,
+		 rownumbers:true,
+		 singleSelect:true,
+		 toolbar:'#tb',
+		 fit:true,
+		 fitColumns:true,
+		 url:'/manage/orgSubjectUsage/list.html'
+		 ">
+	 <thead>
+	 	<tr>
+	 		<th data-options="field:'sectionName',width:90,align:'center',halign:'center'">学段</th>
+	 		<th data-options="field:'subjectName',width:90,halign:'center',align:'left'">学科</th>
+	 		<th data-options="field:'browseCount',width:80,align:'center',halign:'center'">查看数</th>
+	 		<th data-options="field:'downloadCount',width:80,align:'center',halign:'center'">下载数</th>
+	 		<th data-options="field:'referCount',width:80,align:'center',halign:'center'">引用数</th>
+	 		<th data-options="field:'favoriteCount',width:80,align:'center',halign:'center'">收藏数</th>
+	 		<th data-options="field:'goodCount',width:80,align:'center',halign:'center'">点赞数</th>
+	 		<th data-options="field:'commentCount',width:80,align:'center',halign:'center'">评论数</th>
+	 		<!-- <th data-options="field:'operate',width:90,align:'center',formatter:operatefmt,halign:'center'">查看</th> -->
+	 		<th data-options="field:'orgCode',hidden:true"></th>
+	 		<th data-options="field:'sectionCode',hidden:true"></th>
+	 	</tr>
+	 </thead>
+	 </table>
+	</div>
+</div>
+<script type="text/javascript">
+    var startDate="";
+    var endDate="";
+	//查询
+	function query(){
+		$('#dg').datagrid('reload');
+		queryTotal();
+	}
+	
+	//查询总数
+	function queryTotal(){
+		var subjectCode=$("#subject").combobox('getValue');
+		var start=$("#startDate").val();
+		var end=$("#endDate").val();
+		if(end==""||end==null){
+			end=moment(new Date()).format("YYYY-MM-DD");
+		}
+		start=start?moment(start).format("YYYYMMDD").toString():"";
+		end=end?moment(end).format("YYYYMMDD").toString():"";
+		var opts={
+				url:'/manage/orgSubjectUsage/searchTotal.html',
+    			type:"post",
+				data:{
+					subjectCode:subjectCode,
+					startDate:start,
+					endDate:end
+				},
+				success:function(data){
+					$('#subjectTotal').text(data.subjectTotal||0); 
+					$('#browseCountTotal').text(data.browseCountTotal||0);
+					$('#downloadCountTotal').text(data.downloadCountTotal||0);
+					$('#referCountTotal').text(data.referCountTotal||0);
+					$('#favoriteCountTotal').text(data.favoriteCountTotal||0);
+					$('#goodCountTotal').text(data.goodCountTotal||0);
+					$('#commentCountTotal').text(data.commentCountTotal||0);
+				},
+				error:function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("网络繁忙请稍后再试");
+				},
+				complete:function() {
+						
+				}
+		}
+		$.ajax(opts);
+	}
+	
+	$(function() {
+		queryTotal();
+	})
+	
+	function onBeforeLoad(param){
+		param["subjectCode"]=$("#subject").combobox('getValue');
+		param["orgName"]=$("#orgName").val();
+		startDate=$("#startDate").val();
+		endDate=$("#endDate").val();
+		if(endDate==""||endDate==null){
+			endDate=moment(new Date()).format("YYYY-MM-DD");
+		}
+		param["startDate"]=startDate?moment(startDate).format("YYYYMMDD").toString():"";
+		param["endDate"]=endDate?moment(endDate).format("YYYYMMDD").toString():"";
+	}
+	
+	
+	//导出数据
+	function exportData(){
+		var subjectCode=$("#subject").combobox('getValue');
+		if(endDate==""||endDate==null){
+			endDate=moment(new Date()).format("YYYY-MM-DD");
+		}
+		var baseDateStart=startDate?moment(startDate).format("YYYYMMDD").toString():"";
+		var baseDateEnd=endDate?moment(endDate).format("YYYYMMDD").toString():"";
+		downloadHelper("/manage/orgSubjectUsage/export.html?subjectCode="+subjectCode+"&startDate="+baseDateStart+"&endDate="+baseDateEnd+"&fileName="+getExportName());
+	}
+	
+	//操作列格式化
+	function operatefmt(value, row) {
+		var str = "<a href='javascript:void(0)' onclick='detail(this)'>详情</a>"; 
+		return str;
+	}
+	
+	
+</script>
+</body>
+</html>

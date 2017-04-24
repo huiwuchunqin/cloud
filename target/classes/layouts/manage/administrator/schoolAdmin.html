@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/loginUser/loginUser.js"></script>
+<title>学校管理员</title>
+</head>
+<body>
+<div id="tb">
+	<div class="box form">
+	<div class="labelBox">
+		<div class="labelLine250">
+			<span class="labelWidth60">学校：</span><input id="orgName" placeholder="请输入学校名称">
+		</div>
+		<div class="labelLine250">
+			<span class="labelWidth60">姓名：</span><input id="userName" placeholder="请输入姓名">
+		</div>
+	</div>
+	<div class="btnBox">
+		<a class="btn btnBlue search" data-options="iconCls:'icon-search'" onclick="reload()">查询</a>
+		<a class="btn btnBlue add" data-options="iconCls:'icon-add'" onclick="add()">新增</a>
+	</div>
+	</div>
+</div>
+	<table id="dg" class="easyui-datagrid"
+		data-options="
+		    pagination:true,
+		    toolbar:'#tb',
+		    fit:true,
+		    rownumbers:true,
+		    url:'/manage/schoolAdmin.html',
+		    onBeforeLoad:onBeforeLoad,
+		    onRowContextMenu:onRowContextMenu
+	    ">
+		<thead>
+			<tr>
+				<th data-options="field:'opt',width:130,halign:'center',align:'center',formatter:optfmt">操作</th>
+				<th data-options="field:'userName',width:120,halign:'center',align:'left'">姓名</th>
+				<th data-options="field:'loginAccount',width:120,halign:'center',align:'left'">登录账号</th>
+				<th data-options="field:'status',width:90,halign:'center',align:'center',formatter:statusfmt">状态</th>
+				<th data-options="field:'orgName',width:200,halign:'center',align:'left'">学校</th>
+				<th data-options="field:'mobilePhone',width:120,halign:'center',align:'center'">手机号</th>
+				<th data-options="field:'mail',width:120,halign:'center',align:'left'">邮箱</th>
+				<th data-options="field:'modifyTime',width:160,halign:'center',align:'center'">开通时间</th>
+			</tr>
+		</thead>
+	</table>
+	 <div id="menu" class="easyui-menu" style="width: 120px">
+		 <div data-options="iconCls:'icon-edit',name:'useful'">设为有效</div>   
+	   	 <div data-options="iconCls:'icon-edit',name:'useless'">设为无效</div>   
+		 <div data-options="iconCls:'icon-edit',name:'modifypwd'">修改密码</div>
+	 </div> 
+	<script type="text/javascript">
+
+		function onBeforeLoad(param){
+			param["userName"]=$('#userName').val();
+			param["orgName"]=$('#orgName').val();
+		}
+
+		//新增学校管理员
+		function add(){
+			easyui_openNoResizeWindow("学校管理员新增",1000,800,"/manage/teacher/toTeacherInfo.html?type=20",function(r){
+				if(r){
+					reload();
+				}
+			})
+		}
+		
+		//撤销
+		function recall(_userCode){
+			$.messager.confirm("信息","确认要撤销该用户的角色吗？",function(r){
+				if(r){
+					$.ajax({
+						url:'/manage/recallAdmin.html',
+						data:{
+							userCode:_userCode,
+							type:"${type}"
+						},
+						success:function(res){
+							alert(res.msg);
+							reload();
+						}
+					})
+				}
+			});
+		}
+	</script>
+</body>
+</html>

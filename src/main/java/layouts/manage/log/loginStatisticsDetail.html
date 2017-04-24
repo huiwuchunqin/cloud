@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <#include "/manage/common/meta_js.html"/>
+    <#include "/manage/common/meta_css.html"/>
+    <title>登陆次数统计</title>
+</head>
+<body>
+
+    <div class="easyui-layout" data-options="fit:true">
+
+        <#if showForm>
+        <div data-options="region:'north'">
+            <div class="box">
+            <div class="labelBox">
+                <div class="labelLine650">
+                    <span class="labelWidth60">日期：</span>
+                    <input id="startTime" class="Wdate" onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endTime\')}',dateFmt:'yyyy-MM-dd'})" />
+                    <span>~</span>
+                    <input id="endTime" class="Wdate" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startTime\')}',dateFmt:'yyyy-MM-dd'})" />
+                </div>
+                <span class="clear" style="height: 5px"></span>
+                <div class="labelLine240">
+                    <span class="labelWidth60">角色：</span>
+                    <input id="role">
+                </div>
+            </div>
+            <div class="btnBox">
+                    <button id="btn-search" class="btn btnBlue">查询</button>
+            </div>
+            </div>
+        </div>
+        </#if>
+        
+        <div data-options="region:'center'">
+            <div id="tb" class="tbClass" style="height: 27px">
+                <span class="attr">总计(次数)：<label id="totalNum"></label></span>
+                <div class="btnBox">
+                    <button id="btn-export" class="btn btnBlue right">导出</button>
+                </div>
+            </div>
+
+            <table id="dg"></table>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var gobalOrgCode = '${orgCode}', gobalRole = '${role}', gobalStartTime = '${startTime}', gobalEndTime = '${endTime}';
+
+            <#if showForm>
+            $('#role').combobox({
+                editable: false,
+                textField: 'name',
+                valueField: 'code',
+                data: [{ name: '全部', code: '', selected: true },
+                { name: '老师', code: '10' }, { name: '学生', code: '20' }]
+            });
+
+            $('#btn-search').click(function () {
+                $('#dg').datagrid('reload');
+            });
+
+            function getParams(param) {
+                var startTime = $('#startTime').val(),
+                    endTime = $('#endTime').val();
+
+                param.orgCode = gobalOrgCode
+                param.role = $('#role').combobox('getValue');
+                param.startTime = startTime && startTime + ' 00:00:00.000';
+                param.endTime = endTime && endTime + ' 23:59:59.999';
+            }
+
+            <#else>
+            function getParams(param) {
+                param.orgCode = gobalOrgCode
+                param.role = gobalRole;
+                param.startTime = gobalStartTime;
+                param.endTime = gobalEndTime;
+                param.orgName="${orgName}";
+            }
+            </#if>
+
+            $('#dg').datagrid({
+                url: '/manage/loginStatisticsDetail/search.html',
+                queryParams: {
+                    orgCode: gobalOrgCode,
+                    role: gobalRole,
+                    startTime: gobalStartTime,
+                    endTime: gobalEndTime
+                },
+                pagination: true,
+                rownumbers: true,
+                singleSelect: true,
+                onBeforeLoad: getParams,
+                onLoadSuccess: onLoadSuccess,
+                fit: true,
+                toolbar: '#tb',
+                columns: [[
+                    { field: 'userName', title: '姓名', width: 300 },
+                    { field: 'PC', title: 'PC', width: 100, align: 'center' },
+                    { field: 'androidPad', title: '安卓平板', width: 100, align: 'center' },
+                    { field: 'ipad', title: 'iPad', width: 100, align: 'center' },
+                    { field: 'androidPhone', title: '安卓手机', width: 100, align: 'center' },
+                    { field: 'iphone', title: 'iPhone', width: 100, align: 'center' },
+                    { field: 'total', title: '总计(次数)', width: 100, align: 'center' }
+                ]]
+            });
+
+            function onLoadSuccess(data) {
+                if (data.pageNo > 1) return;
+                
+                var param = {};
+                getParams(param);
+                $.ajax({
+                    url: '/manage/loginStatisticsDetail/total.html',
+                    type: 'post',
+                    data: param
+                }).then(function (res) {
+                    if (res.success)
+                        $('#totalNum').text(res.data);
+                });
+            }
+
+            $('#btn-export').click(function () {
+                var param = {};
+                getParams(param);
+                downloadHelper(urlWithParam('/manage/loginStatisticsDetail/export.html', param));
+            });
+        })();
+    </script>
+</body>

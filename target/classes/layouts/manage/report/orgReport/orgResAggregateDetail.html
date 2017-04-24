@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<link rel="stylesheet"
+	href="/manage/template/js/zTree_v3/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<script type="text/javascript"
+	src="/manage/moveToCommon/js/plugins/zTree_v3/js/jquery.ztree.core-3.5.js"></script>
+<script type="text/javascript"
+	src="/manage/template/comboChange/comboChange.js"></script>
+<title>机构汇总统计详情</title>
+<style type="text/css">
+ul.title {
+	border: 1px solid #009DD9;
+	height: 33px;
+}
+
+ul.title>li {
+	float: left;
+	list-style: none;
+	background-color: white;
+	height: 100%;
+	text-align: center;
+	line-height: 33px;
+	width: 30%;
+	color: #009DD9;
+}
+
+.root {
+	background-color: #cccccc;
+	height: 28px;
+	line-height: 28px;
+	text-align: center;
+	cursor: pointer;
+}
+
+.treeDiv {
+	padding: 5px 10px;
+}
+
+.treeDiv ul {
+	border: none
+}
+
+ul.title>li.active {
+	background-color: #009DD9;
+	color: white;
+}
+
+.labelLine650>input {
+	width: 90px
+}
+
+.labelLine320>input {
+	width: 90px
+}
+
+.labelLine240>input {
+	width: 90px
+}
+
+.searchDiv {
+	position: relative;
+	padding-right: -2px;
+	padding-left: 12px;
+	border: 1px solid #CCCCCC;
+	background-color: white
+}
+
+.searchDiv>input {
+	width: 82%;
+	height: 25px;
+	line-height: 25px;
+	border: none;
+	outline: none;
+}
+
+.searchDiv>i {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	color: #009DD9;
+	font-size: 18px;
+}
+</style>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-option="region:'north'">
+			<div class="box">
+				<div class="labelBox">
+					<div class="labelLine440">
+						<span class="labelWidth60">日期:</span> <input id="startDate"
+							class="Wdate" size="20"
+							onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})" />
+						~ <input id="endDate" class="Wdate" size="20"
+							onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})" />
+					</div>
+					<span class="clear10"></span>
+					<div class="labelLine240">
+						<span class="labelWidth60">资源类型：</span><input id="resTypeL1" 
+							class="easyui-combobox"
+							data-options="onChange:resTypeL1Change,editable:false,textField:'name',valueField:'code',data:[
+						{code:'10',name:'视频'},
+						{code:'20',name:'文档'},
+						{code:'30',name:'测验'},
+						{code:'50',name:'题目'}
+						]">
+					</div>
+					<div class="labelLine240">
+						<span class="labelWidth60">二级分类：</span><input id="resTypeL2"
+							class="easyui-combobox"
+							data-options="
+						editable:false,
+						textField:'name',
+						valueField:'code',
+						data:[
+						{code:'',name:'请选择'}
+						]
+						">
+					</div>
+					<div class="labelLine240">
+						<span class="labelWidth60">共享级别：</span><input id="shareLevel"
+							class="easyui-combobox"
+							data-options="
+							editable:false,
+							textField:'name',
+							valueField:'code',
+							data:[
+								{code:'',name:'请选择'},
+								{name:'个人私有',code:'10'},
+								{name:'校内共享',code:'20'},
+								{name:'区域共享',code:'30'}
+			            ]">
+					</div>
+
+					<span class="clear10"></span>
+					<div class="labelLine240">
+						<span class="labelWidth60">学科：</span> <input id="subject"
+							class="easyui-combobox"
+							data-options="textField:'name',valueField:'code',editable:false,onChange:function(record){subjectChange(record);query()},data:[{name:'请选择',code:''}]">
+					</div>
+					<div class="labelLine240">
+						<span class="labelWidth60">年级：</span> <input id="grade"
+							class="easyui-combobox"
+							data-options="textField:'name',valueField:'code',editable:false,onChange:query,data:[{name:'请选择',code:''}]">
+					</div>
+					<div class="labelLine240">
+						<span class="labelWidth60">版本：</span> <input id="textbookVer"
+							class="easyui-combobox"
+							data-options="textField:'name',valueField:'code',editable:false,onChange:query,data:[{name:'请选择',code:''}]">
+					</div>
+				</div>
+				<div class="btnBox">
+					<button class="btn btnBlue search" onclick="queryDg()">查询</button>
+				</div>
+			</div>
+		</div>
+		<div data-option="region:'center'" style="height: 85%; width: 100%;">
+			<div class="easyui-layout" data-options="fit:true">
+				<div data-options="region:'west'" title="　" style="width: 200px">
+					<div>
+						<ul class="title">
+							<li id="chapter" class="active" style="width: 98px">章节</li>
+							<li id="kp" style="width: 98px">知识点</li>
+						</ul>
+						<div class="treeDiv" id="chapterRoot">
+							<div class="searchDiv">
+								<input id="chapterName" placeholder="请输入关键字"
+									onkeydown="chapterKeyDown()" /><i class="fa fa-2x fa-search"
+									onclick="fliterChapter()"></i>
+							</div>
+							<#include "/manage/report/chapterTree.html"/>
+						</div>
+						<div class="treeDiv" id="kpRoot" style="display: none">
+							<div class="searchDiv">
+								<input id="kpName" placeholder="请输入关键字" onkeydown="kpKeyDown()" /><i
+									class="fa fa-2x fa-search" onclick="queryKp()"></i>
+							</div>
+							<#include "/manage/report/kpTree.html"/>
+						</div>
+					</div>
+				</div>
+				<div data-options="region:'center'">
+					<div id="tb" class="tbClass">
+						<div class="attr">
+							<span>资源数</span><label id="totalResCount"></label>
+						</div>
+						<div class="attr">
+							<span>查看数</span><label id="totalBrowseCount"></label>
+						</div>
+						<div class="attr">
+							<span>下载数</span><label id="totalDownloadCount"></label>
+						</div>
+						<div class="attr">
+							<span>引用数</span><label id="totalReferCount"></label>
+						</div>
+						<div class="attr">
+							<span>收藏数</span><label id="totalFavouriteCount"></label>
+						</div>
+						<div class="attr">
+							<span>点赞数</span><label id="totalGoodCount"></label>
+						</div>
+						<div class="attr">
+							<span>评论数</span><label id="totalCommentCount"></label>
+						</div>
+						<div class="btnBox">
+							<form id="fm" method="post">
+								<a class="btn btnBlue align-right" onclick="exportEXCEL()">导出</a>
+							</form>
+						</div>
+					</div>
+
+					<table id="dg" class="easyui-datagrid"
+						data-options="
+						pagination:true,
+						singleSelected:true,
+						rownumbers:true,
+						onBeforeLoad:onBeforeLoad,
+						toolbar:'#tb',
+						url:'/manage/orgResAggreateDetail/list.html',
+						fit:true,
+						fitColumns:true,
+						onLoadSuccess:onLoadSuccess
+				">
+						<thead>
+							<tr>
+								<th data-options="field:'resName',halign:'center',align:'left'">资源名称</th>
+								<th
+									data-options="field:'resTypeL2Name',halign:'center',align:'left'">二级分类</th>
+								<th
+									data-options="field:'shareLevel',formatter:shareLevelfmt,halign:'center',align:'center'">共享级别</th>
+								<th
+									data-options="field:'sectionName',halign:'center',align:'center'">学段</th>
+								<th
+									data-options="field:'subjectName',halign:'center',align:'left'">学科</th>
+								<th
+									data-options="field:'gradeName',halign:'center',align:'left'">年级</th>
+								<th
+									data-options="field:'makeTime',halign:'center',align:'center'">上传时间</th>
+								<th
+									data-options="field:'makerName',halign:'center',align:'left'">作者</th>
+								<!-- <th data-options="field:'makerOrgName',halign:'center'">学校</th> -->
+								<th
+									data-options="field:'browseCount',align:'center',halign:'center'">查看数</th>
+								<th
+									data-options="field:'downloadCount',align:'center',halign:'center'">下载数</th>
+								<th
+									data-options="field:'referCount',align:'center',halign:'center'">引用数</th>
+								<th
+									data-options="field:'favoriteCount',align:'center',halign:'center'">收藏数</th>
+								<th
+									data-options="field:'goodCount',align:'center',halign:'center'">点赞数</th>
+								<th
+									data-options="field:'commentCount',align:'center',halign:'center'">评论数</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div>
+		</div>
+		</div>
+		<script type="text/javascript">
+	var subjectList=eval(${subjectList});
+	var gradeList=eval(${gradeList});
+	var chapterOrignalList,kpOrignalList;
+	var chapterZTreeObj,kpZTreeObj;
+	var selectedKpCode,selectedChapterCode="";
+	$(function(){
+		subjectList.unshift({name:"请选择",code:"",selected:true});
+		gradeList.unshift({name:"请选择",code:"",selected:true});
+	 $('#subject').combobox('loadData',subjectList);
+	 $('#grade').combobox('loadData',gradeList);
+	 $("li").each(function(index,item){
+		 $(item).click(function(){
+			 $(this).toggleClass('active');
+			 $(this).siblings().toggleClass('active');
+			 $('#kpRoot').hide();
+			 $('#chapterRoot').hide();
+			 $('#'+this.id+'Root').show();
+		 })
+	 })
+ 	 selectComboFirst($('#resTypeL1'));
+	 queryDg();
+	})
+
+	function queryDg(){
+		$('#dg').datagrid('reload')
+	}
+	
+	function chapterKeyDown(){
+		var e=window.event;
+		if(e.keyCode==13){
+			fliterChapter();
+		}
+	}
+	
+	function kpKeyDown(){
+		var e=window.event;
+		if(e.keyCode==13){
+			fliterKp();
+		}
+	}
+	function onBeforeLoad(param){
+		if($('#resTypeL1').combobox('getValue')=="")return false;
+		$.extend(param,getParam());
+	}
+	
+	function getParam(){
+		return{
+			 subjectCode : $('#subject').combobox('getValue'),
+			 gradeCode : $('#grade').combobox('getValue'),
+			 textbookVerCode : $('#textbookVer').combobox('getValue'),
+			 chapterCode : selectedChapterCode,
+			 kpCode : selectedKpCode||"",
+			 resTypeL1 : $('#resTypeL1').combobox('getValue'),
+			 resTypeL2 : $('#resTypeL2').combobox('getValue'),
+			 shareLevel : $('#shareLevel').combobox('getValue'),
+			 startDate : $('#startDate').val(),
+			 endDate : $('#endDate').val(),
+			 orgCode	:	"${orgCode}"
+		}
+	}
+	//导出excel
+	function exportEXCEL(){
+		var url="/manage/orgResAggreateDetail/exportDetail.html?fileName="+getExportName();
+			downloadHelper(urlWithParam(url,getParam()));
+		
+	}
+	//章节点击事件
+	chapterSetting.callback.onClick=function chapterZtreeClick(event,treeId,treeNode){
+		if(chapterZTreeObj&&treeNode.code.indexOf('top')<0){
+			selectedChapterCode=chapterZTreeObj.getSelectedNodes()[0]?chapterZTreeObj.getSelectedNodes()[0].code:"";
+		}else{
+			selectedChapterCode="";
+		}
+		queryDg();
+	}
+	//知识点点击事件
+	kpSetting.callback.onClick=function kpZtreeClick(event,treeId,treeNode){
+		if(kpZTreeObj&&treeNode.code.indexOf('top')<0){
+			selectedKpCode=kpZTreeObj.getSelectedNodes()[0]?kpZTreeObj.getSelectedNodes()[0].code:"";	
+		}else{
+			selectedKpCode="";
+		}
+		queryDg();
+	}
+	//数据加载成功以后
+	function onLoadSuccess(data){	
+		$.ajax({
+			url:'/manage/reportOrgResDaily/resDetailSum.html',
+			data:getParam(),
+			success:function(res){
+				var totalResCount=0,totalBrowseCount=0,totalReferCount=0,totalDownloadCount=0,
+				totalFavouriteCount=0,totalGoodCount=0,totalCommentCount=0;
+				if(res[0]){
+					totalResCount=res[0].count;
+					totalDownloadCount=res[0].downloadCount;
+					totalBrowseCount=res[0].browseCount;
+					totalReferCount=res[0].referCount;
+					totalFavouriteCount=res[0].favoriteCount;
+					totalGoodCount=res[0].goodCount;
+					totalCommentCount=res[0].commentCount;	
+				}
+				$('#totalDownloadCount').text(totalDownloadCount||0);
+				$('#totalResCount').text(totalResCount||0);
+				$('#totalBrowseCount').text(totalBrowseCount||0);
+				$('#totalReferCount').text(totalReferCount||0);
+				$('#totalFavouriteCount').text(totalFavouriteCount||0);
+				$('#totalGoodCount').text(totalGoodCount||0);
+				$('#totalCommentCount').text(totalCommentCount||0);
+			}
+		})
+		
+
+	}
+	//学科改变事件
+	function subjectChange(record){
+		subjectTextbookVer(record,$('#textbookVer'));
+	}
+	//资源类别1改变事件
+	function resTypeL1Change(record){
+		getResTyleL2(record,$('#resTypeL2'));	
+		if(record==50){
+			$("td[field='resTypeL2Name']").find("span").html("题型");
+		}else{
+			$("td[field='resTypeL2Name']").find("span").html("二级分类");
+		}
+	}
+	//分享级别格式化
+	function shareLevelfmt(value,row){
+		if(value=="10"){
+			return "私有";
+		}else if(value=="20"){
+			return "校内";
+		}else if(value=="30"){
+			return "区域";
+		}
+	}
+	var tbCode,kpsCode;
+	//查询树
+	function query(){
+		var _subjectCode=$('#subject').combobox('getValue');
+		var _gradeCode=$('#grade').combobox('getValue');
+		var _textbookVerCode=$('#textbookVer').combobox('getValue');
+		selectedKpCode="";
+		selectedChapterCode="";
+		if(_subjectCode!=""){
+			//加载知识体系知识点
+			$.ajax({
+					url:"/manage/textbook/getKnowLedgeAll.html",
+					data:{
+						subjectCode:_subjectCode,
+						gradeCode:_gradeCode,
+					},
+					success:function(res){
+						kpOrignalList=res.data;
+						if(kpZTreeObj){
+							kpZTreeObj.destroy();	
+						}
+						kpZTreeObj=$.fn.zTree.init($("#kpTree"), kpSetting, kpOrignalList);
+					}
+				})
+			if(_gradeCode!=""){
+				//加载教材教材章节
+				$.ajax({
+					url:"/manage/textbook/getChapterAll.html",
+					data:{
+						subjectCode:_subjectCode,
+						gradeCode:_gradeCode,
+						textbookVerCode:_textbookVerCode,
+					},
+					success:function(res){
+						chapterOrignalList=res.data;
+						if(chapterZTreeObj){
+							chapterZTreeObj.destroy();	
+						}
+						chapterZTreeObj=$.fn.zTree.init($("#chapterTree"), chapterSetting, chapterOrignalList);
+					}
+				})	
+			}else{
+				if(kpZTreeObj){
+					kpZTreeObj.destroy();	
+				}
+	
+			}
+			
+		} else{
+			if(chapterZTreeObj){
+				chapterZTreeObj.destroy();	
+			}
+			if(kpZTreeObj){
+				kpZTreeObj.destroy();	
+			}
+			return false;
+		}
+	}
+	
+	//过滤章节
+	function fliterChapter(){
+		if($('#chapterName').val()==""){
+			if(chapterZTreeObj){
+				chapterZTreeObj.destroy();	
+			}
+			chapterZTreeObj=$.fn.zTree.init($("#chapterTree"), chapterSetting, chapterOrignalList);
+		}else{
+			var filterList=_.filter(chapterOrignalList,function(item){
+				return bztContains(item.name,$('#chapterName').val(),false);
+			})
+			chapterZTreeObj.destroy();
+			chapterZTreeObj=$.fn.zTree.init($("#chapterTree"), chapterSetting, filterList);	
+		}
+	}
+
+	//过滤知识点
+	function fliterKp(){
+		if(kpsCode=="")return false;
+		if($('#kpName').val()==""){
+			if(kpZTreeObj){
+				kpZTreeObj.destroy();	
+			}
+			kpZTreeObj=$.fn.zTree.init($("#kpTree"), kpSetting, kpOrignalList);
+		}else{
+			var filterList=_.filter(kpOrignalList,function(item){
+				return bztContains(item.name,$('#kpName').val(),false);
+			})
+			kpZTreeObj.destroy();
+			kpZTreeObj=$.fn.zTree.init($("#kpTree"), kpSetting, filterList);	
+		}	
+	}
+	</script>
+</body>
+</html>

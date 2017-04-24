@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>作者统计页面</title>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+</head>
+<style type="text/css">
+
+
+.searchDiv{
+    position: relative;
+    padding-left: 12px;
+    padding-right: 32px;
+    border: 1px solid #CCCCCC;
+    display: inline-block;
+    background-color: #fff;
+    width: 200px;
+}
+.searchDiv>input{
+	width: 100%;
+    height: 25px;
+    line-height: 25px;
+    border: none;
+    outline: none;
+}
+.searchDiv>i{
+	position: absolute;
+    top: 6px;
+    right: 0;
+    color: #009DD9;
+    font-size: 18px;
+}
+.width100{
+    width:100px;
+}
+.width130{
+    width:130px;
+}
+</style>
+<body>
+<div class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'">
+		<div class="box">
+			<div class="labelBox">
+				<div class="labelLine440">
+					<span class="labelWidth60">日期：</span>
+					<input id="startDate" class="Wdate" onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})"/>
+					~
+					<input id="endDate" class="Wdate" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})"/>
+				</div>
+				<span class="clear10"></span>
+				<div class="labelLine250">
+					<span class="labelWidth60">学段：</span><input id="section" class="easyui-combobox width100" data-options=" 
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{code: '',name: '请选择',selected:true}
+								<#if (sectionList?exists && sectionList?size>0)>
+							  		<#list sectionList as section>
+							  			,{code:'${section.code}', name:'${section.name?default('&nbsp;')}'}
+							  		</#list>
+								</#if>
+							],onSelect:sectionSelect"/> 
+				</div>
+				<div class="labelLine240">
+					<div class="labelWidth60">学科：</div>
+					<input class="easyui-combobox width100" id="subject"
+						   data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code: '',name: '请选择',selected:true}]
+							"/>
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60">共享级别：</span><input id="shareLevel" class="easyui-combobox width100" data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{code: '',name: '请选择',selected:true},
+								{code: '10',name: '个人私有'},
+								{code: '20',name: '校内共享'},
+								{code: '30',name: '区域共享'}
+							]"/>
+				</div>
+				<span class="clear10"></span>
+				<div class="labelLine250" >
+					<span class="labelWidth60">机构名称：</span><input class="easyui-validatebox width130" id="orgName" name="orgName" maxlength="60" placeholder="请输入机构名称"/>
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60">作者：</span>
+					<input class="easyui-validatebox width130" id="userName" name="userName" maxlength="36" placeholder="请输入作者姓名"/>
+				</div>
+			</div>
+			<div class="btnBox">
+				<button class="btn btnBlue search" onclick="query()">查询</button>
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<div id="tb" class="tbClass">
+		    <!-- <div class="searchDiv"><input id="keyword" placeholder="请输入关键字"/><i class="fa fa-search" onclick="keywordQuery()"></i></div> -->
+			<span class="attr" style="margin-left: 10px;">作者数：<label id="authorTotal"></label></span> 
+			<span class="attr">资源数：<label id="resTotal"></label></span>
+			<!-- <span class="attr">个人私有：<label id="shareLevelPrivateTotal"></label></span>
+			<span class="attr">校内共享：<label id="shareLevelOrgTotal"></label></span>
+			<span class="attr">区内共享：<label id="shareLevelAreaTotal"></label></span>  -->
+			<span class="attr">视频数：<label id="mediaTotal"></label></span>
+			<span class="attr">文档数：<label id="docTotal"></label></span>
+			<span class="attr">测验数：<label id="exerciseTotal"></label></span>
+			<span class="attr">题目数：<label id="questionTotal"></label></span>
+			<button class="btn btnBlue align-right" onclick="exportData()">导出</button>
+		</div>
+	 <table id="dg" class="easyui-datagrid" data-options="
+		 pagination:true,
+		 onBeforeLoad:onBeforeLoad,	
+		 rownumbers:true,
+		 singleSelect:true,
+		 toolbar:'#tb',
+		 fit:true,
+		 url:'/manage/teacherResMakeDaily/search.html'
+		 ">
+	 <thead>
+	 	<tr>
+	 		<th data-options="field:'userName',width:100,halign:'center',align:'left'">作者</th>
+	 		<!-- <th data-options="field:'currentTeaching',width:300,halign:'center',align:'left'">当前执教</th> --> 
+	 		<th data-options="field:'orgName',width:200,halign:'center',align:'left'">机构名称</th> 
+	 		<th data-options="field:'resTotal',width:90,align:'center',halign:'center'">资源数</th>
+	 		<!--  <th data-options="field:'shareLevelPrivate',width:90,align:'right',halign:'center'">个人私有</th>
+	 		<th data-options="field:'shareLevelOrg',width:90,align:'right',halign:'center'">校内共享</th>
+	 		<th data-options="field:'shareLevelArea',width:90,align:'right',halign:'center'">区内共享</th>-->
+	 		<th data-options="field:'mediaTotal',width:90,align:'center',halign:'center'">视频数</th>
+	 		<th data-options="field:'docTotal',width:90,align:'center',halign:'center'">文档数</th>
+	 		<th data-options="field:'exerciseTotal',width:90,align:'center',halign:'center'">测验数</th>
+	 		<th data-options="field:'questionTotal',width:90,align:'center',halign:'center'">题目数</th>
+	 	</tr>
+	 </thead>
+	 </table>
+	</div>
+</div>
+<script type="text/javascript">
+    //查询总数
+    function queryTotal(){
+		var opts={
+				url:'/manage/teacherResMakeDaily/searchTotal.html',
+    			type:"post",
+				data:getParam(),
+				success:function(data){
+					$('#authorTotal').text(data.authorTotal||0); 
+					$('#resTotal').text(data.resTotal||0);
+				/* 	$('#shareLevelPrivateTotal').text(data.shareLevelPrivateTotal||0);
+					$('#shareLevelOrgTotal').text(data.shareLevelOrgTotal||0);
+					$('#shareLevelAreaTotal').text(data.shareLevelAreaTotal||0); */
+					$('#mediaTotal').text(data.mediaTotal||0);
+					$('#docTotal').text(data.docTotal||0);
+					$('#exerciseTotal').text(data.exerciseTotal||0);
+					$('#questionTotal').text(data.questionTotal||0);
+				},
+				error:function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("网络繁忙请稍后再试");
+				},
+				complete:function() {
+						
+				}
+		}
+		$.ajax(opts);
+    }
+
+	//查询
+	function query(){
+		$('#dg').datagrid('reload');
+		queryTotal();
+	}
+	
+	//学段选择事件
+	function sectionSelect(record) {
+		sectionSubject(record.code, $('#subject'));
+	}
+	
+	$(function() {
+		queryTotal();
+	})
+	
+	function onBeforeLoad(param){
+		$.extend(param,getParam());
+	}
+	
+	//导出数据
+	function exportData(){
+		var url="/manage/teacherResMakeDaily/export.html?fileName="+getExportName();
+		downloadHelper(urlWithParam(url,getParam()));
+	}
+	
+	function getParam(){
+		var endDate=$("#endDate").val();
+		if(endDate==""||endDate==null){
+			endDate=moment(new Date()).format("YYYYMMDD");
+		}else{
+			endDate=moment(endDate).format("YYYYMMDD");
+		}
+		var startDate=$("#startDate").val();
+		if(startDate!=""){
+			startDate=moment(startDate).format("YYYYMMDD");
+		}
+		return {
+			 sectionCode : $("#section").combobox('getValue'),
+			 subjectCode : $("#subject").combobox('getValue'),
+			 orgName : $("#orgName").val(),
+		     userName : $("#userName").val(),
+			 startDate : startDate,
+			 endDate : $("#endDate").val(),
+			 shareLevel : $("#shareLevel").combobox('getValue'),
+			 endDate	:	endDate,
+			}
+		
+	}
+</script>
+</body>
+</html>

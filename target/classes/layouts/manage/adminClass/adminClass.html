@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>行政班级信息页面</title>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<style type="text/css">
+.attrDiv {
+	line-height: 35px;
+}
+
+.attrDiv>span {
+	width: 60px;
+	line-height: 25px;
+	margin-right: 20px;
+	display: inline-block; 
+}
+
+.attrDiv>input select {
+	width: 150px;
+}
+</style>
+</head>
+<body>
+	<div id="layout" class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'">
+			<div  id="searchDiv" class="form box" >
+				<div class="labelBox">
+				<span class="labelLine240">
+					<span class="labelWidth60">学段：</span>
+					<input id="section" class="easyui-combobox" data-options="
+					textField:'name',
+					valueField:'code',
+					editable:false,
+					onChange:function(newValue){
+					sectionGrade(newValue,$('#grade'));
+					}">
+				</span>
+				<span class="labelLine240">
+					<span class="labelWidth60">年级：</span>
+					<input id="grade" class="easyui-combobox" data-options="data:[{name:'请选择',code:'',selected:true}],textField:'name',valueField:'code',editable:false">
+				</span>
+				<div class="clear10"></div>
+				<span class="labelLine240">
+					<span class="labelWidth60">班级名称：</span>
+					<input id="className" placeholder="请输入班级名称">
+				</span>
+				<span class="labelLine240">
+					<span class="labelWidth60">班主任：</span>
+					<input id="teacherName" placeholder="请输入姓名">
+				</span>
+				</div>	
+				<div class="btnBox"><!-- <img src="/manage/template/images/search.png"> -->
+					<a class="btn btnBlue search"  onclick="query()">查询</a>
+					<a class="btn btnBlue add"  onclick="addClass()">新增</a>
+				</div>
+			</div>
+		</div>
+		<div data-options="region:'center'">
+			<table id="dg" class="easyui-datagrid"
+				data-options="
+				    pagination:true,
+				    toolbar:'#tb',
+				    fit:true,
+				    rownumbers:true,
+				    onBeforeLoad:onBeforeLoad,
+				    singleSelect:true,
+				    url:'/manage/adminClass/listClass.html'
+		        ">
+				<thead>
+					<tr>
+						<th data-options="field:'opt',width:130,formatter:optFmt,halign:'center',align:'center'">操作</th>
+						<th data-options="field:'className',width:180,halign:'center',align:'left'">班级名称</th>
+						<th data-options="field:'teacherName',width:70,halign:'center',align:'left'">班主任</th>
+						<th data-options="field:'gradeName',width:70,halign:'center',align:'left'">年级</th>
+						<th data-options="field:'entryYear',halign:'center',width:70,align:'center'">入学年份</th>
+						<th data-options="field:'studentCount',formatter:stufmt,width:70,halign:'center',align:'right'">学生人数</th>
+						<!-- <th data-options="field:'teachingInfo',width:70,halign:'center',align:'center',formatter:teachInfofmt">任教信息</th>  -->
+					</tr>
+				</thead>
+			</table>
+		</div>
+
+	</div>
+	<script type="text/javascript">
+	var sectionList=eval(${sectionList}),	
+		gradeList=eval(${gradeList}),
+		teacherList=null;
+		
+	$(function(){
+		/* sectionList.unshift({name:"请选择",code:""}); */
+		$('#section').combobox('loadData',sectionList).combobox('select',sectionList[0].code);
+		var currentYear=new Date().getFullYear();
+		var yearList=[];
+		for(var i=-5;i<=0;i++){
+			yearList.push({"name":(currentYear+i),"code":(currentYear+i)});
+		}
+		$('#entryYear').combobox('loadData',yearList);
+		$('#gradeCode').combobox('loadData',gradeList);
+	})
+	
+	function onBeforeLoad(param){
+		param["className"]=$('#className').val();
+		param["gradeCode"]=$('#grade').combobox('getValue');
+		param["sectionCode"]=$('#section').combobox('getValue');
+		param["teacherName"]=$('#teacherName').val();
+	}
+	
+	
+	function query(){
+		$('#dg').datagrid('reload');
+	}
+	
+	function optFmt(value,row){
+		return "<a href='javascript:void(0)' onClick='modify(this)'>修改</a>&nbsp;&nbsp; <a href='javascript:void(0)' onClick='del(\""+row.gid+"\")'>删除</a>"
+		
+	}
+	//班级学生
+	function stufmt(value,row){
+		return "<a href='javascript:void(0)' onClick='classStudent(this)'>"+value+"</a>"
+	}
+
+	//新增班级
+	function addClass(){
+		easyui_openNoResizeWindow("班级新增",720,400,"/manage/adminClass/toAdminClassAdd.html",function(r){
+			$('#dg').datagrid('reload');
+		})
+	}
+	
+	//查询老师
+	function loadTeacherList(){
+		$.get("/manage/teacher/getTeacherList.html",function(data){
+			$('#headTeacherCode').combobox('loadData',data);
+		})
+	}
+	
+	//删除行政班级
+	function del(_gid){
+		$.messager.confirm("信息","删除行政班级，将会删除所有的教学历史信息，您确定要删除吗？",function(r){
+			if(r){
+				$.ajax({
+					url:'/manage/adminClass/deleteAdminClass.html',
+					data:{
+						gid:_gid,
+					},
+					success:function(res){
+						alert(res.msg);
+						if(res.success){
+							$('#dg').datagrid('reload');
+							$('#frm').attr("src",$('#frm').attr("src"));
+						}
+					}
+				})
+			}
+		})
+	}
+	
+	//修改行政班级信息
+	function  modify(obj){
+		var index=$(obj).closest("tr").index();
+		$("#dg").datagrid('selectRow',index);
+		var row=$('#dg').datagrid('getSelected');
+		easyui_openNoResizeWindow("班级修改",720,400,"/manage/adminClass/toAdminClassEdit.html?adminClassCode="+row.classCode,function(r){
+			$('#dg').datagrid('reload');
+		})
+	}
+	
+	function classStudent(obj){
+		var row=getRow(obj);
+		var url=urlWithParam(window.location.pathname,getParam("searchDiv"));
+		window.localStorage.prevUrl=url;
+		window.location.href="/manage/adminClassStudent/toAdminClassStudent.html?gid="+row.gid+"&gradeCode="+row.gradeCode;
+	}
+/* 	
+      园区版本修改行政班级 和学生信息
+ 
+ 
+ //修改行政班级
+	function modify(obj){
+		var index=$(obj).closest("tr").index();
+		$("#dg").datagrid('selectRow',index);
+		var row=$('#dg').datagrid('getSelected');
+		
+		$('#fm').form('clear');
+		$('#_className').val(row.className);
+		$('#gradeCode').combobox('setValue',row.gradeCode);
+		$('#entryYear').combobox('setValue',row.entryYear);
+		if(row.studentCount>0){
+		$('#gradeCode').combobox('disable')	
+		}else{
+			$('#gradeCode').combobox('enable')	
+		}
+		$('#headTeacherCode').combobox('setValue',row.headTeacherCode);
+		$('#gid').val(row.gid);
+		$('#dd').dialog({'title':'修改班级'}).dialog('open');
+	} 
+	
+	
+	//查看班级学生
+	function classStudent(adminClassCode,gradeCode){
+		$('#frm').attr('src','/manage/company/toSchoolStudentInfo.html?adminClassCode='+adminClassCode+'&gradeCode='+gradeCode).attr('height','98%').show();
+		$('#layout').layout('panel','south').panel({height:300,title:'详细信息'})
+		$('#layout').layout('resize');
+	}
+	
+	//任教信息格式化
+	function teachInfofmt(value,row){
+		var	str = "<a href='javascript:void(0)' onclick='teachInfoDetail(this)'>查看</a>";
+		return str;
+	}
+	
+	//任教信息查看详细
+	function teachInfoDetail(obj){
+		var index = $(obj).closest("tr").index();
+		$('#dg').datagrid('selectRow', index);
+		var row = $('#dg').datagrid('getSelected');
+		var orgCode=row.orgCode;
+		var classCode=row.classCode;
+		var gradeCode=row.gradeCode;
+		$('#frm').attr('src','/manage/adminClass/teachingInfo.html?orgCode='+orgCode+'&classCode='+classCode+'&gradeCode='+gradeCode).attr('height','99%').show();
+		$('#layout').layout('panel','south').panel({height:400,title:'查看任教信息'}); 
+		$('#layout').layout('resize');
+	}
+
+	*/
+
+
+	
+
+</script>
+</body>
+</html>

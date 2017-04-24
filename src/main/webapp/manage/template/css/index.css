@@ -1,0 +1,73 @@
+.systemTitle{
+    font-family: 'Arial Negreta', 'Arial';
+    font-weight: 700;
+    font-style: normal;
+    font-size: 16px;
+    color: #666666;
+    line-height: 66px;
+    height: 60px;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 20px;
+}
+.rightInfo{
+	height:60px;
+	line-height:60px;
+    text-align: left;
+    position:relative;
+}
+.infoMenu{
+    position: absolute;
+    display: none;
+    z-index: 19891023;
+    top: 60px;
+    right: -2px;
+    bottom: 0px;
+    color: #199ED7;
+    background: #ffffff;
+    text-align: center;
+    height: 80px;
+    width: 122px;
+    border: 1px solid #EEEEEE;
+}
+.infoMenu>div{
+    height: 40px;
+    line-height: 40px;
+    cursor:pointer;	
+}
+.splitLine{
+	width:100%;
+	background:#EEEEEE;
+	height:1px !important;
+	display:block;
+}
+.adminInfo{
+    font-style: normal;
+    font-size: 14px;
+    color: #199ED7;
+}
+.downMenu{
+   background: url(/manage/template/images/downMenu.png) no-repeat 0px 7px;
+   width: 30px;
+   height: 30px;
+   display: inline-block;
+}
+
+#treeMenu{
+	position: relative;
+    z-index: 10000;
+}
+.companyInfo{
+    z-index: 0;
+    width:inherit;
+    color: #79D4FF;
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+}
+.companyInfo p{
+    margin: 0 0 10px 0;
+}
+.layout-panel-north{
+	border-bottom: 10px solid #F3F4F6
+}

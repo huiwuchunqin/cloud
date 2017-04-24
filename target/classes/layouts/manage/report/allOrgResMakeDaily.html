@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<title>资源汇总统计</title>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'">
+			<div class="box">
+				<div class="labelBox">
+					<div class="labelLine440">
+						<span class="labelWidth60">日期：</span> <input id="startDate"
+																	class="Wdate"
+																	onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})" />
+						~ <input id="endDate" class="Wdate"
+								 onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})" />
+					</div>
+				</div>
+				<div class="btnBox">
+					<button  class="btn btnBlue search" onclick="$('#dg').datagrid('reload')">查询</button> 
+				</div>
+			</div>
+		</div>
+		<div data-options="region:'center'">
+			<div id="tb"  class="tbClass">
+				<form id="fm" method="post">
+					<span class="attr">资源数:<label id="resTotal"></label></span> <span
+						class="attr">视频数:<label id="mediaTotal"></label></span> <span
+						class="attr">文档数:<label id="docTotal"></label></span> <span
+						class="attr">测验数:<label id="exerciseTotal"></label></span> <span
+						class="attr">题数:<label id="questionTotal"></label></span> <span
+						class="attr">个人私有:<label id="privateTotal"></label></span> <span
+						class="attr">校内共享:<label id="orgTotal"></label></span> <span
+						class="attr">区域共享:<label id="areaTotal"></label></span>
+					<div class="btnBox">
+					<button  class="btn btnBlue" onclick="exportEXCEL()">导出</button>
+					</div>
+				</form>
+			</div>
+			<table id="dg" class="easyui-datagrid"
+				data-options="
+					url:'/manage/reportOrgResDaily/listAllOrgRes.html',
+					onBeforeLoad:onBeforeLoad,
+					toolbar:'#tb',
+					onLoadSuccess:onLoadSuccess,
+					fit:true,
+					singleSelect:true
+                ">
+				<thead>
+					<tr>
+						<th
+							data-options="field:'level1Name',width:150,align:'center',halign:'center'">一级分类</th>
+						<th
+							data-options="field:'level2Name',width:150,align:'center',halign:'center'">二级分类</th>
+						<th
+							data-options="field:'privateNum',width:150,align:'right',halign:'center'">个人私有</th>
+						<th
+							data-options="field:'orgNum',width:150,align:'right',halign:'center'">校内共享</th>
+						<th
+							data-options="field:'areaNum',width:150,align:'right',halign:'center'">区域共享</th>
+						<th
+							data-options="field:'totalNum',width:100,align:'right',halign:'center'">总数</th>
+						<!-- <th data-options="field:'referCount',width:80,align:'right',halign:'center'">引用次数</th>
+						<th data-options="field:'favouriteCount',width:80,align:'right',halign:'center'">收藏次数</th>
+						<th data-options="field:'downloadCount',width:80,align:'right',halign:'center'">下载次数</th> -->
+						<!-- <th data-options="field:'detail',formatter:detailFmt,width:80,align:'right'">详情</th> -->
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+	<script type="text/javascript">
+		function onBeforeLoad(param) {
+			var startDate = $("#startDate").val();
+			var endDate = $("#endDate").val();
+			if (endDate == "") {
+				endDate = moment(new Date()).format("YYYY-MM-DD");
+				//$("#endDate").val(endDate);
+			}
+			param["startDate"] = startDate ? moment(startDate).format(
+					"YYYYMMDD").toString() : "";
+			param["endDate"] = endDate ? moment(endDate).format("YYYYMMDD")
+					.toString() : "";
+		}
+		//操作格式化 
+		function detailFmt(value, row) {
+			return "<a href='javascript:void(0)' class='easyui-linkbutton' onclick='viewDetail(\""
+					+ row.resTypeL1 + "\",\"" + row.resTypeL2 + "\")'>详情</a>"
+		}
+		/* 	//查看详情
+		 function viewDetail(resTypeL1,resTypeL2){
+		 var startDate=$("#startDate").val();
+		 var endDate=$("#endDate").val();
+		 var url="/manage/reportOrgResDaily/toResReportDetial.html?resTypeL1="+resTypeL1+"&resTypeL2="+resTypeL2;
+		 window.top.$("#tab").tabs('close','机构资源汇总详情');
+		 window.top.$("#tab").tabs('add', {
+		 title : '资源汇总详情',
+		 closable : true,
+		 content : '<iframe scrolling="no" frameborder="0" src="'+url+ '" style="width:100%;height:100%;"></iframe>'
+		 });
+		 /* easyui_openNoResizeWindow("汇总统计详情",1350,800,url,function(){
+		
+		 })	 
+		 } */
+		//导出excel
+		function exportEXCEL() {
+			var startDate = $("#startDate").val();
+			var endDate = $("#endDate").val();
+			if (endDate == "") {
+				endDate = moment(new Date()).format("YYYY-MM-DD");
+				//$("#endDate").val(endDate);
+			}
+			startDate = startDate ? moment(startDate).format("YYYYMMDD").toString() : "";
+			endDate = endDate ? moment(endDate).format("YYYYMMDD").toString(): "";
+			var _url = "/manage/reportOrgResDaily/exportAggregate.html?endDate="
+					+ endDate + "&startDate=" + startDate+"&fileName="+getExportName()
+			$('#fm').form({
+				url : _url,
+				success : function(json) {
+					var res = $.parseJSON(json);
+					$.messager.alert("信息", res.msg, "info");
+				}
+			})
+		}
+		//加载成功
+		function onLoadSuccess(data) {
+			var resTotal = 0, mediaTotal = 0, docTotal = 0, exerciseTotal = 0, questionTotal = 0, privateTotal = 0, orgTotal = 0, areaTotal = 0;
+			var resTypeL1Map = {};//一级分类map {"10":{child:[1001,10002]}}
+			var resTypeL2Map = {};//二级分类map {	10000:{"parent":"10"}}
+			var resTypeL1RowsSort = [];
+			_.each(data.rows, function(item) {
+				if (item) {
+					resTotal = resTotal + item.totalNum;
+					privateTotal = privateTotal + item.privateNum;
+					orgTotal = orgTotal + item.orgNum;
+					areaTotal = areaTotal + item.areaNum;
+					switch (item.resTypeL1) {
+					case 10:
+						mediaTotal = mediaTotal + item.totalNum;
+						break; //视频
+					case 20:
+						docTotal = docTotal + item.totalNum;
+						break; //文档
+					case 30:
+						exerciseTotal = exerciseTotal + item.totalNum;
+						break;//测验
+					case 50:
+						questionTotal = questionTotal + item.totalNum;
+						break;//试题
+					default:
+						break;
+					}
+			/* 		//计算一级分类下面有几个小分类
+					if (resTypeL1RowsSort.indexOf(item.resTypeL1) < 0) {
+						resTypeL1RowsSort.push(item.resTypeL1);
+					}
+					if (!resTypeL1Map[item.resTypeL1]) {
+						resTypeL1Map[item.resTypeL1] = {};
+						resTypeL1Map[item.resTypeL1].child = [];
+					}
+					if(item.resTypeL2==null){
+							var key=_.random(100000);
+							resTypeL2Map[key]={};
+							resTypeL2Map[key].parent=item.resTypeL1;
+					}else{
+						resTypeL2Map[item.resTypeL1+"-"+item.resTypeL2]={};
+						resTypeL2Map[item.resTypeL1+"-"+item.resTypeL2].parent=item.resTypeL1;
+					}  */
+				}
+			})
+		/* 	for ( var attr in resTypeL1Map) {
+				for ( var attr2 in resTypeL2Map) {
+					if (resTypeL2Map[attr2].parent == attr) {
+						resTypeL1Map[attr].child.push(attr2);
+					}
+				}
+			} */
+			$('#orgTotal').text(orgTotal);
+			$('#areaTotal').text(areaTotal);
+			$('#privateTotal').text(privateTotal);
+			$('#resTotal').text(resTotal);
+			$('#mediaTotal').text(mediaTotal);
+			$('#docTotal').text(docTotal);
+			$('#exerciseTotal').text(exerciseTotal);
+			$('#questionTotal').text(questionTotal);
+		/* 	var merges = [];
+			var currenIndex = 0;
+			_.each(resTypeL1RowsSort, function(item) {
+				merges.push({
+					index : currenIndex,
+					rowspan : resTypeL1Map[item].child.length
+				});
+				currenIndex = currenIndex + resTypeL1Map[item].child.length;
+			})
+			for (var i = 0; i < merges.length; i++) {
+				$("#dg").datagrid('mergeCells', {
+					index : merges[i].index,
+					field : 'level1Name',
+					rowspan : merges[i].rowspan
+				});
+			} */
+		}
+	</script>
+</body>
+</html>

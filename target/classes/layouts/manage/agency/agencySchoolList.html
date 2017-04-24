@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>代理商学校</title> <#include "/manage/common/meta_js.html"> <#include
+"/manage/common/meta_css.html">
+<script  type="text/javascript" src="/manage/template/agency/agencySchool.js"></script>
+</head>
+<body>
+<body class="easyui-layout">
+
+	<div data-options="region:'north'" style="height: 70px">
+
+		<div class="box">
+			<div id="queryBox" class="labelBox">
+				<div class="labelLine320">
+					<span class="labelWidth60">学校名称</span> <input id="orgName"
+						placeholder="请输入学校名称">
+				</div>
+
+				<div class="labelLine240">
+					<span class="labelWidth60">学段</span> <input id="sectionCode"
+						class="easyui-combobox"
+						data-options="textField:'name',valueField:'code',editable:false">
+				</div>
+			</div>
+			<div class="btnBox">
+				<a class="btn btnBlue search" onclick="searchData()">查询</a> <a
+					class="btn btnBlue add" onclick="add()">新增</a>
+			</div>
+		</div>
+
+	</div>
+
+	<div data-options="region:'center'">
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+	fitColumns:true,
+	rownumbers:true,
+	url:'/manage/agency/school/page.html',
+	onBeforeLoad:onBeforeLoad,
+	pagination:true,
+	fit:true,
+	">
+			<thead>
+				<tr>
+					<th
+						data-options="field:'ckunderwear',halign:'center',align:'center',width:130,formatter:optfmt">操作</th>
+					<th data-options="field:'orgName',halign:'center',width:180">学校名称</th>
+					<th
+						data-options="field:'sectionName',halign:'center',align:'center',width:90">学段</th>
+					<th data-options="field:'domainURL',halign:'center',width:150">域名</th>
+					<th
+						data-options="field:'agencyName',halign:'center',align:'center',width:150">所属代理商</th>
+					<th
+						data-options="field:'flagValid',halign:'center',align:'center',width:90,formatter:orgStatefmt">状态</th>
+
+					<th data-options="field:'topName',halign:'center',width:90">联系人</th>
+					<th
+						data-options="field:'phone',halign:'center',align:'center',width:110">联系电话</th>
+					<th
+						data-options="field:'modifyTime',halign:'center',align:'center',width:140,formatter:timeLongfmt">更新时间</th>
+					<th
+						data-options="field:'adminClassCount',halign:'center',align:'right',width:60">班级数</th>
+					<th
+						data-options="field:'teacherCount',halign:'center',align:'right',width:60">老师数</th>
+					<th
+						data-options="field:'studentCount',halign:'center',align:'right',width:60">学生数</th>
+					<th data-options="field:'remark',halign:'center',width:180">学校描述</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<script type="text/javascript">
+	var sectionList=eval(${sectionList});
+	</script>
+
+</body>
+</html>

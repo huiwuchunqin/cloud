@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<link rel="stylesheet" type="text/css" href="/manage/template/css/index.css" />
+<script type="text/javascript"  src="/manage/template/index/index.js"></script>
+<#include "/manage/common/meta_css.html"/>
+<title>${platform.name}-后台管理</title>
+	<style>
+		.tabs{
+			height: 40px !important;
+			border: 1px solid #ddd;
+		}
+		.tabs li a.tabs-inner{
+			height: 40px !important;
+			margin: 0;
+			border: 0;
+			border-right: 1px solid #ddd;
+		}
+		.tabs li.tabs-selected a.tabs-inner{
+			height: 40px !important;
+			margin: 0;
+			border: 0;
+			border-right: 1px solid #ddd;
+		}
+	</style>
+<script type="text/javascript">
+
+	$(function() {
+		//管理员登录
+		if ("${flagSuperAdmin}" != "" && "${flagSuperAdmin}" == "true") {
+			var opts = {
+				url : '/manage/menu/getAdminMenu.html',
+				data : {},
+				success : function(res) {
+					if (res != null && res.length > 0) {
+						$('#treeMenu').tree('loadData',res);
+					}
+				}
+			}
+			$.ajax(opts);
+		}else if ("${role}" != "") {
+			var opts = {
+				url : '/manage/roleResource/getUserMenu.html',
+				data : {
+					roleCode : "${role.code}"
+				},
+				success : function(res) {
+					if (res != null && res.length > 0) {
+						$('#treeMenu').tree('loadData',res);
+					}
+				}
+			}
+			$.ajax(opts);
+		}
+		//修改密码
+		$("#btnUpdatePassword").click(function() {
+			modifypwd("${adminUser.userCode}");
+		});
+
+		$('#platformLogo').attr("src","${imgHost}/"+"${platform.platformLogo}");
+	})
+</script>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north',border:false" >
+			<div style="float: left;">
+				<img id="platformLogo" style="height: 37px; margin-left: 10px;margin-top: 15px" alt=""/>
+				<span class="systemTitle">
+					${platform.name}-后台管理
+					<sup style="color: #000406"></sup>   
+				</span>
+			</div>
+			<iframe style="display:none" id="formLogot"></iframe>
+			<div class="rightInfo align-right clearfix" >	
+					<span class="adminInfo" >欢迎您，${adminUser.userName}</span>
+					<a class="downMenu cursor" onclick="showMenu()"></a>
+					
+			</div>
+		</div>
+		<div data-options="region:'west',title:' ',split:true,border:false"  class="leftSidebar">
+		<div class="easyui-accordion">
+		</div>
+			<div id="treeMenu" class="easyui-tree" >
+			</div>
+			<div class="companyInfo">
+				<p>技术支持</p>
+				<p>苏州百智通信息技术有限公司</p>
+			</div>
+		</div>
+		<div data-options="region:'center',split:true">
+			<div class="easyui-tabs" id="tab" data-options="
+			fit:true,
+			border:false,
+			">
+			</div>
+			<div id="tabMenu" style="width: 100px; display: none;">
+				<div title="close" data-options="iconCls:'icon-remove'">关闭</div>
+				<div title="closeOther" data-options="iconCls:'icon-remove'">关闭其他</div>
+				<div title="closeAll" data-options="iconCls:'icon-remove'">关闭全部</div>
+			</div>
+		</div>
+	</div>
+	<div class="infoMenu">
+		<div id="btnUpdatePassword">修改密码</div>
+		<div class="splitLine"></div>
+		<div id="btnExit">退出登录</div>
+	</div>
+</body>
+</html>

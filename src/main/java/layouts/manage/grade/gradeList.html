@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>年级</title>
+<script type="text/javascript">
+</script>
+</head>
+<body>
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+			    pagination:true,
+			    toolbar:'#tb',
+			    fit:true,
+			    fitColumns:true,
+			    rownumbers:true,
+			    singleSelect:true,
+			    url:'/manage/grade/listGrade.html'
+	        ">
+				<thead>
+					<tr>
+						<th data-options="field:'name',width:80,halign:'center',align:'left'">年级</th>
+					<!-- 	<th data-options="field:'createTime',width:140,align:'center',halign:'center',formatter:timefmt,headalign:'center'">设置时间</th> -->
+						<th data-options="field:'dispOrder',halign:'center',width:50,align:'right'">顺序</th>
+						<th data-options="field:'description',width:450,halign:'center',align:'left'">描述</th>
+					    <th data-options="field:'id',width:120,hidden:true">id</th>
+					</tr>
+				</thead>
+			</table>
+</body>
+</html>

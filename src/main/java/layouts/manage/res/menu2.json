@@ -1,0 +1,139 @@
+{
+  "success": true,
+  "errorCode": null,
+  "msg": "获取数据成功！",
+  "data": [
+    {
+      "name": "一级菜单",
+      "code": "1",
+      "parentCodeType": "",
+      "parentCodeValue": "0"
+    },
+    {
+      "name": "一级菜单",
+      "code": "2",
+      "parentCodeType": "",
+      "parentCodeValue": "0"
+    },
+    {
+      "name": "一级菜单",
+      "code": "3",
+      "parentCodeType": "",
+      "parentCodeValue": "0"
+    },
+    {
+      "name": "一级菜单",
+      "code": "4",
+      "parentCodeType": "",
+      "parentCodeValue": "0"
+    },
+    {
+      "name": "二级菜单",
+      "code": "11",
+      "parentCodeType": "FIRST",
+      "parentCodeValue": "1"
+    },
+    {
+      "name": "二级菜单",
+      "code": "21",
+      "parentCodeType": "FIRST",
+      "parentCodeValue": "2"
+    },
+    {
+      "name": "二级菜单",
+      "code": "22",
+      "parentCodeType": "FIRST",
+      "parentCodeValue": "2"
+    },
+    {
+      "name": "二级菜单",
+      "code": "23",
+      "parentCodeType": "FIRST",
+      "parentCodeValue": "2"
+    },
+    {
+      "name": "二级菜单",
+      "code": "31",
+      "parentCodeType": "FIRST",
+      "parentCodeValue": "3"
+    },
+    {
+      "name": "二级菜单",
+      "code": "32",
+      "parentCodeType": "FIRST",
+      "parentCodeValue": "3"
+    },
+    {
+      "name": "二级菜单",
+      "code": "33",
+      "parentCodeType": "FIRST",
+      "parentCodeValue": "3"
+    },
+    {
+      "name": "二级菜单",
+      "code": "34",
+      "parentCodeType": "FIRST",
+      "parentCodeValue": "3"
+    },
+    {
+      "name": "二级菜单",
+      "code": "41",
+      "parentCodeType": "FIRST",
+      "parentCodeValue": "4"
+    },
+    {
+      "name": "三级菜单",
+      "code": "211",
+      "parentCodeType": "SECOND",
+      "parentCodeValue": "21"
+    },
+    {
+      "name": "三级菜单",
+      "code": "212",
+      "parentCodeType": "SECOND",
+      "parentCodeValue": "21"
+    },
+    {
+      "name": "三级菜单",
+      "code": "213",
+      "parentCodeType": "SECOND",
+      "parentCodeValue": "21"
+    },
+    {
+      "name": "三级菜单",
+      "code": "411",
+      "parentCodeType": "SECOND",
+      "parentCodeValue": "41"
+    },
+    {
+      "name": "三级菜单",
+      "code": "412",
+      "parentCodeType": "SECOND",
+      "parentCodeValue": "41"
+    },
+    {
+      "name": "三级菜单",
+      "code": "413",
+      "parentCodeType": "SECOND",
+      "parentCodeValue": "41"
+    },
+    {
+      "name": "三级菜单",
+      "code": "421",
+      "parentCodeType": "SECOND",
+      "parentCodeValue": "41"
+    },
+    {
+      "name": "三级菜单",
+      "code": "422",
+      "parentCodeType": "SECOND",
+      "parentCodeValue": "41"
+    },
+    {
+      "name": "三级菜单",
+      "code": "423",
+      "parentCodeType": "SECOND",
+      "parentCodeValue": "41"
+    }
+  ]
+}

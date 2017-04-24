@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>用户反馈页面</title> 
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+</head>
+<style type="text/css"> 
+.width120 {
+	width: 120px;
+}
+</style>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'">
+			<div class="box">
+				<div class="labelBox">
+					<div class="labelLine440">
+						<span class="labelWidth60">日期：</span> <input id="startDate" class="Wdate"
+							onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})" />
+						~<input id="endDate" class="Wdate"
+							onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})" />
+					</div>
+					<div class="clear10"></div>
+					<div class="labelLine240" >
+						<span class="labelWidth60">模块：</span> <input
+							class="easyui-combobox width120" id="moduleName"
+							data-options="
+								valueField: 'code',
+								textField: 'name',
+								panelHeight: 'auto',
+								editable: false,
+								data:[
+									{name:'全部',code:'',selected:true},
+									{name:'个人信息',code:'个人信息'},
+									{name:'空间首页',code:'空间首页'},
+									{name:'课程中心',code:'课程中心'},	
+								    {name:'资源中心',code:'资源中心'},
+								    {name:'作业中心',code:'作业中心'},
+								    {name:'在线考试',code:'在线考试'},
+								    {name:'自主评测',code:'自主评测'},
+								    {name:'错题',code:'错题'},
+								    {name:'云盘',code:'云盘'},
+								    {name:'笔记',code:'笔记'},
+								    {name:'统计',code:'统计'}]
+						    " />
+					</div>
+					<div class="labelLine240" >
+						<span class="labelWidth90">处理状态：</span> <input
+							class="easyui-combobox width120" id="disposeStatus"
+							data-options="
+								valueField: 'code',
+								textField: 'name',
+								panelHeight: 'auto',
+								editable: false,
+								data:[
+									{name:'全部',code:''},
+									{name:'待处理',code:'0',selected:true},
+									{name:'已处理',code:'1'},
+									{name:'无需处理',code:'2'}]
+							" />
+					</div>
+				</div>
+				<div class="btnBox">
+				<button class="btn btnBlue search" onclick="query()">查询</button>
+				</div>
+			</div>
+		</div>
+
+		<div data-options="region:'center'">
+			<div id="bar" class="btnToolbar">
+				<button class="btn btnDelete" onclick="deleteRes()">删除</button>
+				<button class="btn btnBlue" onclick="handle()">处理</button>
+				<button class="btn btnBlue" onclick="noHandle()">无需处理</button>
+			</div>
+
+			<table id="dg" class="easyui-datagrid"
+				data-options="
+					 pagination:true,
+					 toolbar:'#bar',
+					 onBeforeLoad:onBeforeLoad,	
+					 rownumbers:true,
+					 fit:true,
+					 url:'/manage/feedback/list.html'
+		        ">
+				<thead>
+					<tr>
+						<th data-options="field:'ck',checkbox:true,width:80,halign:'center',headalign:'center'"></th>
+						<th data-options="field:'id',hidden:true">id</th>
+						<th data-options="field:'userName',width:80,halign:'center',align:'left'">用户</th>
+						<th data-options="field:'userRole',width:80,halign:'center',align:'center',formatter:rolefmt">用户身份</th>
+						<th data-options="field:'orgName',width:150,halign:'center',align:'left'">学校</th>
+						<th data-options="field:'moduleName',width:100,halign:'center',align:'left'">模块描述</th>
+						<th data-options="field:'disposeStatus',width:100,halign:'center',align:'center',formatter:disposeStatusfmt">处理状态</th>
+						<th data-options="field:'actionTime',width:160,align:'center',halign:'center'">时间</th>
+						<th data-options="field:'moduleDesc',formatter:docfmt,width:150,align:'left',halign:'center'">标题描述</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+	<script type="text/javascript">
+		//查询
+		function query() {
+			$('#dg').datagrid('reload');
+		}
+		//ajax请求
+		function Ajax_request(url, data) {
+			var result = [];
+			$.ajax({
+				url : url,
+				data : data,
+				async : false,
+				type : 'post',
+				success : function(json) {
+					result = json;
+				}
+			})
+			return result;
+		}
+
+		//处理状态转换
+		function disposeStatusfmt(value, row) {
+			var result = "";
+			if (value == "0") {
+				result = "<span style='color:red'>待处理</span>";
+			} else if (value == "1") {
+				result = "<span style='color:Lime'>已处理</span>";
+			} else if (value == "2") {
+				result = "<span style='color:gray'>无需处理</span>";
+			}
+			return result;
+		}
+		//角色格式化
+		function rolefmt(value, row) {
+			var result = "";
+			if (value == "10") {
+				result = "教师";
+			} else if (value == "20") {
+				result = "学生";
+			} else {
+				result = "";
+			}
+			return result;
+		}
+		function onBeforeLoad(param) {
+			var startDate = $("#startDate").val();
+			var endDate = $("#endDate").val();
+
+			if (endDate == "" || endDate == null) {
+				endDate = moment(new Date()).format("YYYY-MM-DD");
+			}
+			param["startDate"] = startDate ? moment(startDate).format(
+					"YYYYMMDD").toString() : "";
+			param["endDate"] = endDate ? moment(endDate).format("YYYYMMDD")
+					.toString() : "";
+			param["moduleName"] = $("#moduleName").combobox('getValue');
+			param["disposeStatus"] = $("#disposeStatus").combobox('getValue');
+		}
+
+		function contentfmt(value, row) {
+			var str = "";
+			if (value != null && value != "" && value.length > 40) {
+				str = value.substring(0, 40) + "...";
+			} else {
+				str = value;
+			}
+			return str;
+		}
+
+		//操作列格式化
+		function docfmt(value, row) {
+			var str = "<a href='javascript:void(0)' onclick='detail(\""
+					+ row.id + "\")'>" + value + "</a>";
+			return str;
+		}
+		//查看详细
+		function detail(id) {
+			var param = {};
+			param["id"] = id;
+			easyui_openNoResizeWindow("问题反馈", 900, 600,
+					"/manage/feedback/toUserFeedbackDaily.html", function(r) {
+				        if(r){
+							query();
+				        }
+					}, param);
+		}
+
+		//批量删除资源
+		function deleteRes() {
+			var rows = $('#dg').datagrid('getSelections');
+			var ids = new Array();
+			if (rows == undefined || rows.length <= 0) {
+				$.messager.alert("信息", "请选择要删除的信息！", "info");
+				return;
+			}
+			for (var i = 0; i < rows.length; i++) {
+				ids.push(rows[i].id);
+			}
+
+			$.messager.confirm("信息", "确认要删除资源吗？一旦删除将不可恢复", function(r) {
+				if (r) {
+					var result = Ajax_request(
+							"/manage/feedback/deleteUserFeedback.html", {
+								ids : ids.join(","),
+								operateType : 1
+							})
+					$.messager.alert("信息", result.msg, "info", function() {
+						if (result.success) {
+							query();
+						}
+					})
+				}
+			})
+		}
+
+		//批量处理
+		function handle() {
+			var rows = $('#dg').datagrid('getSelections');
+			var ids = new Array();
+			if (rows == undefined || rows.length <= 0) {
+				$.messager.alert("信息", "请选择要处理的信息！", "info");
+				return;
+			}
+
+			for (var i = 0; i < rows.length; i++) {
+				if (rows[i].disposeStatus != 0) {
+					$.messager.alert("信息", "所选信息已被处理！", "info");
+					return;
+				}
+				ids.push(rows[i].id);
+			}
+			//处理描述
+			disposeDesc(ids, 1);
+
+		}
+		function disposeDesc(ids, operateType) {
+			var param = {};
+			param["ids"] = ids;
+			param["operateType"] = operateType;
+			easyui_openTopWindow("处理说明", 620, 350,
+					"/manage/feedback/toUserFeedbackDisposeDesc.html",
+					function(r) { 
+				        if(r){
+							query();
+				        }
+					}, param);
+		}
+		//批量处理无需处理
+		function noHandle() {
+			var rows = $('#dg').datagrid('getSelections');
+			var ids = new Array();
+			if (rows == undefined || rows.length <= 0) {
+				$.messager.alert("信息", "请选择要处理的信息！", "info");
+				return;
+			}
+			for (var i = 0; i < rows.length; i++) {
+				if (rows[i].disposeStatus != 0) {
+					$.messager.alert("信息", "所选信息已被处理！", "info");
+					return;
+				}
+				ids.push(rows[i].id);
+			}
+			//处理描述
+			disposeDesc(ids, 2);
+		}
+	</script>
+</body>
+</html>

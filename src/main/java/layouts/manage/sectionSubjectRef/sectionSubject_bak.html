@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>学段学科</title>
+</head>
+<body>
+<div id="tb" style="height:40px">
+<div style="margin-top:10px">
+<label  class="labelWidth60">学段</label>
+<input class="easyui-combobox"  id="section" data-options="onSelect:onselect,textField:'name',valueField:'code',editable:false">
+</div>
+</div>
+<table id="dg"class="easyui-datagrid" 	data-options="
+	    toolbar:'#tb',
+	    fit:true,
+	    rownumbers:true,
+	    pagination:true,
+	    singleSelect:true,
+	    onBeforeLoad:onBeforeLoad,
+	    url:'/manage/sectionSubjectRef/sectionSubjectPage.html'
+	    ">
+	    	<thead>
+					<tr>
+						<th data-options="field:'sectionName',width:80,halign:'center',align:'center'">学段</th>
+						<th data-options="field:'name',width:80,halign:'center',align:'left'">学科</th>
+					<!-- 	<th data-options="field:'createTime',width:140,align:'center',halign:'center',formatter:timefmt,headalign:'center'">设置时间</th> -->
+						<th data-options="field:'dispOrder',halign:'center',width:50,align:'right'">顺序</th>
+						<th data-options="field:'description',width:450,halign:'center',align:'left'">描述</th>
+					    <th data-options="field:'id',width:120,hidden:true">id</th>
+					</tr>
+				</thead> 
+ </table>
+ <script type="text/javascript">
+ var sectionList=eval(${sectionList});
+ $(function(){
+	 sectionList.splice(0,0,{code:"",name:"全部"})
+ 	$('#section').combobox('loadData',sectionList);
+ })
+ //学段选择事件
+function onselect(){
+	$('#dg').datagrid('load')
+}
+ function onBeforeLoad(param){
+	 param["sectionCode"]=$('#section').combobox('getValue');
+ }
+ </script>
+</body>
+</html>

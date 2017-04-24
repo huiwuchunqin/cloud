@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+</head>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript" src="/manage/template/res/resCommon.js"></script>
+<script type="text/javascript" src="/manage/template/res/audio.js"></script>
+<script type="text/javascript" src="/manage/template/resCheck/export.js"></script>
+<title>音频资源</title>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'"  title="  ">
+		<div class="box">
+			<div class="labelBox">
+				<span class="labelLine440"> <span class="labelWidth90">上传日期：</span>
+					<input id="uploadTimeStart" class="Wdate"
+					onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'uploadTimeEnd\')}',dateFmt:'yyyy-MM-dd',lang:'zh-cn'})"
+					type="text" class="width130"> <span
+					style="width: 10px; line-height: 20px">~</span> <input
+					id="uploadTimeEnd" class="Wdate"
+					onFocus="WdatePicker({minDate:'#F{$dp.$D(\'uploadTimeStart\')}',dateFmt:'yyyy-MM-dd',lang:'zh-cn'})"
+					type="text" class="width130">
+				</span>
+				<div class="clear10"></div>
+				  <span class="labelLine250">
+                    <span class="labelWidth90">转码状态：</span>
+					<input id="resStatus" class="easyui-combobox"
+                           data-options="data:[{name:'不限',value:'',selected:true,selected:true},{name:'转码中',value:'10'},{name:'转码成功',value:'20'},{name:'转码失败',value:'30'}],textField:'name',valueField:'value',editable:false">
+				</span>
+				<span class="labelLine250"> <span class="labelWidth90">当前级别：</span>
+					<input id="shareLevel" class="easyui-combobox"
+					data-options="textField:'name',valueField:'value',editable:false">
+				</span>
+				<div class="clear10"></div>
+				<span class="labelLine250"> <span class="labelWidth90">共享审核级别：</span>
+					<input id="shareCheckLevel" class="easyui-combobox"
+					data-options="textField:'name',valueField:'value',editable:false">
+				</span> <span class="labelLine250"> <span class="labelWidth90">共享审核状态：</span>
+					<input id="shareCheckStatus" class="easyui-combobox"
+					data-options="textField:'name',valueField:'value',editable:false">
+				</span>
+
+				<!-- 	 <span class="labelLine250"> <span
+                class="labelWidth90">知识点标注状态</span> <input id="kpTagStatus"
+                class="easyui-combobox"
+                data-options="data:[{name:'不限',value:' ',selected:true},{name:'已标注',value:'1'},{name:'未标注',value:'2'}],textField:'name',valueField:'value',editable:false">
+            </span> <span class="labelLine250"> <span
+                class="labelWidth90">章节标注状态</span> <input id="tbcTagStatus"
+                class="easyui-combobox"
+                data-options="data:[{name:'不限',value:' ',selected:true},{name:'已标注',value:'1'},{name:'未标注',value:'2'}],textField:'name',valueField:'value',editable:false">
+            </span> -->
+
+				<div class="clear10"></div>
+				<span class="labelLine250"> <span class="labelWidth90">学段：</span>
+					<input id="section" class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false,onSelect:sectionSelect">
+				</span> <span class="labelLine250"> <span class="labelWidth90">学科：</span>
+					<input id="subject" class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false">
+				</span> <span class="labelLine250"> <span class="labelWidth60">年级：</span>
+					<input id="grade" class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false">
+				</span>
+				<div class="clear10"></div>
+				<#if "${areaAdmin}"==1> <span class="labelLine250"> <span
+					class="labelWidth90">机构名称：</span> <input id="orgName"
+					class="width130" placeholder="请输入机构名称">
+				</span> </#if> <span class="labelLine250"> <span
+					class="labelWidth90">资源名称：</span> <input id="resName"
+					placeholder="请输入资源名称">
+				</span> <span class="labelLine250"> <span class="labelWidth60">作者：</span>
+					<input id="makerName" placeholder="请输入作者">
+				</span>
+
+
+			</div>
+			<div class="btnBox">
+				<a class="btn btnBlue search" onclick="query()">查询</a>
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<div id="tb">
+			<a class="btn btnDelete" onclick="deleteRes(12)">删除</a>
+			<div class="btnBox">
+				<form id="fm" method="post">
+					<a class="btn btnBlue" onclick="exportAudio()">导出</a>
+				</form>
+			</div>
+		</div>
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+    pagination:true,
+    fit:true,
+    toolbar:'#tb',
+    rownumbers:true,
+    onBeforeLoad:onBeforeLoad,
+    url:'/manage/audio/audioList.html'
+">
+			<thead>
+				<tr>
+					<th
+						data-options="field:'ck',checkbox:true,width:80,halign:'center',headalign:'center'"></th>
+					<th
+						data-options="field:'resName',formatter:audiofmt,width:260,align:'left',halign:'center'">资源名称
+					</th>
+					<!-- 	<th data-options="field:'resType',formatter:resTypeFmt,width:75,align:'left',halign:'center'">资源类型</th> -->
+					<th data-options="field:'orgName',width:180,halign:'center'">机构名称</th>
+					<th
+						data-options="field:'sectionName',width:70,align:'center',halign:'center'">学段
+					</th>
+					<th
+						data-options="field:'subjectName',width:80,align:'left',halign:'center'">学科
+					</th>
+					<th
+						data-options="field:'gradeName',width:70,align:'left',halign:'center'">年级
+					<th
+                    data-options="field:'resStatus',formatter:statusfmt,width:80,align:'center',halign:'center'">转码状态
+					</th>
+					<th
+						data-options="field:'shareLevelStr',width:80,align:'center',halign:'center'">当前级别
+					</th>
+					<th
+						data-options="field:'shareCheckLevelStr',width:110,align:'center',halign:'center'">共享审核级别
+					</th>
+					<th
+						data-options="field:'shareCheckStatus',formatter:checkStatusfmt,width:100,align:'center',halign:'center'">
+						共享审核状态</th>
+					<th
+						data-options="field:'kpCountStr',width:80,align:'center',halign:'center'">知识点
+					</th>
+					<th
+						data-options="field:'tbcCountStr',width:80,align:'center',halign:'center'">教材章节
+					</th>
+					<th
+						data-options="field:'allowDownload',width:60,align:'center',halign:'center'">可下载
+					</th>
+					<th
+						data-options="field:'makerName',width:90,align:'left',halign:'center'">作者
+					</th>
+					<th
+						data-options="field:'makeTime',width:140,align:'center',halign:'center',formatter:timeLongfmt">上传时间
+					</th>
+					<th
+						data-options="field:'resDesc',width:300,align:'left',halign:'center'">资源描述
+					</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<script type="text/javascript">
+		var sectionList = ${sectionList};
+		//dom
+		var _subjectCombo = $('#subject');
+		var _gradeCombo = $('#grade');
+		var _sectionCombo = $('#section');
+		var _checkStausCombo = $('#shareCheckStatus');
+		var _shareCheckLevelCombo = $('#shareCheckLevel');
+		var _resStatusCombo = $('#resStatus');
+		var _shareLevelCombo = $('#shareLevel');
+		var _resStatusCombo = $('#resStatus');
+		$(function() {
+			_checkStausCombo.combobox('loadData', _shareCheckStatus);
+			_shareLevelCombo.combobox('loadData', _SHARELEVEL);
+			_shareCheckLevelCombo.combobox('loadData', _SHARECHECKLEVEL);
+			sectionList.splice(0, 0, defaultOpt);
+			_sectionCombo.combobox('loadData', sectionList);
+			_sectionCombo.combobox('select', -1);
+		})
+		
+		//查询参数传递
+		function onBeforeLoad(param) {
+			$.extend(param,getAudioParam());
+		}
+		//获取参数
+		function getAudioParam(){
+			var param={};
+			param["gradeCode"] = _gradeCombo.combobox('getValue');
+			param["subjectCode"] = _subjectCombo.combobox('getValue');
+			param["sectionCode"] = _sectionCombo.combobox('getValue');
+			param["shareCheckStatus"] = _checkStausCombo.combobox('getValue');
+			param["resStatus"] = _resStatusCombo.combobox('getValue');
+			param["resName"] = $('#resName').val();
+			param["shareLevel"] = $('#shareLevel').combobox('getValue');
+			param["uploadTimeStart"] = $('#uploadTimeStart').val();
+			param["uploadTimeEnd"] = $('#uploadTimeEnd').val();
+			<#if "${areaAdmin}"==1>
+			param["orgName"] = $('#orgName').val();
+			</#if>
+			param["resName"] = $('#resName').val();
+			param["userName"] = $('#makerName').val();
+			param["shareCheckLevel"] = _shareCheckLevelCombo.combobox('getValue');
+			param["orderType"] = "makeTime";
+			return param;
+		}
+		  //操作列格式化
+	    function audiofmt(value, row) {
+	        return "<a href='javascript:void(0)' onclick='edit(\"" + row.id
+	                + "\",0)'>" + value + "</a>";
+	    }
+	</script>
+</body>
+</html>

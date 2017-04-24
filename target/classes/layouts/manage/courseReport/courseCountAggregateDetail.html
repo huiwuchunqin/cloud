@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>汇总统计详情</title>
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<link rel="stylesheet"
+	href="/manage/template/js/zTree_v3/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<script type="text/javascript"
+	src="/manage/moveToCommon/js/plugins/zTree_v3/js/jquery.ztree.core-3.5.js"></script>
+<style>
+ul.title{
+    border: 1px solid #009DD9;
+    height: 33px;
+}
+ul.title >li{
+    float: left;
+    list-style: none;
+    background-color: white;
+    height: 100%;
+    text-align: center;
+    line-height: 33px;
+    width: 100%;
+    color: #009DD9;
+}
+.root{
+    background-color: #cccccc;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    cursor:pointer;
+}
+.treeDiv{
+padding: 8px 10px;
+}
+.treeDiv ul{
+border:none
+}
+ul.title >li.active{
+ background-color: #009DD9;
+ color:white;
+}
+.searchDiv{
+    position: relative;
+    padding-right: -2px;
+    padding-left: 12px;
+    border: 1px solid #CCCCCC;
+    background-color: white
+}
+.searchDiv>input{
+    width: 82%;
+    height: 25px;
+    line-height: 25px;
+    border: none;
+    outline: none;
+}
+.searchDiv>i{
+	position: absolute;
+    top: 6px;
+    right: 6px;
+    color: #009DD9;
+    font-size: 18px;
+}
+</style>
+</head>
+<body class="easyui-layout" fit="true">
+<div data-options="region:'north'">
+	<div class="box">
+		<div class="labelBox">
+			<div class="labelLine440">
+				<span class="labelWidth60">日期：</span> <input id="startDate"
+															 class="Wdate"
+															 onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})" />
+				~ <input id="endDate" class="Wdate"
+						 onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})" /> 
+			</div>
+			<span class="clear10"></span>
+			<div class="labelLine240">
+				<span class="labelWidth60">共享级别：</span> 
+				<input id="shareLevel" class="easyui-combobox" data-options="textField:'name',valueField:'value',editable:false">
+			</div>
+			<div class="labelLine240">
+				<span class="labelWidth60">创建类型：</span>
+				<input id="lessonMode" class="easyui-combobox" data-options="textField:'name',valueField:'value',editable:false">
+			</div>
+			<div class="labelLine240">
+				<span class="labelWidth60">学段：</span> <input id="section"
+															 class="easyui-combobox"
+															 data-options="onChange:sectionChange,textField:'name',valueField:'code',editable:false">
+			</div>
+			<span class="clear10"></span>
+			<div class="labelLine240">
+				<span class="labelWidth60">学科：</span> <input id="subject"
+															 class="easyui-combobox"
+															 data-options="onChange:subjectChange,textField:'name',valueField:'code',editable:false,data:[{name:'全部',code:''}]">
+			</div>
+			<div class="labelLine240">
+				<span class="labelWidth60">年级：</span> <input id="grade"
+															 class="easyui-combobox"
+															 data-options="textField:'name',valueField:'code',editable:false,onChange:function(){query()},data:[{name:'全部',code:''}]">
+			</div>
+			<div class="labelLine240">
+				<span class="labelWidth60">教材版本：</span> <input id="textbookVer"
+															   class="easyui-combobox"
+															   data-options="textField:'name',valueField:'code',editable:false,onChange:function(){query()},data:[{name:'全部',code:''}]">
+			</div>
+			<span class="clear10"></span>
+			<div class="labelLine240">
+				<span class="labelWidth60">课程名称：</span>
+				<input id="lessonName" placeholder="请输入课程名称">
+			</div>
+			<div class="labelLine240">
+				<span class="labelWidth60">学校：</span>
+				<input id="orgName" placeholder="请输入学校名称关键字">
+			</div>
+		</div>
+		<div class="btnBox">
+			<button class="btn btnBlue search" onclick="javascript:$('#dg').datagrid('reload')">查询</button>
+		</div>
+	</div>
+</div>
+
+<div data-options="region:'center'">
+
+	<div class="easyui-layout" fit="true">
+	    <!--章节知识点  -->
+		<div data-options="region:'west'" title="　" style="width:200px">
+			<div>
+				<ul class="title">
+				<li id="chapter"  class="active">章节</li>
+				</ul>
+				  
+				  <div  class="treeDiv" id="chapterRoot" >
+				  <div class="searchDiv"><input id="chapterName" placeholder="请输入关键字" onkeydown="chapterKeyDown()"/><i class="fa fa-2x fa-search" onclick="fliterChapter()"></i></div>
+				   <#include "/manage/report/chapterTree.html"/>
+				  </div>
+				  
+			</div>
+		</div>
+		<!--主面板  -->
+		<div data-options="region:'center'">
+			<div id="tb" class="tbClass" >
+			<div class="attr"><span>课程数:</span><label id="lessonTotal"></label></div>
+			<div class="attr"><span>翻转课程数:</span><label id="flipLessonTotal"></label></div>
+			<div class="attr"><span>自主创建课程数:</span><label id="autonomousLessonTotal"></label></div>
+			<div class="attr"><span>被引用数:</span><label id="referCount"></label></div>
+			<button class="btn btnBlue align-right" onclick="exportData()"> 导出</button>
+			</div>
+			<table id="dg" class="easyui-datagrid" data-options="
+			pagination:true,
+			rownumbers:true,
+			toolbar:'#tb',
+			url:'/manage/courseAggregateDetail/search.html',
+			onBeforeLoad:onBeforeLoad,
+			fit:true,
+			onLoadSuccess:onLoadSuccess,
+			">
+				<thead>
+					<tr>
+					<th data-options="field:'lessonName',halign:'center',width:180">课程名称</th>
+					<th data-options="field:'shareLevel',halign:'center',align:'center',width:80">共享级别</th>
+					<th data-options="field:'lessonMode',halign:'center',align:'center',width:100">创建类型</th>
+					<th data-options="field:'sectionName',halign:'center',align:'center',width:80">学段</th>
+					<th data-options="field:'subjectName',halign:'center',width:80">学科</th>
+					<th data-options="field:'gradeName',halign:'center',width:80">年级</th>
+					<th data-options="field:'createTime',halign:'center',align:'center',formatter:timefmt,width:120">创建时间</th>
+					<th data-options="field:'teacherName',halign:'center',align:'center',width:100">作者</th>
+					<th data-options="field:'orgName',halign:'center',width:150">学校</th>
+					<th data-options="field:'referCount',halign:'center',align:'right',width:100">被引用数</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+
+
+</div>
+<script type="text/javascript">
+$(function(){
+var sectionList=eval(${sectionList});
+sectionList.unshift({name:"全部",code:""});
+$('#section').combobox('loadData',sectionList);
+$('#shareLevel').combobox('loadData',_SHARELEVEL);
+$('#lessonMode').combobox('loadData',_LESSONMODE);
+})
+//过滤章节
+function fliterChapter(){
+	if($('#chapterName').val()==""){
+		if(chapterZTreeObj){
+			chapterZTreeObj.destroy();	
+		}
+		chapterZTreeObj=$.fn.zTree.init($("#chapterTree"), chapterSetting, chapterOrignalList);
+	}else{
+		var filterList=_.filter(chapterOrignalList,function(item){
+			return bztContains(item.name,$('#chapterName').val(),false);
+		})
+		chapterZTreeObj.destroy();
+		chapterZTreeObj=$.fn.zTree.init($("#chapterTree"), chapterSetting, filterList);	
+	}
+}
+
+var tbCode,kpsCode,chapterZTreeObj,chapterOrignalList,selectedChapterCode="";
+//查询树
+function query(){
+	var _subjectCode=$('#subject').combobox('getValue');
+	var _gradeCode=$('#grade').combobox('getValue');
+	var _sectionCode=$('#section').combobox('getValue');
+	var _textbookVerCode=$('#textbookVer').combobox('getValue');
+	/* var _termCode=$('#term').combobox('getValue'); */
+	selectedKpCode="";
+	selectedChapterCode="";
+	if(_subjectCode!=""||_sectionCode!=""){
+	/* 	if(_gradeCode!=""){ */
+			//加载教材教材章节
+			$.ajax({
+				url:"/manage/textbook/getChapterAll.html",
+				data:{
+					subjectCode:_subjectCode,
+					sectionCode:_sectionCode,
+					gradeCode:_gradeCode,
+					textbookVerCode:_textbookVerCode,
+				},
+				success:function(res){
+					chapterOrignalList=res.data;
+					if(chapterZTreeObj){
+						chapterZTreeObj.destroy();	
+					}
+					chapterZTreeObj=$.fn.zTree.init($("#chapterTree"), chapterSetting, chapterOrignalList);
+				}
+			})	
+	/* 	}
+		
+	} else{
+		if(chapterZTreeObj){
+			chapterZTreeObj.destroy();	
+		}
+		return false;
+	} */
+}
+}
+//章节点击事件
+chapterSetting.callback.onClick=function chapterZtreeClick(event,treeId,treeNode){
+	if(chapterZTreeObj&&treeNode.code.indexOf('top')<0){
+		selectedChapterCode=chapterZTreeObj.getSelectedNodes()[0]?chapterZTreeObj.getSelectedNodes()[0].code:"";
+	}else{
+		selectedChapterCode="";
+	}
+	$('#dg').datagrid('reload');
+}
+
+function chapterKeyDown(){
+	var e=window.event;
+	if(e.keyCode==13){
+		fliterChapter();
+	}
+}
+//学段改变
+function sectionChange(newValue,oldValue){
+	sectionGrade(newValue,$('#grade'));
+	sectionSubject(newValue,$('#subject'));
+}
+
+//学科改变
+function subjectChange(newValue,oldValue){
+	subjectTextbookVer(newValue,$('#textbookVer'));
+	query();
+}
+function getParam(){
+	return {
+		startDate:$('#startDate').val(),
+		endDate:$('#endDate').val()||new moment().format("YYYY-MM-DD"),
+		shareLevel:$('#shareLevel').combobox('getValue'),
+		lessonMode:$('#lessonMode').combobox('getValue'),
+		sectionCode:$('#section').combobox('getValue'),
+		subjectCode:$('#subject').combobox('getValue'),
+		gradeCode:$('#grade').combobox('getValue'),
+		tbcCode:$('#textbookVer').combobox('getValue'),
+		orgName:$('#orgName').val(),
+		chapterCode:selectedChapterCode,
+		lessonName:$('#lessonName').val(),
+		
+	}
+}
+
+function onBeforeLoad(param){
+	$.extend(param,getParam());
+}
+
+
+function onLoadSuccess(){
+	$.ajax({
+		url:'/manage/courseAggregateDetail/searchTotal.html',
+		data:getParam(),
+		success:function(res){
+			$('#lessonTotal').html(res.lessonTotal||0);
+			$('#flipLessonTotal').html(res.flipLessonTotal||0);
+			$('#autonomousLessonTotal').html(res.autonomousLessonTotal||0);
+			$('#referCount').html(res.referCount||0);
+		}
+	})
+}
+
+function exportData(){
+	var param=getParam();
+	var url="/manage/courseAggregateDetail/export.html?fileName="+getExportName();
+	downloadHelper(urlWithParam(url,getParam()));
+}
+</script>
+</body>
+</html>

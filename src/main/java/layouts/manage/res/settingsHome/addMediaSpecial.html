@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>资源设置-特色资源</title>
+<style type="text/css">
+.imagebox {
+	height: 170px;
+}
+
+.imagebox:after {
+	clear: both;
+}
+
+.leftbox {
+	float: left;
+	height: 170px;
+}
+
+.centerbox {
+	float: left;
+	margin-left: 100px;
+	height: 170px;
+}
+
+.rightbox {
+	float: right;
+	line-height: 115px;
+	height: 115px;
+}
+
+.tip {
+	position: absolute;
+	left: 52px;
+	top: 60px;
+	width: 100px;
+	height: 0px;
+	line-height: 21px;
+	color: grey;
+	cursor: pointer;
+}
+
+.tip2 {
+	position: absolute;
+	left: 32px;
+	top: 46px;
+	width: 100px; 
+	height: 0px;
+	line-height: 21px;
+	color: grey;
+	cursor: pointer;
+}
+
+.width100{
+    width:100px;
+}
+</style>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'">
+		<div class="box form">
+			<div class="labelBox">
+				<span class="labelLine240"><span
+					class="labelWidth60">类别：</span> <input id="resSpecialTypeL1"
+					class="easyui-combobox width100"
+					data-options="
+					        textField:'name',
+							valueField:'code',
+							editable:false,
+							panelHeight: 'auto',
+					        data: [
+								{code: '',name: '全部',selected:true}
+								<#if (typeList?exists && typeList?size>0)>
+							  		<#list typeList as type>
+							  			,{code:'${type.code}', name:'${type.name?default('&nbsp;')}'}
+							  		</#list>
+								</#if>
+							],onSelect:typeSelect
+					      ">
+				</span> 
+				<span class="labelLine240"><span
+					class="labelWidth60">项目：</span> <input id="resSpecialTypeL2"
+					class="easyui-combobox width100"
+					data-options="
+						textField:'name',
+						valueField:'code',
+						editable:false,
+						panelHeight: 'auto',
+						data: [{code: '',name: '全部',selected:true}]
+					">
+				</span>
+				<span class="labelLine240"> <span
+					class="labelWidth60">共享级别：</span> <input id="shareLevel"
+					class="easyui-combobox"
+					data-options="data:[{code: '',name: '全部',selected:true},
+								        {code: '20',name: '校内共享'},
+								        {code: '30',name: '区域共享'}],
+								        textField:'name',
+								        valueField:'code',
+								        editable:false,
+								        panelHeight: 'auto'
+					         ">
+				</span>
+				<div class="clear10"></div>
+				<span class="labelLine250"><span class="labelWidth60">资源名称：</span> <input id="resName"
+					 placeholder="请输入资源名称"/>
+				</span>
+			</div>
+			<div class="btnBox">
+				<a class="btn btnBlue search" onclick="query()">查询</a>
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+			    pagination:true,
+			    fit:true,
+			    rownumbers:true,
+			    onBeforeLoad:onBeforeLoad,
+			    singleSelect:true,
+			    pageNumber:1,
+			    pageSize:15,
+			    url:'/manage/resSettingsHome/mediaSpecial/search.html'
+                ">
+			<thead>
+				<tr>
+					<th data-options="field:'resName',width:280,align:'left',halign:'center'">资源名称</th>
+					<th data-options="field:'resSpecialTypeL1Name',width:90,align:'left',halign:'center'">类别</th>
+					<th data-options="field:'resSpecialTypeL2Name',width:90,align:'left',halign:'center'">项目</th>
+					<th data-options="field:'shareLevel',width:70,align:'center',halign:'center',formatter:commonfmt">共享级别</th>
+					<th data-options="field:'makerOrgName',width:280,halign:'center',align:'left'">机构名称</th>
+					<th data-options="field:'makerName',width:90,align:'left',halign:'center'">作者</th>
+					<th data-options="field:'makeTime',width:120,align:'center',halign:'center',formatter:timefmt">制作时间</th>
+					<th data-options="field:'resCode',hidden:true"></th>
+					<th data-options="field:'resSpecialTypeL1',hidden:true"></th>
+					<th data-options="field:'resSpecialTypeL2',hidden:true"></th>
+					<th data-options="field:'resTypeL1',hidden:true"></th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div data-options="region:'south'">
+		<div class="imagebox">
+			<div class="leftbox">
+				<form id="image1" enctype="multipart/form-data" method="post"
+					action="/manage/company/uploadImage.html">
+					<div>
+						<input hidden="hidden"  type="file"
+							name="file" id="file1" accept=".jpg,.png,.gif,.jpeg"
+							onchange="showPicture1()"/><input hidden="hidden" id="fileType"
+							name="fileType" value="cover"/>
+					</div>
+					<div style="width: 150px; margin-top: 6px; margin-left: 10px; position: relative; cursor: pointer">
+						<label onclick="$('#file1').click()" class="tip" id="tip1">封面设置</label>
+						<img id="img1" style="height: 150px; width: 150px; border: 0"
+							onclick="$('#file1').click()"/><img id="img3" hidden="true">
+					</div>
+				</form>
+			</div>
+
+			<!-- <div class="centerbox">
+				<form id="image2" enctype="multipart/form-data" method="post"
+					action="/manage/company/uploadImage.html">
+					<div>
+						<input hidden="hidden"  type="file"
+							name="file" id="file2" accept=".jpg,.png,.gif,.jpeg"
+							onchange="showPicture2()"/> <input hidden="hidden" id="fileType"
+							name="fileType" value="thumbnail"/>
+					</div>
+					<div
+						style="width: 120px; margin-top: 21px; position: relative; cursor: pointer">
+						<label onclick="$('#file2').click()" class="tip2" id="tip2">缩略图设置</label>
+						<img id="img2" style="height: 120px; width: 120px; border: 0"
+							onclick="$('#file2').click()"/><img id="img4" hidden="true">
+					</div>
+				</form>
+			</div>  -->
+
+			<div class="rightbox">
+				<div style="padding: 20px">
+				    <span style="margin-left: 10px">是否使用</span>
+				    <input name="flagAvailable" type="radio" value="1"/>是
+				    <input name="flagAvailable" type="radio" value="0"/>否
+					<span style="margin-left: 120px"> 
+					<a style="margin-right: 10px" class="btn btnConfirm"  onclick="save()">保存</a>
+					<a class="btn btnCancel"  onclick="cancel()">取消</a>
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+        //时间格式化
+		function timefmt(value, row) {
+			if (value != "" && value != null) {
+				return moment(value).format("YYYY-MM-DD H:mm");
+			}
+		}
+        
+		//共享级别格式化
+		function commonfmt(value,row){
+			var result="";
+			if(value=="10"){
+				result="个人私有";
+			}else if(value=="20"){
+				result="校内共享";
+			}else if(value=="30"){
+				result="区域共享";
+			}
+			return result;
+		}
+
+		var coverPath = "";
+		//var thumbnailPath = ""; 
+
+		//类别选择事件
+		function typeSelect(record) {
+			//重新选择前，先清空原先子下拉框的数据
+			$("#resSpecialTypeL2").combobox('clear');
+			queryChildList(record.code);
+		}
+		
+		//根据选中的类别查询项目列表
+		function queryChildList(pcode){
+			var opts={
+					url:'/manage/resMediaSpecial/getListByPCode.html',
+	    			type:"post",
+					data:{
+						pcode:pcode
+					},
+					success:function(data){
+						var selectAll = {
+								code : "",
+								name : "全部"
+						};
+						data.unshift(selectAll);
+						$("#resSpecialTypeL2").combobox('loadData',data);
+					},
+					error:function(XMLHttpRequest, textStatus, errorThrown) {
+							alert("网络繁忙请稍后再试");
+					 },
+					complete:function() {
+							
+					}
+			}
+			$.ajax(opts);
+		}
+		
+		//查询按钮
+		function query() {
+			$('#dg').datagrid('reload');
+		}
+
+		//查询参数传递 
+		function onBeforeLoad(param) {
+			param["resSpecialTypeL1"]=$("#resSpecialTypeL1").combobox('getValue');
+			param["resSpecialTypeL2"]=$("#resSpecialTypeL2").combobox('getValue');
+			param["resName"]=$("#resName").val().trim();
+			param["shareLevel"]=$("#shareLevel").combobox('getValue');
+		}
+
+		//取消
+		function cancel() {
+			easyui_closeTopWindow(false);
+		}
+		
+		//封面选择事件
+		$('#file1').change(function(data) {
+			var file = data.target.files[0];
+			if (!file) {
+				return false;
+			}
+			if (file.type.indexOf("image") < 0) {
+				alert("封面只能选择图片");
+				return false;
+			}
+			if (file.size > 10000000) {
+				alert("图片不能大于10M");
+				return false;
+			}
+			showPicture1();
+		})
+		
+		//缩略图选择事件
+		/* $('#file2').change(function(data) {
+			var file = data.target.files[0];
+			if (!file) {
+				return false;
+			}
+			if (file.type.indexOf("image") < 0) {
+				alert("封面只能选择图片");
+				return false;
+			}
+			if (file.size > 10000000) {
+				alert("图片不能大于10M");
+				return false;
+			}
+			showPicture2();
+		}) */
+		
+		//图片大小check
+		function sizeCheck(setType) {
+			var coverheight = $('#img3').height();
+			var coverwidth = $('#img3').width();
+			if (setType == 0) {
+				if ($('#file1')[0].files[0]
+						&& (coverheight < 400 || coverwidth < 1920)) {
+					alert("封面必须大于1920*400");
+					return false;
+				}
+			} else {
+				if ($('#file1')[0].files[0]
+						&& (coverheight < 290 || coverwidth < 360)) {
+					alert("封面必须大于360*290");
+					return false;
+				}
+			}
+			/* var thumbnailheight = $('#img4').height();
+			var thumbnailwidth = $('#img4').width();
+			if ($('#file2')[0].files[0]
+					&& (thumbnailheight < 50 || thumbnailwidth < 86)) {
+				alert("缩略图必须大于86*50");
+				return false;
+			} */
+			return true;
+		}
+		
+		//保存
+		function save() {
+			var row = $('#dg').datagrid('getSelected');
+			var flagAvailable=$("input[name='flagAvailable']:checked").val();
+			if (row == null) {
+				$.messager.alert('消息', '请先选择一个特色资源！', 'info');
+				return;
+			}
+			if (flagAvailable == null || flagAvailable == "") {
+				$.messager.alert('消息', '请选择是否使用！', 'info');
+				return;
+			}
+			saveFile1AndFile2();
+			//保存文件1文件2
+			function saveFile1AndFile2() {
+				var file1 = $("#file1")[0].files[0];
+				if (file1) {
+					$('#image1').form('submit', {
+						success : function(json) {
+							var res = $.parseJSON(json);
+							coverPath = res.data;
+							commitRequest();
+						},
+					})
+				} else {
+					commitRequest();
+				}
+			}
+			//保存文件2并提交请求
+			/* function saveFile2AndCommitRequest() {
+				var file2 = $("#file2")[0].files[0];
+				if (file2) {
+					$('#image2').form('submit', {
+						success : function(json) {
+							var res = $.parseJSON(json);
+							thumbnailPath = res.data;
+							commitRequest();
+						},
+					})
+				} else {
+					commitRequest();
+				}
+			} */
+			
+			//提交请求
+			function commitRequest() {
+			    if (coverPath == null || coverPath == "") {
+						$.messager.alert('消息', '请上传封面图片！', 'info');
+						return;
+			    }
+				var resCode = row.resCode;
+				var resTypeL1 = row.resTypeL1;
+				var resName = row.resName;
+				var resSpecialTypeL1=row.resSpecialTypeL1;
+				var resSpecialTypeL2=row.resSpecialTypeL2;
+				var opts = {
+					url : '/manage/resSettingsHome/resSet/add.html',
+					type : "post",
+					data : {
+		                resCode : resCode,
+						resTypeL1 : resTypeL1,
+						setType : 11,//特色资源
+						coverPath : coverPath,
+						resName : resName,
+						flagAvailable : flagAvailable,
+						resSpecialTypeL1 : resSpecialTypeL1,
+						resSpecialTypeL2 : resSpecialTypeL2
+					},
+					success : function(res) {
+						window.top.$.messager.alert("提示", res.msg, "info");
+						if (res.success) {
+							easyui_closeTopWindow(true);
+						}
+					},
+					error : function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("网络繁忙请稍后再试");
+					},
+					complete : function() {
+
+					}
+				}
+				if (sizeCheck(11)) {
+					setTimeout(function() {
+						$.ajax(opts);
+					}, 1000);
+				}
+
+			}
+		}
+
+		//显示封面图片
+		function showPicture1() {
+			$("#tip1").text("");
+			var url = window.URL.createObjectURL($('#file1')[0].files[0])
+			$("#img1").attr("src", url);
+			$("#img3").attr("src", url);
+		}
+
+		//显示缩略图
+		/* function showPicture2() {
+			$("#tip2").text("");
+			var url = window.URL.createObjectURL($('#file2')[0].files[0])
+			$("#img2").attr("src", url);
+			$("#img4").attr("src", url);
+		} */
+	</script>
+</body>
+</html>

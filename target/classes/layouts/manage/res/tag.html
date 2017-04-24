@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/> <#include
+"/manage/common/fileUpload.html"/>
+<script type="text/javascript"
+	src="/manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript" src="/manage/template/helper/helper.js"></script>
+<script type="text/javascript" src="/manage/template/js/common.validatebox.js"></script>
+<link rel="stylesheet"
+	href="/manage/template/js/zTree_v3/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<script type="text/javascript"
+	src="/manage/moveToCommon/js/plugins/zTree_v3/js/jquery.ztree.core-3.5.js"></script>
+<script type="text/javascript" src="/manage/template/js/manageRes/ztreeUtil.js"></script>
+<script type="text/javascript"
+	src="/manage/template/js/manageRes/knowledgeTree.js"></script>
+<script type="text/javascript"
+	src="/manage/template/js/manageRes/chapterTree.js"></script>
+<title>Insert title here</title>
+<style type="text/css">
+li.selected {
+	line-height: 25px;
+}
+
+.second {
+	background: url(/manage/template/images/delete.png) no-repeat;
+    display: inline-block;
+    width: 21px;
+    height: 19px;
+    cursor:pointer;
+    position: relative;
+    top: 2px;
+  /*   left:-21px; */
+   /*  backrground-cplor:#fff; */
+
+}
+
+li.selected button {
+	margin-left: 15px;
+}
+.indexBak{
+    background-color: orange;
+    width: 16px;
+    display: inline-block;
+    height: 16px;
+    radius: 20px;
+    border-radius: 10px;
+    text-align: center;
+    line-height: 18px;
+    color: #fff;
+}
+</style>
+</head>
+<body >
+	<div>
+		<div data-options="region:'north'" style="height: 110px">
+			<div class="form box">
+				<div class="labelBox">
+					<div class="labelLine300">
+						<div class="labelWidth60">学段</div>
+						<input class="easyui-combobox" id="section"
+							data-options="
+		valueField: 'code',
+		textField: 'name',
+		panelHeight: 'auto',
+		editable: false,
+		data: [
+			{code: '',name: '请选择',selected:true}
+			<#if (sectionList?exists && sectionList?size>0)>
+		  		<#list sectionList as section>
+		  			,{code:'${section.code}', name:'${section.name?default('&nbsp;')}'}
+		  		</#list>
+			</#if>
+		],onSelect:sectionSelect" />
+					</div>
+					<div class="labelLine300">
+						<div class="labelWidth60">学科</div>
+						<input class="easyui-combobox" id="subject"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code: '',name: '请选择年级',selected:true}],
+							onSelect:subjectSelect
+							" />
+					</div>
+					<div class="labelLine300">
+						<div class="labelWidth60">年级</div>
+						<input class="easyui-combobox" id="grade"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code: '',name: '请选择学段',selected:true}],
+							" />
+					</div>
+					<div class="labelLine300">
+						<div class="labelWidth60">教材版本</div>
+						<input class="easyui-combobox" id="version"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code:'',name: '请选择学科',selected:true}],
+							onSelect:textbookVerSelect									
+							" />
+					</div>
+					<div class="labelLine300">
+						<div class="labelWidth60">教材</div>
+						<input class="easyui-combobox" id="textbook"
+							data-options="
+							valueField: 'tbCode',
+							textField: 'tbName',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{tbCode:'',tbName: '请选择教材版本',selected:true}]
+							" />
+					</div>
+				</div>
+				<div class="btnBox">
+					<button class="easyui-linkbutton" id="btnSearch" onclick="query()"
+						data-options="iconCls:'icon-search'"><img src="/manage/template/images/search.png">查询</button>
+
+				</div>
+			</div>
+		</div>
+		<div id="koArea"  data-bind="visible:knowledgeShow||chapterShow">	
+				<div data-bind="visible:chapterShow" style="position:relative;min-height:50px;overflow:hidden;padding:15px">
+					<div style="float:left;width:60px;position:absolute;top:22px;bottom:5px">
+					 <span>教材章节:</span>
+					</div>
+					<div style="margin-left:75px">
+						
+						<ul class="ztree" id="chapterZtreeNode"></ul>
+						<ul 
+							data-bind="visible:true,template:{name:'selectedChapterTpl',foreach:selectedChapterList}">
+						</ul>
+						<script id="selectedChapterTpl" type="text/html">
+							<li class="selected">
+							<span class="indexBak" data-bind="text:index"></span><span class="first" data-bind="text:name"></span>
+							<span class="second" data-bind="click:$root.delChapter.bind(code)"></span>
+							</li>
+						</script>
+					</div>
+				</div>
+				<div data-bind="visible:knowledgeShow" style="position:relative;min-height:50px;overflow:hidden;padding:15px">
+				<!-- 	<button class="easyui-linkbutton" style="float: right"
+						id="btnSearch" onclick="saveKnowledge()"
+							data-options="iconCls:'icon-search'">保存</button> -->
+					<div style="float:left;width:60px;position:absolute;top:22px;bottom:5px">
+					 <span>知识点:</span>
+					</div>
+					<div style="margin-left:75px">
+						
+						<ul class="ztree" id="knowLedgeZtreeNode"></ul>
+						<ul 
+							data-bind="visible:true,template:{name:'selectedKnowledgeTpl',foreach:selectedKnowledgeList}">
+						</ul>
+						<script id="selectedKnowledgeTpl" type="text/html">
+							<li class="selected">
+							<span class="indexBak" data-bind="text:index"></span><span class="first" data-bind="text:name"></span>
+							<span class="second" data-bind="click:$root.delKnowledge.bind(code)"></span>
+							</li>
+						</script>
+					</div>
+				</div>
+				<div>
+					<button class="easyui-linkbutton" id="btnSearch"
+						onclick="save()" style="float: right"
+						data-options="iconCls:'icon-search'">保存</button>
+				</div>
+		</div>
+		</div>
+	<script type="text/javascript">
+		var chapterAry = [];
+		var knowledgeAry = [];
+		var knowledgeZtreeObj;
+		var chapterZtreeObj;
+		var resId = "${resId}";
+		var type = "${type}";
+		var selectedKnowledge; //所选知识点
+		var selectedChapter; //所选章节 
+		function viewModel() {
+			var self = this;
+			self.selectedChapterList = [];
+			self.chapterShow=false;
+			self.knowledgeShow=false;
+			self.selectedKnowledgeList = [];
+			self.delChapter = function(data) {
+				deleteChapter(data.code);
+			}
+			self.delKnowledge = function(data) {
+				deleteKnowledge(data.code);
+			}
+		}
+		$(function() {
+			iniModel();
+		})
+		//初始化model
+		function iniModel() {
+			model = ko.mapping.fromJS(new viewModel());
+			ko.applyBindings(model, $('#koArea')[0]);
+		}
+		//删除资源章节
+		function deleteChapter(code) {
+			$.ajax({
+				url : '/manage/res/delResChapter.html',
+				data : {
+					resId : resId,
+					chapterCode : code,
+				},
+				type : 'post',
+				success : function(res) {
+					if (res.success) {
+						loadSelected();
+					}
+				}
+			})
+		}
+		//删除资源知识点
+		function deleteKnowledge(code) {
+			$.ajax({
+				url : '/manage/res/delResKnowledge.html',
+				data : {
+					resId : resId,
+					knowledgeCode : code,
+				},
+				type : 'post',
+				success : function(res) {
+					if (res.success) {
+						loadSelected();
+					}
+				}
+			})
+		}
+		//学段选择事件
+		function sectionSelect(record) {
+			sectionGrade(record.code, $('#grade'));
+			sectionSubject(record.code, $('#subject'));
+			$('#textbook').combobox('loadData', []);
+		}
+		//年级选择事件
+		function gradeSelect(record) {
+			gradeSubject(record.code, $('#subject'));
+			$('#textbook').combobox('loadData', []);
+		}
+		//学科选择事件
+		function subjectSelect(record) {
+			subjectTextbookVer(record.code, $('#version'))
+			$('#textbook').combobox('loadData', []);
+		}
+		//教材版本选择事件
+		function textbookVerSelect(record) {
+			var sectionCode = $("#section").combobox('getValue');
+			var subjectCode = $("#subject").combobox('getValue');
+			var gradeCode = $("#grade").combobox('getValue');
+			textbookVerTextbook(sectionCode, subjectCode, gradeCode,
+					record.code, $('#textbook'))
+		}
+		var sectionCode = "";
+		var subjectCode = "";
+		var gradeCode = "";
+		var versionCode = "";
+		var termCode = "";
+		var textbookCode = "";
+		//ztree初始化
+		function query() {
+			knowledgeAry = [];
+			chapterAry = [];
+			sectionCode = $("#section").combobox('getValue');
+			subjectCode = $("#subject").combobox('getValue');
+			gradeCode = $("#grade").combobox('getValue');
+			versionCode = $("#version").combobox('getValue');
+			textbookCode = $('#textbook').combobox('getValue');
+			if (isEmpty(sectionCode)) {
+				alert("请选择学段");
+				return;
+			}
+			if (isEmpty(subjectCode)) {
+				alert("请选择学科");
+				return;
+			}
+			knowledgeQP = {
+				resId : resId,
+				sectionCode : sectionCode,
+				subjectCode : subjectCode
+			}//知识点查询条件
+			chapterQP = {
+				resId : resId,
+				sectionCode : sectionCode,
+				subjectCode : subjectCode,
+				gradeCode : gradeCode,
+				versionCode : versionCode,
+				textbookCode : textbookCode
+			};//章节查询条件
+			initKnowledge(knowledgeQP);
+			initChapter(chapterQP);
+			loadSelected();
+
+		}
+		//加载数据
+		function loadSelected() {
+			getSelected(chapterQP, knowledgeQP);
+			model.selectedChapterList(selectedChapter);
+			model.selectedKnowledgeList(selectedKnowledge);
+		}
+		//查询已选的
+		function getSelected(chapterQP, knowledgeQP) {
+			$.ajax({
+				url : '/manage/textbook/getSelectedChapter.html',
+				data : chapterQP,
+				type : 'post',
+				async : false,
+				success : function(res) {
+					if(res!=undefined&&res!=null&&res.length>0){
+						$.each(res,function(i,obj){
+							obj.index=i+1;
+						})	
+					}
+					selectedChapter = res;
+				
+				}
+			})
+			$.ajax({
+				url : '/manage/textbook/getSelectedKnowledge.html',
+				data : knowledgeQP,
+				type : 'post',
+				async : false,
+				success : function(res) {
+					if(res!=undefined&&res!=null&&res.length>0){
+						$.each(res,function(i,obj){
+							obj.index=i+1;
+						})	
+					}
+					selectedKnowledge = res;
+				}
+			})
+		}
+		function save(){
+			if(model.chapterShow()){
+				saveChapter();	
+			}
+			if(model.knowledgeShow()){
+				saveKnowledge();	
+			}
+			$.messager.alert("信息","保存成功", "info");
+		}
+
+		//保存关系
+		function saveChapter() {
+
+			/* if(selectedChapter!=undefined&&selectedChapter!=null&&selectedChapter.length>0){
+				$.each(selectedChapter,function(){ 
+					chapterAry.push(this.code);
+				/* }) 
+			}*/
+
+			var url = "";
+			if (type == "media") {
+				url = "/manage/res/saveMediaChapterRelate.html";
+			} else if (type == "doc") {
+				url = "/manage/res/saveDocChapterRelate.html";
+			}
+			$.ajax({
+				url : url,
+				data : {
+					resId : resId,
+					chapterCodes : JSON.stringify(chapterAry),
+				},
+				type : 'post',
+				success : function(res) {
+					if (!res.success) {
+						$.messager.alert("信息", res.msg, "info");
+					}
+					loadSelected();
+				}
+			})
+
+		}
+		//保存关系
+		function saveKnowledge() {
+			/* if(selectedKnowledge!=undefined&&selectedKnowledge!=null&&selectedKnowledge.length>0){
+				$.each(selectedKnowledge,function(){ 
+					knowledgeAry.push(this.code);
+				}) 
+			}*/
+		
+			var url = "";
+			if (type == "media") {
+				url = "/manage/res/saveMediaKnowledgeRelate.html";
+			} else if (type == "doc") {
+				url = "/manage/res/saveDocKnowledgeRelate.html";
+			}
+			$.ajax({
+				url : url,
+				data : {
+					resId : resId,
+					kpCodes : JSON.stringify(knowledgeAry),
+				},
+				type : 'post',
+				success : function(res) {
+					if (!res.success) {
+						$.messager.alert("信息", res.msg, "info");	
+					}
+					loadSelected();
+				}
+			})
+
+		}
+	</script>
+</body>
+</html>

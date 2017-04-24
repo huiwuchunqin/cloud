@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 创建全局单例对象 -->
+	<import resource="classpath:application-singleton.xml"/>
+	<!-- 创建公共配置 -->
+	<import resource="classpath:application-common.xml" />
+	<!-- 数据访问层 -->
+	<!-- <import resource="classpath:application-dao.xml" /> -->
+	<!-- 创建数据源 -->
+	<import resource="classpath:application-datasource.xml" />
+	<!-- 事务代理层 -->
+	<import resource="classpath:application-aop.xml"/>
+	<!-- rmi -->
+	<!--<import resource="classpath:application-rmi-client.xml"/>-->
+	
+	<!-- 消息服务相关的配置 -->
+	<import resource="classpath:application-activemq-client.xml"/>
+</beans>

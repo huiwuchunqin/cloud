@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>webUploadDemo</title>
+    <!--引入CSS-->
+    <link rel="stylesheet" type="text/css" href="../manage/template/js/webuploader-0.1.5/css/webuploader.css"/>
+    <!--<link rel="stylesheet" type="text/css" href="../manage/template/js/webuploader-0.1.5/css/demo.css"/>-->
+    <link rel="stylesheet" type="text/css" href="../manage/template/js/webuploader-0.1.5/css/style.css"/>
+    <link href="//cdn.bootcss.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+    <div id="post-container" class="container">
+        <div class="page-container">
+            <!--h1 id="demo">Demo</h1>
+            <p>您可以尝试文件拖拽，使用QQ截屏工具，然后激活窗口后粘贴，或者点击添加图片按钮，来体验此demo.</p>
+            <div id="uploader" class="wu-example">
+                <div class="queueList">
+                    <div id="dndArea" class="placeholder">
+                        <div id="filePicker" class="webuploader-container"><div class="webuploader-pick">点击选择图片</div><div id="rt_rt_1a6hmdjjs19oe5tigmq8kv18v81" style="position: absolute; top: 0px; left: 448px; width: 168px; height: 44px; overflow: hidden; bottom: auto; right: auto;"><input type="file" name="file" class="webuploader-element-invisible" multiple="multiple" accept="image/*"><label style="opacity: 0; width: 100%; height: 100%; display: block; cursor: pointer; background: rgb(255, 255, 255);"></label></div></div>
+                        <p>或将照片拖到这里，单次最多可选300张</p>
+                    </div>
+                    <ul class="filelist"></ul></div>
+                <div class="statusBar" style="display:none;">
+                    <div class="progress" style="display: none;">
+                        <span class="text">0%</span>
+                        <span class="percentage" style="width: 0%;"></span>
+                    </div><div class="info">共0张（0B），已上传0张</div>
+                    <div class="btns">
+                        <div id="filePicker2" class="webuploader-container"><div class="webuploader-pick">继续添加</div><div id="rt_rt_1a6hmdjk0trf1j3fakn1t5mbfl6" style="position: absolute; top: 0px; left: 0px; width: 1px; height: 1px; overflow: hidden;"><input type="file" name="file" class="webuploader-element-invisible" multiple="multiple" accept="image/*"><label style="opacity: 0; width: 100%; height: 100%; display: block; cursor: pointer; background: rgb(255, 255, 255);"></label></div></div><div class="uploadBtn state-pedding">开始上传</div>
+                    </div>
+                </div>
+            </div>-->
+            <div id="uploader-demo">
+                <!--用来存放item-->
+                <div data-bind="visible:file().length>0,foreach:file" id="fileList" class="uploader-list">
+                    <div data-bind="attr:{id:id}" id="WU_FILE_0" class="file-item thumbnail">
+                        <div data-bind="html:img"></div>
+                        <div data-bind="html:name" class="info"></div>
+                        <p class="progress" style="width: initial;"><span data-bind="style:{width:percent}"></span></p>
+                        <div data-bind="html:error,visible:error" class="error"></div>
+                    </div>
+                </div>
+                <div data-bind="visible:file().length==0" id="filePicker">选择文件</div>
+                <div data-bind="visible:file().length>0,event:{click:fileUpload.bind($data)}" id="fileUpload" class="webuploader-pick">开始上传</div>
+                <div data-bind="visible:file().length>0,event:{click:fileReChoice.bind($data)}" id="fileReChoice" class="webuploader-pick">重新选择</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+
+
+<!--引入JS-->
+<script src="//cdn.bootcss.com/jquery/1.10.0/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/knockout/3.3.0/knockout-debug.js"></script>
+<script src="//cdn.bootcss.com/knockout.mapping/2.4.1/knockout.mapping.js"></script>
+<script src="//cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<!--<script type="text/javascript" src="../manage/template/js/webuploader-0.1.5/demo/demo.js"></script>-->
+<script type="text/javascript" src="../manage/template/js/webuploader-0.1.5/webuploader.js"></script>
+
+<script>
+    var viewModel;
+    $(function(){
+        //文件列表
+        viewModel={file:ko.observableArray([]),uploader:null};
+
+        ko.applyBindings(viewModel,$("#uploader-demo")[0]);
+
+        //上传图片
+        viewModel.uploader = WebUploader.create({
+            // swf文件路径
+            swf: 'template/js/webuploader-0.1.5/Uploader.swf',
+
+            //分片上传
+            chunked:true,
+            chunkSize:5*1024*1024,
+            formData:{"type":"1","key":"00000007","enc":"21e205db9f37bf8edc765d0dc278c573","remain":"1073741824"},
+
+            // 文件接收服务端。
+            //http://test.emooc.com:905
+            server: 'http://test.emooc.com:905/chunkedDiskUpload.shtml',//'/demo/webuploader.html?do=upload',
+
+            // 选择文件的按钮。可选。
+            // 内部根据当前运行是创建，可能是input元素，也可能是flash.
+            pick: {
+                id:'#filePicker',
+                multiple:true,             //是否允许多文件上传
+            },
+            accept: {
+                title: '请选择视频与文档',
+                extensions: 'f4v,wmv,mkv,mov,avi,flv,rm,mp4,ppt,pdf,doc,xls,docx,pptx,xlsx',
+                mimeTypes: 'video/x-flv'
+            },
+
+
+//            // 只允许选择图片文件。
+//            accept: {
+//                title: 'Images',
+//                extensions: 'gif,jpg,jpeg,bmp,png',
+//                mimeTypes: 'image/*'
+//            },
+
+            //单个文件小于500m
+            fileSingleSizeLimit:500 * 1024 * 1024,
+        });
+
+        viewModel.uploader.on( 'fileQueued', function( file ) {
+            window.a || (window.a=[]);
+            window.a.push(file.type);
+            // 创建缩略图
+            // 如果为非图片文件，可以不用调用此方法。
+            // thumbnailWidth x thumbnailHeight 为 100 x 100
+            this.makeThumb( file, function( error, src ) {
+                //无法预览
+                if ( error ) {
+                    file.img='<span>不能预览</span>';
+                }else{
+                    file.img="<img src='"+src+"'/>";
+                }
+
+                //队列中只允许一个
+                if(viewModel.file().length ){
+                    viewModel.file.splice(0,1,ko.mapping.fromJS(new uploadFile(file)));
+                }else
+                    viewModel.file.push(ko.mapping.fromJS(new uploadFile(file)));
+
+            }, 100, 100 );
+        });
+
+        //文件上传之前，校验crc
+
+
+        // 文件上传过程中创建进度条实时显示。
+        viewModel.uploader.on( 'uploadProgress', function( file, percentage ) {
+            viewModel.file()[0].percent(percentage * 100 + '%');
+        });
+
+        // 文件上传成功，给item添加成功class, 用样式标记上传成功。
+        viewModel.uploader.on( 'uploadSuccess', function( file ) {
+            alert(unescape(arguments[1]._raw));
+//            viewModel.uploader.
+            console.info("文件上传成功",arguments);
+        });
+
+        // 文件上传失败，现实上传出错。
+        viewModel.uploader.on( 'uploadError', function( file ) {
+            alert("文件上传失败",unescape(arguments[1]._raw));
+        });
+
+    });
+
+    /**
+     * 开始文件上传
+     * @param $data     ko对象
+     */
+    function fileUpload($data){
+        $data.uploader.upload($data.file()[0].id());
+    }
+
+    /**
+     * 重新选择文件
+     * @param $data     ko对象
+     */
+    function fileReChoice($data){
+        return $($data.uploader.options.pick.id+" input:file").click();
+    }
+
+    /**
+     * 文件实体 构造
+     * @param file
+     */
+    function uploadFile(file){
+        file||(file={});
+        this.id     =   file.id||'';
+        this.name   =   file.name||'';
+        this.type   =   file.type||'';
+        this.size   =   file.size||'';
+        this.percent=   file.percent||'';
+        this.error  =   file.error||'';
+        this.img    =   file.img||'';
+        file.ko_obj=this;
+    }
+</script>
+</html>

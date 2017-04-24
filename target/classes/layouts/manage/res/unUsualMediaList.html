@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<title>非正常视频资源</title>
+<style type="text/css">
+.labelBox input {
+	width: 100px
+}
+.datagrid-cell-rownumber{
+width:50px;
+text-align:center;
+margin:0px;
+padding:3px 0px;
+}
+.datagrid-header-rownumber{
+width:50px;
+text-align:center;
+margin:0px;
+padding:3px 0px;
+}
+</style>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'" style="height: 95px;">
+		<div class="box form">
+			<div class="labelBox">
+				<span style="float: left; width: 220px"> <span
+					class="labelWidth90">学段</span> <input id="section"
+					class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false,onSelect:sectionSelect">
+				</span>
+				<span style="float: left; width: 220px"> <span
+					class="labelWidth90">学科</span> <input id="subject"
+					class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false">
+				</span>
+				 <span style="float: left; width: 220px"> <span
+					class="labelWidth90">年级</span> <input id="grade"
+					class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false">
+				</span> 
+				<div class="clear10"></div>
+				 <span style="float: left; width: 280px"> <span
+					class="labelWidth90">机构名称</span> <input id="orgName"
+					style="width: 171px" placeholder="请输入机构名称">
+				</span>
+
+			</div>
+			<div style="margin-left: 100px; float: left;">
+				<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+					onclick="query()"><img src="/manage/template/images/search.png">查询</a>
+					<a  style="margin-left:10px"class="btn btnDelete" data-options="iconCls:'icon-remove'"
+					onclick="deleteRes()">删除</a>
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<!-- <div id="tb" style="height:30px">
+	<div style="margin-left:20px;float:left">
+	<a class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="addDoc()">新增资源</a>
+	</div>
+	<div style="margin-left:20px;padding-top:5px">
+	<input id="keyWord" style="height:20px;width:200px	"placeholder="请输入资源关键字"/>
+	</div>
+</div> -->
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+    pagination:true,
+    fit:true,
+    toolbar:'#tb',
+    rownumbers:true,
+    onBeforeLoad:onBeforeLoad,
+    url:'/manage/res/unUsualMediaList.html'
+
+">
+			<thead>
+				<tr>
+					<th data-options="field:'ck',checkbox:true,width:80,halign:'center',headalign:'center'"></th>
+					<th
+						data-options="field:'operate',formatter:operateFmt,width:130,align:'left',halign:'center'">操作</th>
+					<th
+						data-options="field:'resName',width:340,align:'left',halign:'center'">资源名称</th>
+						<th
+						data-options="field:'orgName',width:220,halign:'center'">机构名称</th>
+					<!-- 	<th data-options="field:'resType',formatter:resTypeFmt,width:75,align:'left',halign:'center'">资源类型</th> -->
+					<th
+						data-options="field:'sectionName',width:70,align:'center',halign:'center'">学段</th>
+					<th
+						data-options="field:'gradeName',width:70,align:'center',halign:'center'">年级</th>
+					<th
+						data-options="field:'subjectName',width:80,align:'center',halign:'center'">学科</th>
+						<th
+						data-options="field:'kpCountStr',width:80,align:'center',halign:'center'">知识点</th>
+						<th
+						data-options="field:'tbcCountStr',width:80,align:'center',halign:'center'">教材章节</th>
+					<th
+						data-options="field:'allowDownLoad',width:60,align:'center',halign:'center'">可下载</th>
+					<th
+						data-options="field:'allowBrowser',width:60,align:'center',halign:'center'">可浏览</th>
+					<th
+						data-options="field:'shareLevelStr',width:60,align:'center',halign:'center'">分享级别</th>
+					<!-- <th data-options="field:'trialTimeRate',width:60,align:'right',halign:'center'"><span style="width:30px;white-space:normal">试看百分比(%)</span></th> -->
+					<!-- 	<th data-options="field:'subjectName',width:80,align:'center',halign:'center'">所属学科</th>
+				<th data-options="field:'gradeName',width:80,align:'center',halign:'center'">所属年级</th> -->
+					<!-- 	<th data-options="field:'uploadTime',width:130,align:'center',formatter:timefmt,halign:'center'">上传时间</th> -->
+					<th
+						data-options="field:'checkStatusStr',width:80,align:'center',halign:'center'">审核状态</th>
+					<th
+						data-options="field:'resStatusStr',width:80,align:'center',halign:'center'">资源状态</th>
+					<th
+						data-options="field:'userName',width:90,align:'left',halign:'center'">作者</th>
+					<th
+						data-options="field:'makeTime',width:120,align:'center',halign:'center',formatter:timefmt">上传时间</th>
+					<!-- <th data-options="field:'suffix',width:60,align:'center',halign:'center'">资源后缀</th>
+				<th data-options="field:'resourceSize',formatter:resourceSizeFmt,width:100,align:'center',halign:'center'">资源大小</th>
+				<th data-options="field:'resStatus',formatter:resStatusFmt,width:90,align:'center'">资源状态</th>
+				<th data-options="field:'convertCompletedTime',width:130,align:'center',halign:'center'">转码完成时间</th> -->
+					<!-- <th data-options="field:'source',formatter:sourceFmt,width:80,align:'left',halign:'center'">资源来源</th> -->
+					<!-- 	<th data-options="field:'supplierName',width:100,align:'left',halign:'center'">所属供应商</th> -->
+					<th
+						data-options="field:'browseCount',width:90,align:'right',halign:'center'">观看次数</th>
+					<th
+						data-options="field:'downloadCount',width:90,align:'right',halign:'center'">下载次数</th>
+					<th
+						data-options="field:'goodCount',width:60,align:'right',halign:'center'">点赞数</th>
+					<th
+						data-options="field:'referCount',width:60,align:'right',halign:'center'">引用数</th>
+					<th
+						data-options="field:'favoriteCount',width:60,align:'right',halign:'center'">收藏数</th>
+					<th
+						data-options="field:'commentCount',width:60,align:'right',halign:'center'">评论数</th>
+					<th
+						data-options="field:'resDesc',width:300,align:'left',halign:'center'">资源描述</th>
+					<!-- <th data-options="field:'downloadPoints',width:60,align:'right',halign:'center'">下载点数</th> -->
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<script type="text/javascript">
+	var _subjectCombo = $('#subject');
+	var _gradeCombo = $('#grade');
+	var _sectionCombo = $('#section');
+	var defaultOpt = {
+		name : "不限",
+		code : '-1'
+	};
+	$(function() {
+		var sectionList = ${sectionList};
+		sectionList.splice(0, 0, defaultOpt);
+		_sectionCombo.combobox('loadData', sectionList);
+		_sectionCombo.combobox('select', -1);
+
+
+	})
+	//ajax请求
+		function Ajax_request(url, data) {
+			var result = [];
+			$.ajax({
+				url : url,
+				data : data,
+				async : false,
+				type : 'post',
+				success : function(json) {
+					result = json;
+				}
+			})
+			return result;
+		}
+		//学段下拉框选择事件
+		function sectionSelect(record) {
+			if (record.code == -1) {
+
+			}
+			var gradeList = Ajax_request(
+					"/manage/sectionGradeRef/sectionGrade.html", {
+						sectionCode : record.code
+					}) //查询学段年级
+			gradeList.splice(0, 0, defaultOpt);
+			_gradeCombo.combobox('loadData', gradeList);
+			_gradeCombo.combobox('setValue', -1);
+			var subjectList = Ajax_request(
+					"/manage/sectionSubjectRef/sectionSubject.html", {
+						sectionCode : record.code
+					}) //查询学段学科
+			subjectList.splice(0, 0, defaultOpt);
+			_subjectCombo.combobox('loadData', subjectList);
+			_subjectCombo.combobox('setValue', -1);
+		}
+		function timefmt(value, row) {
+			if (value != "" && value != undefined) {
+				return moment(value).format("YYYY-MM-DD  H:mm");
+			}
+		}
+		//查询按钮
+		function query() {
+			$('#dg').datagrid('reload');
+		}
+		//查询参数传递 
+		function onBeforeLoad(param) {
+			param["gradeCode"] = _gradeCombo.combobox('getValue');
+			param["subjectCode"] = _subjectCombo.combobox('getValue');
+			param["sectionCode"] = _sectionCombo.combobox('getValue');
+			param["orgName"] =$('#orgName').val();
+		}
+
+		//操作列格式化
+		function operateFmt(value, row) {
+			var str="<a href='javascript:void(0)' onclick='edit(\""+row.id+"\")'>修改</a>&nbsp;"
+			str=str+"<a href='javascript:void(0)' onclick='deleteSingle(\""+row.id+"\")'>删除</a>&nbsp;"
+			return str;
+		}
+		//删除单题
+		function deleteSingle(id){
+			$.messager.confirm("信息","确认要删除资源吗？",function(r){
+				if(r){
+					var result=Ajax_request("/manage/res/deleteRes.html",{ids:id,resType:10})
+					$.messager.alert("信息",result.msg,"info",function(){
+						if(result.success){
+							query()
+						}
+					})	
+				}
+			})
+		}
+		//删除多题目
+		function deleteRes(){
+			var rows=$('#dg').datagrid('getSelections');
+			var ids=new Array();
+			if(rows==undefined||rows.length<=0){
+				$.messager.alert("信息","请选择要删除的资源","info")
+				return ;
+			}
+			$.each(rows,function(i,data){
+				ids.push(data.id);
+			})
+			$.messager.confirm("信息","确认要删除资源吗？",function(r){
+				if(r){
+					var result=Ajax_request("/manage/res/deleteRes.html",{ids:ids.join(","),resType:10})
+					$.messager.alert("信息",result.msg,"info",function(){
+						if(result.success){
+							query()
+						}
+					})	
+				}
+			})
+		}
+		//新增资源
+		function addDoc() {
+			easyui_openTopWindow("新增资源", 1000, 700,
+					"/manage/res/resMediaAdd.html", function(r) {
+						$('#dg').datagrid('load')
+					})
+		}
+		//资源审核
+		function examine(id) {
+			easyui_openTopWindow("资源审核", 1000, 700,
+					"/manage/res/resMediaPreview.html?resId=" + id
+							+ "&isExamine=1", function(r) {
+						if (r) {
+							$('#dg').datagrid('reload')
+						}
+					})
+		}
+		//编辑资源
+		function edit(id) {
+			easyui_openNoResizeWindow("资源编辑", 940, 700,
+					"/manage/res/resMediaEdit.html?resId=" + id, function(r) {
+						query();
+					})
+		}
+		//标注资源
+		function tag(id) {
+			easyui_openTopWindow("资源标注", 1000, 700,
+					"/manage/res/tag.html?resId=" + id + "&type=media",
+					function(r) {
+						query()
+					})
+		}
+
+		//推荐资源
+		function recommend(id) {
+			/* easyui_openTopWindow("资源推荐",1000,700,"/manage/res/knowledgeChoose.html?resId="+id,function(r){
+				}) */
+		}
+		//预览资源
+		function preview(id) {
+			easyui_openTopWindow("资源预览", 1100, 600,
+					"/manage/res/resMediaPreview.html?resId=" + id
+							+ "&isExamine=0", function(r) {
+						if (r) {
+							query()
+						}
+					})
+		}
+	</script>
+</body>
+</html>

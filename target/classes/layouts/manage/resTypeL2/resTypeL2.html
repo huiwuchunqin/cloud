@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>二级分类列表</title>
+</head>
+<body>
+<div id="tb">
+	<div class="box">
+		<div class="labelBox">
+			<div class="labelLine240">
+				<span class="labelWidth90">一级分类：</span>
+				<input id="resTypeL1" class="easyui-combobox" data-options="textField:'name',valueField:'code',editable:false">
+			</div>
+		</div>
+		<div class="btnBox">
+			<a class="btn btnBlue add" onclick="add()">新增</a>
+			<a class="btn btnBlue search" onclick="reload()">查询</a>
+		</div>
+	</div>
+</div>
+<table id="dg" class="easyui-datagrid" data-options="
+   pagination:true,
+   toolbar:'#tb',
+   fit:true,
+   rownumbers:true,
+   singleSelect:true,
+   onBeforeLoad:onBeforeLoad,
+   url:'/manage/resTypeL2/list.html',
+   fitColumns:true,
+">
+<thead>
+
+<tr>
+	<th data-options="field:'resTypeL1Name',width:100,halign:'center',align:'left'">一级分类名称</th>
+	<th data-options="field:'name',formatter:editfmt,width:100,halign:'center',align:'left'">二级分类名称</th>
+	<th data-options="field:'dispOrder',halign:'center',width:50,align:'center'">顺序</th>
+	<th data-options="field:'modifyTime',formatter:timefmt,align:'center',width:120,halign:'center'">更新时间</th>
+	<th data-options="field:'description',width:450,halign:'center',align:'left'">描述</th> 
+</tr>
+</thead>
+</table>
+<script type="text/javascript">
+var resTypeL1List=eval(${resTypeL1List});
+$(function(){
+	resTypeL1List.unshift({name:"全部",code:"",selected:true});
+	$('#resTypeL1').combobox('loadData',resTypeL1List);
+})
+function onBeforeLoad(param){
+	param["resTypeL1Code"]=$('#resTypeL1').combobox('getValue');
+}
+//查询
+function reload(){
+	$('#dg').datagrid('reload');
+}
+
+//编辑
+function editfmt(value,row){
+	return "<a href='javascript:void(0)' onClick='edit(\""+row.code+"\")'>"+value+"</a>";
+}
+
+//修改
+function  edit(code){
+	easyui_openTopWindow("修改二级分类",500,350,"/manage/resTypeL2/toResTypeL2Edit.html?code="+code,function(r){
+		if(r){
+			$('#dg').datagrid('reload');
+		}
+	})	
+}
+//新增
+function add(){
+	easyui_openNoResizeWindow("新增二级分类",500,350,"/manage/resTypeL2/toResTypeL2Add.html",function(r){
+		if(r){
+			$('#dg').datagrid('reload');
+		}
+	})
+}
+</script>
+</body>
+</html>

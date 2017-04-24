@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_css.html"/>
+<#include "/manage/common/meta_js.html"/> 
+<script type="text/javascript" src="/manage/moveToCommon/js/knockout-easyui-Lite/knockout-easyui.debug.js"></script>
+<script type="text/javascript" src="/manage/moveToCommon/js/kovalidate/knockout.validation.js"></script>
+<script type="text/javascript" src="/manage/moveToCommon/js/kovalidate/zh-CN.js"></script>
+<title>平台学年学期</title>
+</head>
+<style type="text/css">
+.attr{
+	height: 36px;
+	line-height: 36px;
+	text-align: left;
+	margin: 5px 0 0 80px;
+}
+.textbox{
+	width: 122px !important;
+}
+.attr>span:first-of-type {
+    width: 90px;
+    display: inline-block;
+}
+</style>
+<body>
+<div class="easyui-tabs" data-options="fit:true"> 
+<!-- 	<div title="学年" >
+	<table id="dgYear" class="easyui-datagrid" data-options="
+		    pagination:true,
+		    fit:true,
+		    rownumbers:true,
+		    singleSelect:true,
+		    url:'/manage/studyYear/studyYearPageList.html',
+	
+	">
+	<thead>
+				<tr>
+					<th data-options="field:'studyYearName',width:120,halign:'center',headalign:'center'">学年名称</th>
+					<th data-options="field:'yearBegin',halign:'center',width:80,align:'center',halign:'center'">学年（始）</th>
+					<th data-options="field:'yearEnd',width:80,align:'center',halign:'center',headalign:'center'">学年（终）</th>
+					<th data-options="field:'description',width:450,halign:'center',headalign:'center'">描述</th>
+				</tr>
+	</thead>
+	</table>
+	</div> -->
+	<div title="学期">
+		<div id="tbTerm">
+		<a class="btn btnBlue add align-right" iconCls="icon-add" onclick="addStudyYearTerm()">新增</a>
+		</div>
+		<table id="dgTerm" class="easyui-datagrid" data-options="
+			toolbar:'#tbTerm',
+		    pagination:true,
+		    fit:true,
+		    rownumbers:true,
+		    fitColumns:true,
+		    singleSelect:true, 
+		    url:'/manage/studyYear/studyYearTermPageList.html'
+	    ">
+	<thead>
+				<tr>
+					<th data-options="field:'opt',width:75,formatter:termOptfmt,align:'center',halign:'center'">操作</th>
+					<th data-options="field:'yearTermName',width:150,halign:'center',align:'left'">学年学期名称</th>
+					<th data-options="field:'yearBegin',halign:'center',width:80,align:'center'">学年（始）</th>
+					<th data-options="field:'yearEnd',width:80,align:'center',halign:'center'">学年（终）</th>
+					<th data-options="field:'description',width:450,halign:'center',align:'left'">描述</th>
+				</tr> 
+			</thead>
+	</table>
+	</div>
+	<div title="平台学年学期">
+		<div id="platTb">
+		<a class="btn btnBlue add align-right" iconCls="icon-add" onclick="addPlatfm()">新增</a>		
+		</div>
+			<table id="platDg" class="easyui-datagrid"
+				data-options="
+					toolbar:'#platTb',
+				    pagination:true,
+				    fit:true,
+				    rownumbers:true,
+				    fitColumns:true,
+				    singleSelect:true,
+				    url:'/manage/studyYear/platformYearTermPageList.html'
+                ">
+				<thead>
+					<tr>
+						<th data-options="field:'opt',width:50,formatter:platTermOptfmt,align:'center',halign:'center'">操作</th>
+						<th data-options="field:'name',width:80,halign:'center',align:'center'">学段</th>
+						<th data-options="field:'yearTermName',width:150,halign:'center',align:'left'">学年学期名称</th>
+						<th data-options="field:'startDate',halign:'center',formatter:timefmt,width:100,align:'center'">开始日期</th>
+						<th data-options="field:'endDate',width:100,align:'center',formatter:timefmt,halign:'center'">结束日期</th>
+						<th data-options="field:'totalWeekNum',width:90,align:'center',halign:'center'">总周数</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+</div>
+<div id="yearDialog" class="easyui-dialog" style="width:600px;height:320px;" data-options="
+closed:true,
+modal:true,
+">
+<form id="termFm">
+<!--ko with:yearTerm-->
+   <div class="attr">
+   <span>学年学期名称</span>
+   <input id="yearTermName"  class="easyui-validatebox " maxLength="20" data-options="required:true,validType:'maxLength[20]'" data-bind="value:yearTermName"/>
+   </div>
+   
+   <div class="attr">  
+   <span>学年(始)</span>
+   <input id="studyYearBegin" data-bind="value:yearBegin,disable:gid()" class="easyui-validatebox " data-options="validType:'yyyy',required:true"/>
+   </div>
+   
+   <div class="attr"> 
+   <span>学年(终)</span>
+    <input readOnly="readOnly" id="yearEnd" data-options="validType:'yyyy'" data-bind="value:yearEnd"/>
+    <span style="margin-left: 10px;color: red;">*自动根据学年起始年份生成</span>
+   </div>
+  <!--/ko -->    
+	<div class="attr">
+   <span>学期类型</span>
+   <input id="termCom" class="easyui-combobox " data-bind="comboboxSource:termCode.source,comboboxValue:termCode.val,easyuiOptions:termCode.viewSettings"  />
+   </div> 
+	 <div class="attr"> 
+	   <span  style="height: 110px;vertical-align: middle;">描述</span>
+	    <textarea id="description" maxLength="40" rows="3" cols="30" class="easyui-validatebox" data-options="validType:'maxLength[40]'" data-bind="value:page.yearTerm.description"></textarea>
+	 </div>
+	 <span class="clear10"></span>
+	<div class="textCenter">
+	  <a class="btn btnBlue" onclick="saveStudyYearTerm()">保存</a>
+	  <a class="btn btnGrey" onclick="closeStudyYearTerm()">取消</a>
+  	 </div>
+ </form> 
+
+</div>
+<div id="platDialog" class="easyui-dialog" style="width:400px;height:320px;" data-options="
+	closed:true,
+	modal:true
+">
+
+   <div class="attr">
+	   <span>学段</span>
+	   <input id="section" class="easyui-combobox" data-bind="comboboxSource:section.source,comboboxValue:section.val,easyuiOptions:section.viewSettings"/>
+   </div>
+   
+   <div class="attr">  
+	   <span>学期</span>
+	   <input id="term" class="easyui-combobox" data-bind="comboboxSource:term.source,comboboxValue:term.val,easyuiOptions:term.viewSettings"/>
+   </div>
+   
+   <div class="attr"> 
+    <span>开始日期</span>
+    <input id="startDate" class="Wdate" onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd '})" data-options="validType:'yyyy'"/>
+   </div>
+   
+   <div class="attr"> 
+    <span>结束日期</span>
+    <input id="endDate" class="Wdate" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd '})" data-options="validType:'yyyy'"/>
+   </div>
+  <div class="attr textRight"> 
+  <a class="btn btnBlue" onclick="savePlatformYearTerm()">保存</a>
+  <a class="btn btnGrey" onclick="closePlatformYearTerm()">取消</a>
+   </div>
+</div>
+<script type="text/javascript">
+var termList=eval(${termList});
+var sectionList=eval(${sectionList})
+var page=new PageModel();
+page.term.source(termList);
+page.section.source(sectionList);
+ko.applyBindings(page)
+
+function PageModel(){
+	var self=this;
+	self.termCode={
+	source:	ko.observableArray([
+     {'name':'秋季学期',code:'1'},
+     {'name':'春季学期',code:'2'},
+     ]),
+	val:ko.observable(""),
+	viewSettings:{
+		required:true,
+		editable:false,
+		textField:'name',
+		valueField:'code',
+	}
+	         
+}
+	self.yearTermGid=ko.observable("")
+	self.term={
+		source:ko.observableArray([]),
+		val:ko.observable(""),
+		viewSettings:{
+			required:true,
+			editable:false,
+			textField:'yearTermName',
+			valueField:'yearTermCode',
+		}
+	}
+	self.section={
+		source:ko.observableArray([]),
+		val:ko.observable(""),
+		viewSettings:{
+			required:true,
+			editable:false,
+			textField:'name',
+			valueField:'code',
+		}
+	}
+	self.yearTerm={
+			yearTermName:ko.observable(""),
+			yearBegin:ko.observable(""),
+			description:ko.observable(""),
+			gid:ko.observable(""),
+			
+	}
+	self.yearTerm.yearEnd=ko.computed(function(){
+		return self.yearTerm.yearBegin()?Number(self.yearTerm.yearBegin())+1:"";
+	})	
+return self;
+	
+}
+
+//保存学期
+function saveStudyYearTerm(){
+	$('#studyYearBegin').validatebox('validate');
+   if($('#termFm').form('validate')){
+	   $.ajax({
+		   url:"/manage/studyYear/addStudyYearTerm.html",
+		   data:$.extend(ko.toJS(page.yearTerm),{termCode:page.termCode.val()}),
+	   		type:'post',
+	   		success:function(res){
+	   			$.messager.alert("信息",res.msg);
+	   			if(res.success){
+	   				$('#yearDialog').dialog('close');
+	   				$('#dgTerm').datagrid('reload');
+	   				$('#dgYear').datagrid('reload');
+	   				getTermList();
+	   			}
+	   		}
+	   })
+   }
+}
+//得到学期 
+function getTermList(){
+	$.ajax({
+		url:"/manage/studyYear/studyYearTermList.html",
+		success:function(res){
+			termList=res;
+			page.term.source(termList);
+		}
+	})
+}
+//保存平台学年学期
+function savePlatformYearTerm(){
+	    var sectionCode=page.section.val();
+	    var yearTermCode=page.term.val();
+	    var startDateStr=$('#startDate').val();
+	    var endDateStr=$('#endDate').val();
+	    if(sectionCode==null||sectionCode==""){
+    		$.messager.alert('消息','学段不能为空！','info');
+            return;
+    	}
+	    if(yearTermCode==null||yearTermCode==""){
+    		$.messager.alert('消息','学期不能为空！','info');
+            return;
+    	}
+	    if(startDateStr==null||startDateStr==""){
+    		$.messager.alert('消息','开始日期不能为空！','info');
+            return;
+    	}
+	    if(endDateStr==null||endDateStr==""){
+    		$.messager.alert('消息','结束日期不能为空！','info');
+            return;
+    	}
+		$.ajax({
+			url:'/manage/studyYear/addPlatfromYearTerm.html',
+			data:{
+				sectionCode:sectionCode,
+				yearTermCode:yearTermCode,
+				startDateStr:startDateStr,
+				endDateStr:endDateStr,
+				gid:page.yearTermGid()
+			},
+			type:'post',
+			success:function(res){
+				$.messager.alert("信息",res.msg);
+				if(res.success){
+					closePlatformYearTerm();
+				}
+				$('#platDg').datagrid('reload');
+			}
+		})
+}
+/**
+ * 删除学期
+ */
+function deletePlatTerm(_gid){
+	$.messager.confirm("确认","确认删除吗？",function(r){
+		if(r){
+			$.ajax({
+				url:'/manage/studyYear/deletePlatYearTerm.html',
+				data:{gid:_gid},
+				type:'post',
+				success:function(res){
+					$.messager.alert("信息",res.msg);
+					$('#platDg').datagrid('reload');
+				}
+			})
+		}
+	})
+}
+//关闭平台学期编辑窗口
+function closePlatformYearTerm(){
+	$('#platDialog').dialog('close');	
+}
+
+//新增平台学期
+function addPlatfm(){
+	platClear();
+	/* enableCombo($('#term'));
+	enableCombo($('#section')); */
+	$('#term').combobox('enable');
+	$('#section').combobox('enable');
+	$('#platDialog').dialog({title:"新增平台学期"}).dialog('open');		
+}
+//平台清空
+function platClear(){
+	page.term.val("");
+	page.section.val("");
+	page.yearTermGid("");
+	$('#startDate').val("");
+	$('#endDate').val(""); 
+}
+/* function disableCombo(dom){
+	if(!dom.combobox('options').disabled){
+		dom.combobox('disable');	
+	}
+}
+function enableCombo(dom){
+	if(dom.combobox('options').disabled){
+		dom.combobox('enable');	
+	}
+} */
+//修改平台
+function modifyPlatTerm(obj){
+	platClear();
+	$('#platDialog').dialog({title:"修改学年学期"}).dialog('open');	
+	var index=$(obj).closest("tr").index();
+	$('#platDg').datagrid('selectRow',index);
+	var row=$('#platDg').datagrid('getSelected');
+	/* disableCombo($('#term'));
+	disableCombo($('#section')); */
+ 	$('#term').combobox('disable');
+	$('#section').combobox('disable'); 
+	page.term.val(row.yearTermCode);
+	page.section.val(row.sectionCode);
+	page.yearTermGid(row.gid);
+	$('#startDate').val(moment(row.startDate).format("YYYY-MM-DD"));
+	$('#endDate').val(moment(row.endDate).format("YYYY-MM-DD")); 
+	
+}
+function timefmt(value,row){
+	if(value){
+		return moment(value).format("YYYY-MM-DD");	
+	}else{
+		return "";
+	}
+}
+
+/**
+ * 学期操作格式化
+ */
+function termOptfmt(value,row){
+	return "<a href='javascript:void(0)' onclick='modifyTerm(this)'>修改</a>";
+}
+
+//格式化平台学年学期操作列
+function platTermOptfmt(value,row){
+	var operateStr="";
+	var nowDate=moment(new Date()).format("YYYY-MM-DD");
+	var startDate=moment(row.startDate).format("YYYY-MM-DD");
+	if(startDate>nowDate){
+		operateStr="<a href='javascript:void(0)' onclick='modifyPlatTerm(this)'>修改</a> &nbsp;<a href='javascript:void(0)' onclick='deletePlatTerm(\""+row.gid+"\")'>删除</a>";
+	}
+	return operateStr;
+}
+
+//清空学期
+function clearTerm(){
+	page.yearTerm.yearTermName("");
+	page.yearTerm.yearBegin("");
+	page.yearTerm.description("");
+	page.yearTerm.gid("");
+	page.termCode.val(""); 
+}
+//关闭学期窗口
+function closeStudyYearTerm(){
+	clearTerm(); 
+	$('#yearDialog').dialog('close');	
+}
+//新增学期
+function addStudyYearTerm(){
+	clearTerm(); 
+/* 	enableCombo($('#termCom')); */
+	$('#termCom').combobox('enable');
+	$('#yearDialog').dialog({title:"新增学期"}).dialog('open');
+}
+/**
+ * 修改学期
+ */
+function modifyTerm(obj){
+	clearTerm(); 
+	var index=$(obj).closest("tr").index();
+	$('#dgTerm').datagrid('selectRow',index);
+	var row=$('#dgTerm').datagrid('getSelected');
+	/* disableCombo($('#termCom')); */
+    $('#termCom').combobox('disable'); 
+/* 	page.yearTerm.yearTermName(row.yearTermName);
+	page.yearTerm.yearBegin(row.yearBegin);
+	page.yearTerm.description(row.description);
+	page.yearTerm.gid(row.gid);  */
+	ko.mapping.fromJS(row,ko.mapping.fromJS(page.yearTerm)) 
+	page.termCode.val(row.termCode); 
+	$('#yearDialog').dialog({title:"修改学期"}).dialog('open');	
+}
+
+/**
+ * 删除学期
+ */
+function deleteTerm(_gid){
+	$.messager.confirm("确认","确认删除吗？",function(r){
+		if(r){
+			$.ajax({
+				url:'/manage/studyYear/deleteStudyYearTerm.html',
+				data:{gid:_gid},
+				type:'post',
+				success:function(res){
+					$.messager.alert("信息",res.msg);
+					$('#dgTerm').datagrid('reload');
+	   				$('#dgYear').datagrid('reload');
+				}
+			})
+		}
+	})
+}
+</script>
+</body>
+</html>

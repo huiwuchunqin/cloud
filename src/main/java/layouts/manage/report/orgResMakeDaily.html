@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<script type="text/javascript"
+	src="/manage/template/comboChange/comboChange.js"></script>
+<title>学校统计</title>
+</head>
+<style type="text/css">
+.width130{
+  width: 150px;
+}
+</style>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'">
+			<div class="box">
+				<div class="labelBox">
+					<div class="labelLine440">
+						<span class="labelWidth60">时间：</span> <input id="startDate"
+																	 class="Wdate"
+																	 onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})" />
+						~ <input id="endDate" class="Wdate"
+								 onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})" /> 
+					</div>
+					<span class="clear10"></span>
+					<div class="labelLine240">
+						<span class="labelWidth60">学段：</span><input id="section"
+																	class="easyui-combobox"
+																	data-options="onChange:sectionChange,textField:'name',valueField:'code',editable:false">
+					</div>
+					<!-- <div class="labelLine485">
+                <span class="labelWidth60">学校:</span><input id="school" style="width:230px" class="easyui-combobox" data-options="data:[{orgName:'请选择',orgCode:''}],textField:'orgName',valueField:'orgCode'">
+                </div> -->
+					<div class="labelLine240">
+						<span class="labelWidth90">机构名称：</span><!-- <input id="school"
+						class="easyui-validatebox" name="orgName" maxlength="60"
+						placeholder="请输入机构名称" style="width: 230px"/> -->
+						<input id="orgName" class="easyui-validatebox width130" name="orgName" maxlength="60"
+							   placeholder="请输入机构名称" />
+					</div>
+				</div>
+				<div class="btnBox">
+					<button class="btn btnBlue search" onclick="$('#dg').datagrid('reload')">查询</button>
+				</div>
+			</div>
+		</div>
+		<div data-options="region:'center'">
+			<div id="tb" class="tbClass">
+				<form id="fm" method="post">
+
+					<span class="attr">机构数量:<label id="schoolTotal"></label></span> <span
+						class="attr">资源数:<label id="resTotal"></label></span> <span
+						class="attr">视频数:<label id="mediaTotal"></label></span> <span
+						class="attr">文档数:<label id="docTotal"></label></span> <span
+						class="attr">测验数:<label id="exerciseTotal"></label></span> <span
+						class="attr">题数:<label id="questionTotal"></label></span>
+					<div class="btnBox">
+						<a class="btn btnBlue"  
+							onclick="exportEXCEL()">导出</a>
+					</div>
+				</form>
+			</div>
+			<table id="dg" class="easyui-datagrid"
+				data-options="
+					 pagination:true,
+					 onBeforeLoad:onBeforeLoad,
+					 rownumbers:true,
+					 singleSelect:true,
+					 toolbar:'#tb',
+					 fit:true,
+					 onLoadSuccess:onLoadSuccess,
+					 url:'/manage/reportOrgResDaily/list.html'
+	            ">
+				<thead>
+					<tr>
+						<th data-options="field:'orgName',width:300,halign:'center',align:'left'">机构名称</th>
+						<th data-options="field:'sectionName',width:70,align:'center',halign:'center'">学段</th>
+						<th data-options="field:'mediaTotal',width:70,align:'center',halign:'center'">视频</th>
+						<th data-options="field:'docTotal',width:70,align:'center',halign:'center'">文档</th>
+						<th data-options="field:'exerciseTotal',width:70,align:'center',halign:'center'">测验</th>
+						<th data-options="field:'questionTotal',width:70,align:'center',halign:'center'">题目</th>
+						<th data-options="field:'resTotal',width:70,align:'center',halign:'center'">资源总数</th>
+						<th data-options="field:'detail',width:90,halign:'center',align:'center',formatter:detail">查看</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var sectionList=eval(${sectionList});
+		$(function(){
+			sectionList.unshift({name:"不限",code:""});
+			$('#section').combobox('loadData',sectionList);
+		})
+		
+		
+		function getParam(){
+			var startDate=$("#startDate").val();
+			var endDate=$("#endDate").val();
+			if(endDate==""){
+				endDate=moment(new Date()).format("YYYYMMDD");
+			}else{
+				endDate=moment(endDate).format("YYYYMMDD");
+			}
+			if(startDate!=""){
+				startDate=moment(startDate).format("YYYYMMDD").toString();
+			}
+			return {
+					sectionCode	:	$("#section").combobox('getValue'),
+					orgName		:	$("#orgName").val().trim(),
+					startDate	:	startDate,
+					endDate		:	endDate	
+			}
+		}
+		//导出excel
+		function exportEXCEL(){
+			var url="/manage/reportOrgResDaily/export.html?fileName="+getExportName();
+			 downloadHelper(urlWithParam(url,getParam())); 
+		}
+		
+		function onBeforeLoad(param){
+			$.extend(param,getParam());
+		}
+		
+		function sectionChange(record){
+			sectionOrg(record,$('#school'));
+		}
+		
+		function onLoadSuccess(data){
+			$.ajax({
+				url:'/manage/reportOrgResDaily/list.html',
+				data:$.extend(getParam(),{page:1,rows:10000000}),
+				success:function(data){
+					var schoolTotal=0,resTotal=0,mediaTotal=0,docTotal=0
+					exerciseTotal=0,questionTotal=0;
+					schoolTotal=data.rows.length;
+					_.each(data.rows,function(item){
+						if(item){
+						resTotal=resTotal+item.resTotal;
+						mediaTotal=mediaTotal+item.mediaTotal;
+						docTotal=docTotal+item.docTotal;
+						exerciseTotal=exerciseTotal+item.exerciseTotal;
+						questionTotal=questionTotal+item.questionTotal;
+						}
+					})
+					$('#schoolTotal').text(schoolTotal);
+					$('#resTotal').text(resTotal);
+					$('#mediaTotal').text(mediaTotal);
+					$('#docTotal').text(docTotal);
+					$('#exerciseTotal').text(exerciseTotal);
+					$('#questionTotal').text(questionTotal);	
+				}
+				
+			})
+			
+		}
+		//详情
+		function detail(value,row){
+			return "<a href='javascript:void(0)' class='easyui-linkbutton' onclick='viewDetail(\""+row.orgCode+"\",\""+row.sectionCode+"\")'>详情</a>"
+		}
+		
+		//查看详情
+		function viewDetail(orgCode,sectionCode){
+			var url="/manage/reportOrgResDaily/toReportTypeResOrg.html?sectionCode="+sectionCode;
+			var startDate=$("#startDate").val();
+			var endDate=$("#endDate").val();
+			if(startDate!=""){
+				url=url+"&startDate="+startDate;
+			}
+			if(endDate!=""){
+				url=url+"&endDate="+endDate;
+			}
+			url=url+"&orgCode="+encodeURI(orgCode)
+				window.top.$("#tab").tabs('close','机构资源分类统计');
+				window.top.$("#tab").tabs('add', {
+					title : '机构资源分类统计',
+					closable : true,
+					content : '<iframe scrolling="no" frameborder="0" src="'+url+ '" style="width:100%;height:100%;"></iframe>'
+				});
+			/* easyui_openTopWindow("学校资源分类统计",1200,800,url,function(){
+				
+			})	 */
+		}
+</script>
+</body>
+</html>

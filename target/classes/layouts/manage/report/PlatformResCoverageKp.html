@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<link rel="stylesheet"
+	href="/manage/template/js/zTree_v3/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<script type="text/javascript"
+	src="/manage/moveToCommon/js/plugins/zTree_v3/js/jquery.ztree.core-3.5.js"></script>
+<script type="text/javascript"
+	src="/manage/template/comboChange/comboChange.js"></script>
+<link rel="stylesheet" type="text/css"
+	href="/manage/template/reportTableGenerate/reportTable.css" />
+<script type="text/javascript"
+	src="/manage/template/reportTableGenerate/reportTableGenerate.js"></script>
+<script type="text/javascript"
+	src="/manage/moveToCommon/fileSaver/FileSaver.min.js"></script>
+<script type="text/javascript"
+	src="/manage/moveToCommon/export/jQuery-Word-Export-master/jquery.wordexport.js"></script>
+<title>知识点资源覆盖率</title>
+<style type="text/css">
+.labelLine155>input {
+	width: 80px
+}
+
+.coverage {
+	padding: 10px 10px 0px;
+	background-color: #FFF8DC;
+	overflow: auto;
+	color: #999999;
+	width: auto;
+}
+
+.treeTitle {
+	text-align: center;
+	background-color: #009DD9;
+	height: 35px;
+	line-height: 35px;
+	color: white;
+	cursor: pointer;
+}
+
+.searchDiv {
+	position: relative;
+	padding-right: -2px;
+	padding-left: 12px;
+	border: 1px solid #CCCCCC;
+}
+
+.searchDiv>input {
+	width: 82%;
+	height: 25px;
+	line-height: 25px;
+	border: none;
+	outline: none;
+}
+
+.searchDiv>i {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	color: #009DD9;
+	font-size: 18px;
+}
+</style>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'" style="height: 50px">
+			<div class="labelBox">
+				<div class="labelLine155">
+					<span class="labelWidth60">学段：</span> <label id="section"></label>
+					<!-- <input id="section"
+						class="easyui-combobox"
+						data-options="textField:'name',valueField:'code',editable:false,onChange:sectionChange,data:[{name:'请选择',code:''}]"> -->
+				</div>
+				<div class="labelLine155">
+					<span class="labelWidth60">学科：</span> <label id="subject"></label>
+					<!-- <input id="subject"
+						class="easyui-combobox"
+						data-options="textField:'name',valueField:'code',editable:false,data:[{name:'请选择',code:''}]"> -->
+				</div>
+				<!-- 	<div class="labelLine155">
+					<span class="labelWidth60">年级</span> <input id="grade" class="easyui-combobox"
+						data-options="textField:'name',valueField:'code',editable:false,data:[{name:'请选择',code:''}]">
+				</div> -->
+				<!-- 	<div class="labelLine155">
+					<span class="labelWidth60">体系</span> <input id="kps" class="easyui-combobox"
+						data-options="textField:'name',valueField:'code',editable:false,data:[{name:'请选择',code:''}]">
+				</div> -->
+				<!-- <div class="labelLine155">
+					<span class="labelWidth60">上下册：</span> <input
+						id="term" class="easyui-combobox"
+						data-options="data:[{name:'请选择',code:''},{name:'上册',code:'1'},{name:'下册',code:'2'}],textField:'name',valueField:'code',editable:false">
+				</div> -->
+			</div>
+			<div class="btnBox">
+				<!-- <a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+					onclick="initTree()">查询</a> -->
+				<!-- <a class="easyui-linkbutton"
+					style="float: right; margin-right: 5px;"
+					data-options="iconCls:'icon-export'" onclick="exportData()">导出</a> -->
+				<button class="btn btnBlue" onclick="exportData()">导出</button>
+				<!-- <a class="easyui-linkbutton"  iconCls="icon-print" onclick="exportEXCEL()">导出</a>  -->
+			</div>
+		</div>
+		<div data-options="region:'center'">
+			<div class="easyui-layout" data-options="fit:true">
+				<div data-options="region:'west'" title=" " style="width: 20%">
+					<div class="treeTitle">知识点</div>
+					<div class="searchDiv">
+						<input id="knowledgeName" placeholder="请输入关键字"
+							onkeydown="keyDown()" /><i class="fa fa-2x fa-search"
+							onkeydown="fliter()" onclick="fliter()"></i>
+					</div>
+					<#include "/manage/report/kpTree.html"/>
+
+				</div>
+				<div id="center" data-options="region:'center'"
+					style="padding-left: 10px">
+					<div class="easyui-layout" data-options="fit:true">
+						<div class="coverage" data-options="region:'north'"
+							style="height: 100px">
+							<div>
+								<div class="labelLine155">
+									<span class="">知识节点数：</span><label id="kpNum"></label>
+								</div>
+								<div class="labelLine155">
+									<span class="labelWidth60">视频数：</span><label id="resVideoNum"></label>
+								</div>
+								<div class="labelLine155">
+									<span class="labelWidth60">文档数：</span><label id="resDocNum"></label>
+								</div>
+								<!-- 	<div class="labelLine155">
+				<span class="labelWidth60">测验数：</span><label id="resTestNum"></label>
+				</div> -->
+								<div class="labelLine155">
+									<span class="labelWidth60">题数：</span><label id="resQuestionNum"></label>
+								</div>
+								<div class="labelLine155">
+									<span class="labelWidth60">合计：</span><label id="resNum"></label>
+								</div>
+							</div>
+
+							<div>
+								<div class="labelLine155">
+									<span class="">资源覆盖率：</span><label id="resCoverage"></label>
+								</div>
+								<div class="labelLine155">
+									<span class="">视频覆盖率：</span><label
+										id="resVideoCoverage"></label>
+								</div>
+								<div class="labelLine155">
+									<span class="">文档覆盖率：</span><label
+										id="resDocCoverage"></label>
+								</div>
+								<!-- <div class="labelLine155">
+				<span class="labelWidth60">测验覆盖率：</span><label id="resTestCoverage"></label>
+				</div> -->
+								<div class="labelLine155">
+									<span class="">题目覆盖率：</span><label
+										id="resQuestionCoverage"></label>
+								</div>
+							</div>
+						</div>
+						<div data-options="region:'center'">
+							<div id="tb" class='table'></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+	//var sectionList=eval(${sectionList});
+	var kpCoverage=eval(${kpCoverage});
+	var kpsCode="";
+	var zTreeObj;
+	var orignalList;
+	var titleList={video:"视频",doc:"文档",question:"题目",total:"总数"};
+	$(function(){
+		/* sectionList.unshift({name:"请选择 ",code:""});
+		$('#section').combobox('loadData',sectionList);
+		$('#section').combobox('setValue',kpCoverage.sectionCode);
+		$('#subject').combobox('setValue',kpCoverage.subjectCode); */
+		$('#section').text(kpCoverage.sectionName);
+		$('#subject').text(kpCoverage.subjectName);
+		
+		/* $('#grade').combobox('setValue',kpCoverage.gradeCode);
+		$('#term').combobox('setValue',kpCoverage.termCode);	 */
+		setTimeout(function(){loadBaseData(kpCoverage)},200)
+		kpsCode=kpCoverage.kpsCode;
+		initTree(kpsCode);
+		
+	})
+	function keyDown(){
+		var e=window.event;
+		if(e.keyCode==13){
+			fliter();
+		}
+	}
+	//加载体系覆盖率基本信息
+	function loadBaseData(kpCoverage){
+		if(kpCoverage){
+			kpsCode=kpCoverage.kpsCode;
+			$("#kpNum").text(kpCoverage.kpNum||0);
+			$("#resVideoNum").text(kpCoverage.resVideoNum||0);
+			$("#resDocNum").text(kpCoverage.resDocNum||0);
+		/* 	$("#resTestNum").text(kpCoverage.resTestNum); */
+			$("#resQuestionNum").text(kpCoverage.resQuestionNum||0);
+			$("#resNum").text(kpCoverage.resNum||0);
+			$("#resCoverage").text(datafmt(kpCoverage.resCoverage)||"0%");
+			$("#resVideoCoverage").text(datafmt(kpCoverage.resVideoCoverage)||"0%");
+			$("#resDocCoverage").text(datafmt(kpCoverage.resDocCoverage)||"0%");
+		/* 	$("#resTestCoverage").text(datafmt(kpCoverage.resTestCoverage)); */
+			$("#resQuestionCoverage").text(datafmt(kpCoverage.resQuestionCoverage)||"0%");
+		}
+	}
+	//数据格式化
+	function datafmt(value){
+		if(!value)return""
+		return (value*100).toFixed(2)+"%"
+	}
+	//清除体系覆盖率基本信息
+	function clearBaseData(){
+		$("#kpNum").text("");
+		$("#resVideoNum").text("");
+		$("#resDocNum").text("");
+	/* 	$("#resTestNum").text(""); */
+		$("#resQuestionNum").text("");
+		$("#resNum").text("");
+		$("#resCoverage").text("");
+		$("#resVideoCoverage").text("");
+		$("#resDocCoverage").text("");
+	/* 	$("#resTestCoverage").text(""); */
+		$("#resQuestionCoverage").text("");
+	}
+	//查询教材章节树
+	function initTree(_kpsCode){
+		kpsCode=_kpsCode;
+		/* var _sectionCode=$('#section').combobox('getValue');
+		var _subjectCode=$('#subject').combobox('getValue'); */
+		var _sectionCode=kpCoverage.sectionCode;
+		var _subjectCode=kpCoverage.subjectCode;
+		/* var _gradeCode=$('#grade').combobox('getValue');
+		var _termCode=$('#term').combobox('getValue'); */
+		if(_subjectCode==""){
+			$.messager.alert("信息","请选择学科","info");
+			return false;
+		}else{
+			$.ajax({
+				url:"/manage/textbook/getKnowLedgeAll.html",
+				data:{
+					subjectCode:_subjectCode,
+					sectionCode:_sectionCode
+				},
+				success:function(res){
+					clearBaseData();
+					$('#tb').empty();
+					orignalList=res.data;
+					if(zTreeObj){
+						zTreeObj.destroy();	
+					}
+					zTreeObj=$.fn.zTree.init($("#kpTree"), kpSetting, orignalList);
+					if(kpsCode){
+						$.ajax({
+							url:'/manage/coverageKp/getKpCoverageList.html',
+							data:{
+								kpsCode:kpsCode,
+								baseDate:"${baseDate}",
+							},
+							success:function(res){
+								$('#tb').getTable(res,titleList);
+							}
+						})
+					}
+				}
+			})
+		}
+	}
+
+//ztree点击事件 
+kpSetting.callback.onClick=function kpZtreeClick(event,treeId,treeNode){
+	if(!treeNode.pcode&&treeNode.code.indexOf('top')>=0){//点击教材查询教材覆盖率和table
+		kpsCode=treeNode.code.split('-')[1];
+		getKpsInfo(kpsCode);
+		$.ajax({
+			url:'/manage/coverageKp/getKpCoverageList.html',
+			data:{
+				kpsCode:kpsCode,
+				baseDate:"${baseDate}",
+			},
+			success:function(res){
+				$('#tb').getTable(res,titleList);//初始化table
+			}
+		})
+	}else{//点击章节查询table
+		var top=getTopParent(treeNode);
+		if(top.kpSerialCode!=kpsCode){
+			kpsCode=top.code.split('-')[1];
+			clearBaseData();
+			getKpsInfo(kpsCode);
+		}
+		$.ajax({
+			url:'/manage/coverageKp/getKpCoverageList.html',
+			data:{
+				code:treeNode.code,
+				pcode:treeNode.pcode,
+				baseDate:"${baseDate}",
+			},
+			success:function(res){
+				$('#tb').getTable(res,titleList);//初始化table
+			}
+		})
+	}
+}
+//查询顶级节点
+function getTopParent(treeNode){
+	while(treeNode.getParentNode()){
+		treeNode=treeNode.getParentNode();
+	}
+	return treeNode
+}
+//查询知识体系概率基本信息
+function getKpsInfo(_kpsCode){
+	$.ajax({
+		url:'/manage/coverageKps/getByKpsCode.html',
+		data:{
+			kpsCode:_kpsCode
+		},
+		success:function(res){
+			$("#tb").empty();
+			clearBaseData();
+			loadBaseData(res);
+		}
+	})
+}
+
+var orignalList;
+function fliter(){
+	$("#tb").empty();
+	if($('#knowledgeName').val()==""){
+		if(zTreeObj){
+			zTreeObj.destroy();	
+		}
+		zTreeObj=$.fn.zTree.init($("#kpTree"), kpSetting, orignalList);
+	}else{
+		var filterList=_.filter(orignalList,function(item){
+			return bztContains(item.name,$('#knowledgeName').val(),false);
+		})
+		zTreeObj.destroy();
+		zTreeObj=$.fn.zTree.init($("#kpTree"), kpSetting, filterList);	
+	}
+}
+//学段改变事件
+function sectionChange(record){
+	if(zTreeObj){zTreeObj.destroy();};
+	sectionSubject(record,$("#subject"));
+	/* sectionGrade(record,$("#grade")); */
+}
+/* //学科改变事件
+function subjectChange(record){
+	if(zTreeObj){zTreeObj.destroy();};
+	subjectKps(record,$('#kps'));
+} */
+function exportEXCEL(){
+	 $("#tb").wordExport("章节导出");
+}	 
+//导出数据
+function exportData(){
+	var baseDate="${baseDate}";
+	var sectionCode=kpCoverage.sectionCode;
+	var subjectCode=kpCoverage.subjectCode;
+	var fileName=getUnencodePanelTitle()+"("+$('#section').text()
+	+" "+$('#subject').text()
+	+").xls"
+	window.location.href="/manage/coverageKps/exportKps.html?sectionCode="+sectionCode+"&subjectCode="+subjectCode+"&kpsCode="+kpsCode+"&baseDate="+baseDate+"&fileName="+encodeURI(fileName)
+
+} 
+</script>
+</body>
+</html>

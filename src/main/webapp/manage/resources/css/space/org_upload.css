@@ -1,0 +1,79 @@
+.error{color:red;}
+.fileName {
+	width: 250px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	display: block;
+}
+
+.fileUpload {
+	position: absolute;
+	width: 170px;
+	height: 35px;
+	opacity: 0;
+	left: -75px;
+	top: 10px;
+	cursor: pointer;
+}
+
+#custom-queue-item {
+	display: none;
+}
+
+#addResource {
+	overflow: hidden;
+	position: relative;
+}
+
+.mini-height {
+	min-height: 578px;
+}
+.imageUpload {
+	position: absolute;
+	width: 170px;
+	height: 35px;
+	opacity: 0;
+	left: -40px;
+	top: 0px;
+	cursor: pointer;
+}
+.progress{
+	margin-top:9px;
+}
+.webuploader-container {
+	position: relative;
+}
+.webuploader-element-invisible {
+	position: absolute !important;
+	clip: rect(1px 1px 1px 1px); /* IE6, IE7 */
+	clip: rect(1px,1px,1px,1px);
+}
+.webuploader-pick {
+	position: relative;
+	display: inline-block;
+	cursor: pointer;
+	background: white;
+	padding: 6px 12px;
+	color: #53a02e;
+	text-align: center;
+	border-radius: 3px;
+	overflow: hidden;
+	border: 1px solid #cccccc;
+	border-radius: 0px;
+	font-size: 14px;
+	line-height: 1.4;
+	line-height: 1.42857143;
+}
+.webuploader-pick-hover {
+	color: #53a02e;
+	background-color: #e6e6e6;
+	border-color: #adadad;
+}
+
+.webuploader-pick-disable {
+	opacity: 0.6;
+	pointer-events:none;
+}
+
+

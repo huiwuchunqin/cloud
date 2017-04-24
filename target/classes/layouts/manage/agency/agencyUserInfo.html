@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>用户信息</title>
+ <#include "/manage/common/meta_js.html"> <#include
+"/manage/common/meta_css.html">
+<script type="text/javascript" src="/manage/template/user/modifyPwd.js"></script>
+</head>
+<body class="easyui-layout">
+	<div data-options="region:'north'">
+		<div class="box">	
+			<div id="queryBox" class="labelBox">
+					<div class="labelLine320">
+						<span class="labelWidth60">学校名称</span> <input id="orgName"
+							placeholder="请输入学校名称">
+					</div>
+					<div class="labelLine320">
+						<span class="labelWidth60">登录账号</span> <input id="loginAccount"
+						placeholder="请输入登录名">
+					</div>
+				<!-- 	<div class="labelLine320">
+						<span class="labelWidth60">用户名</span> <input id="userName"
+						placeholder="请输入用户名">
+					</div> -->
+			
+			</div>
+			<div class="btnBox">
+				<button class="btn btnBlue search" onclick="searchData()">查询</button>
+			</div>
+		</div>
+	</div>
+	
+	<div data-options="region:'center'">
+		<div id="tb">
+			<button class="btn btnBlue align-right" onclick="modifyBatch()">批量修改密码</button>
+		</div>
+		<table id="dg" class="easyui-datagrid" data-options="
+		pagination:true,
+		fit:true,
+		toolbar:'#tb',
+		onBeforeLoad:onBeforeLoad,
+		rownumbers:true,
+		fitColumns:true,
+		url:'/manage/agency/agencyUserInfo.html',
+		">
+			<thead>
+				<tr>
+ 					<th data-options="field:'ck',checkbox:true"></th>
+					<th data-options="field:'opt',width:130,halign:'center',formatter:optfmt">操作</th>
+					<th data-options="field:'orgName',width:90,halign:'center'">机构</th>
+					<th data-options="field:'domainURL',width:90,halign:'center'">域名</th>
+					<!-- <th data-options="field:'userName',width:90,halign:'center'">姓名</th> -->
+					<th data-options="field:'loginAccount',width:90,halign:'center'">登录姓名</th>
+					<th data-options="field:'mail',width:90,halign:'center'">邮箱</th>
+					<th data-options="field:'mobilePhone',width:90,halign:'center'">联系方式</th>
+				</tr>
+			</thead>
+		</table>	
+	</div>
+<script type="text/javascript">
+	function onBeforeLoad(param){
+		$.extend(param,getParam("queryBox"));
+	}
+	
+	function optfmt(value,row){
+		return "<a href='javascript:void(0)' onclick='modifypwd(\""+row.userCode+"\")'>修改密码</a>"
+	}
+	
+	function searchData(){
+		$('#dg').datagrid('reload');
+	}
+	 //获取选中的学生编码
+	function getSelectUserCodes(){
+		var selections=$('#dg').datagrid('getSelections');
+		if(!selections||selections.length<=0){
+			return [];
+		}
+		return _.pluck(selections,"userCode");
+	}
+	 //批量修改密码
+	function modifyBatch(){
+		var userCodes=getSelectUserCodes();
+		if(userCodes.length<=0){
+			alert("请选择要修改的用户");
+			return false;
+			
+		}
+		batchModifyPwd(userCodes)
+	}
+
+</script>
+</body>
+</html>

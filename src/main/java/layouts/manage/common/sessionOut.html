@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<script type="text/javascript">
+var url="${url}";
+if(url.indexOf("cas")>=0){
+	url=url+location.origin+"/manage/adminGlobalLogin.html";	
+}
+window.top.location.href=url;
+</script>
+</body>
+</html>

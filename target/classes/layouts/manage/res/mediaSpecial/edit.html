@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/manage/template/compoment/menu.css">
+<link rel="stylesheet" href="/manage/template/css/jquery.autocomplete.css">
+<link rel="stylesheet" href="/manage/resources/css/res/resEdit.css">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/> 
+<#include "/manage/common/resourceDisplay.html">
+<script type="text/javascript" src="/manage/moveToCommon/js/knockout-easyui-Lite/knockout-easyui.js"></script>
+<script type="text/javascript" src="/manage/template/helper/helper.js"></script>
+<script type="text/javascript" src="/manage/template/js/jquery.autocomplete.js"></script>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript" src="/manage/template/resCheck/check.js"></script>
+<script type="text/javascript" src="/manage/template/js/photoSwipe.js"></script>
+<title>特色资源查看和修改</title>
+</head>
+<style type="text/css">
+.resContainer {
+	width: 580px;
+	height: 326px;
+	float: left;
+	overflow: hidden;
+	border: 1px solid;
+}
+
+.attributeContainer {
+	float: left;
+	margin-left: 20px
+}
+
+.attribute {
+	width: 271px;
+}
+
+div.attribute :first-child {
+	width: 85px;
+	display: inline-block;
+	height: 40px;
+	line-height: 40px;
+}
+
+.secondSpan {
+	display: inline-block;
+	width: 173px;
+	height: 29px;
+	line-height: 45px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.button {
+	width: 57px;
+	height: 30px;
+	color: #1790C2;
+	border-color: #1790C2;
+	margin-top: 5px;
+	display: block;
+}
+
+li {
+	line-height: 25px;
+}
+
+.indexBak {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	border-radius: 10px;
+	text-align: center;
+	line-height: 16px;
+	color: #fff;
+}
+#bookChapter{
+	background-color: #eb7127;
+}
+#KnowledgePoints{
+	background-color: #8fc43e;
+}
+
+.first {
+	font-family: SimSun;
+	padding: 2px;
+	margin-left: 6px;
+}
+
+.editArea {
+	margin-top: 10px
+}
+
+.editArea>div {
+	clear: both;
+}
+
+.line200 {
+	width: 200px;
+	height: 40px;
+	line-height: 40px;
+}
+
+.line240 {
+	width: 240px;
+	height: 40px;
+	line-height: 40px;
+}
+
+.line280 {
+	width: 280px;
+	height: 40px;
+	line-height: 40px;
+	margin-bottom: 10px;
+}
+.line300 {
+	width: 300px;
+	height: 40px;
+	line-height: 40px;
+	margin-bottom: 10px;
+}
+
+.floatLeft {
+	float: left
+}
+
+.line300>input,.line300 .textbox,.line280>input,.line280 .textbox{
+	box-sizing: border-box;
+	width: 219px !important;
+}
+
+.line200>input {
+	width: 90px
+}
+
+.line240>input {
+	width: 90px
+}
+
+.labelwidth60 {
+	display: inline-block;
+	width: 60px;
+}
+
+.newSelect {
+	margin-top: 5px;
+	position: absolute;
+	z-index: 999999;
+	height: 192px;
+	width: 221px;
+	background-color: #eeeeee;
+	overflow: auto;
+	overflow-x: hidden;
+	left: 63px;
+	top: 14px;
+}
+
+.newSelect>div {
+	height: 22px;
+	line-height: 22px;
+	padding-left: 6px;
+}
+
+.newSelect>div:hover {
+	background-color: #1790C2;
+	color: #fff;
+}
+
+.btnDiv {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+.line {
+	background-color: #f2f2f2;
+	height: 2px;
+	margin-top: 15px;
+}
+/* 封面选择 css */
+.imgList {
+	width: 440px;
+	margin-right: -20px;
+	overflow: hidden;
+	height: 120px;
+}
+
+.imgList>img {
+	width: 95px;
+	height: 55px;
+	float: left;
+	margin: 0 0 10px 15px;
+	cursor: pointer;
+	border: 0;
+}
+
+.cover-content {
+	border: 1px solid #e1e1e1;
+	width: 95%;
+	height: 130px;
+	padding: 10px;
+}
+
+.cover-preview-box {
+	float: left
+}
+
+.cover-img-box {
+	margin-bottom: 15px;
+	width: 144px;
+	height: 84px;
+	border: 1px solid #e1e1e1;
+	line-height: 80px;
+	text-align: center;
+}
+
+.cover-img-box>img {
+	width: 130px;
+	max-width: 142px;
+	max-height: 79px;
+	width: auto;
+	height: auto;
+}
+
+.uploadBtn {
+	text-align: center;
+}
+
+.cover-info {
+	float: left;
+	padding-left: 15px;
+	width: 200px;
+}
+
+.cover-info>div {
+	margin-top: 5px;
+}
+
+.cover-info>div:first-child {
+	margin-top: 0px;
+}
+.resTag{
+	height: 30px;
+	line-height: 30px;
+}
+.res-tag{
+	height: 30px;
+	line-height: 30px;
+	position: relative;
+	border: 1px solid #e1e1e1;
+	padding: 0 15px;
+	margin-right: 5px;
+	float: left;
+	min-width: 60px;
+	text-align: center;
+}
+.fa-close{
+    position: absolute;
+    right: -8px;
+    top: -2px;
+    display:none;
+    cursor: pointer;
+}
+.res-tag:hover>.fa-close{
+display:block;
+}
+.add-res-tag{
+cursor:pointer
+}
+#tagAdd{
+	padding: 10px 20px;
+}
+</style>
+<body id="body">
+    <div  class="windowContent">
+	<div>
+	 	<div class="resContainer"><@resourceDisplay r_resource=resource/></div>
+		<div id="attribute" class="attributeContainer">
+			<h4>资源来源：</h4>
+			<div  class="line280" style="position:relative">
+			<span class="labelwidth60" style="position:relative">学校：</span><input id="makerOrgName" name="makerOrgName" maxlength="100" data-bind="value:makerOrgName"/>
+			<div id="orgList" style="display:none" class="newSelect"> </div>
+			</div>
+			<div class="line280">
+			<span class="labelWidth60">作者：</span>
+			<input id="userName" class="easyui-combobox" data-bind="comboboxSource:user.source,comboboxValue:user.val,easyuiOptions:user.viewSettings"/>
+			</div>
+			<div class="line280">
+					<span class="labelWidth60">允许下载：</span><input id="flagAllowDownload"
+						class="easyui-combobox"
+						data-bind="comboboxSource:flagAllowDownload.source,comboboxValue:flagAllowDownload.val,easyuiOptions:flagAllowDownload.viewSettings"/>
+			</div>
+			<div class="attribute">
+				<span>上传时间：</span><span class="secondSpan" data-bind="text:makeTime"></span>
+			</div>
+			<div class="attribute">
+				<span>共享级别：</span><span class="secondSpan" data-bind="text:shareLevelStr"></span>
+			</div>
+			<div class="line"></div>
+		</div>
+		<div style="clear: both"></div>
+	</div>
+	<div class="editArea">
+	<h4>资源属性：</h4>
+	    <div>
+		    <div class="line300 floatLeft">
+				<span class="labelWidth60">资源名称：</span><input id="resName" name="resName" maxlength="100" data-bind="value:resName"/>
+			</div>
+		</div>
+		<div>
+			<div class="line240 floatLeft">
+			<span class="labelWidth60">类别：</span><input data-options="required:true,editable:false" data-bind="comboboxSource:type.source,comboboxValue:type.val,easyuiOptions:type.viewSettings"/>
+			</div>
+			<div class="line240 floatLeft">
+			<span class="labelWidth60">项目：</span><input data-options="required:true,editable:false" data-bind="comboboxSource:project.source,comboboxValue:project.val,easyuiOptions:project.viewSettings"/>
+			</div>
+		</div>
+	</div>
+		<span class="clear"></span>
+	     <div class="resTag">
+			<span class="labelWidth60" style="color:#666666">资源标签：</span>
+				<div style="float:left">
+			<!--ko foreach:tags  -->
+				<div class="res-tag">
+                    <span data-bind="text:$data">13123</span>
+                    <i class="red fa fa-close" data-bind="click:$root.deleteTag.bind($data)"></i>
+                </div>
+            <!--/ko -->
+           	 <div class="res-tag text-color-theme add-res-tag" data-bind="click:addTag,attr:{disabled:$root.tags().length==5}"> 
+           	 		<i class="fa fa-plus"></i>
+                    <span>添加标签</span>
+              </div>
+			</div>
+		<!-- 	<div style="float:left;margin-left:15px" data-bind="foreach:tags">
+			<span data-bind="text:$data" style="color:#666666"></span>
+			<span data-bind="if:$index()<$root.tags().length-1">,</span>
+			</div> -->
+		 </div>
+		<span class="clear5" ></span>
+	  <p><span class="red">*</span>封面设置</p>
+		<div class="cover-content">
+			<div class="cover-preview-box">
+				<!--图片封面 -->
+				<div class="cover-img-box">
+					<img id="mediaCover" onclick="$(this).photoSwipe()" data-bind="attr:{src:coverPath}">
+				</div>
+				<!--上传按钮 -->
+				<div class="uploadBtn">
+					<form  enctype="multipart/form-data" method="post" action="/manage/company/uploadImage.html">
+						<input name="fileType" value="media" hidden="hidden"/>
+						<input id="file" name="file" type="file" hidden="hidden" accept=".jpg,.png,.gif"/>
+					</form>	
+					<button id="uploadBtn" onclick="javascript:$('#file').click()"
+						class="btn btnBlue">上传封面</button>
+					<script type="text/javascript">
+						imageUpload($('#file'),$('#mediaCover'),function(path){model.coverPath("${imgHost}/"+path);model.realPath(path)});
+					</script>
+				</div>
+			</div>
+			<div class="cover-info text-small text-color-light">
+				<div>图片格式：.jpg、.png或.gif</div>
+				<div>最佳尺寸：512*288像素</div>
+				<div>图片比例：16:9</div>
+				<div>封面内容：资源名称、学校、作者</div>
+			</div>
+			<div style="width: 20px; float: left; margin-left: 16px"
+				class="title-small text-color-theme">推荐封面</div>
+			<div class="imgList" data-bind="foreach:thumbnailList">
+				<img data-bind="attr:{src:coverPath,realPath:realPath}"  onclick="$(this).photoSwipe()">
+			</div>
+		</div>
+	<div style="width: 100%; margin-top: 5px;overflow:hidden">
+		<div class=" width80">
+			<span>资源描述</span>
+		</div>
+		<div style="float: left">
+			<textarea rows="3" cols="123" maxlength="400" data-bind="value:resDesc" style="margin-top: 10px"></textarea>
+		</div>
+	</div>
+	<div class="btnDiv">
+	  <div class="btnBox">
+		<#if "${check}"==1>
+			<a class="btn btnPass"  onclick="examine(20)">通过</a>
+			<a class="btn btnReturn"  onclick="examine(5)">退回</a>
+		</#if>
+		<a class="btn btnConfirm"  onclick="save()">保存</a>
+		<a class="btn btnCancel"  onclick="cancel()">取消</a>
+	  </div>
+	</div>
+	
+	<div class="clear" style="height: 0px"></div>
+	<!--审核对话框  -->
+	<div id="dlg" class="easyui-dialog"
+		data-options="
+			 closed:true,
+			 width:480,
+			 height:250,
+			 modal:true,
+			 ">
+		<div class=box>
+			<textarea id="comment" cols="60" rows="8" maxlength="200"></textarea>
+			<div data-bind="if:deny()"
+				style="text-align: center; height: 40px; line-height: 45px;">
+				<input id="commentCheck" type="checkbox" onclick="checkChange(this)">常见回复
+		 		<select style="width:320px;margin-left:20px" onChange="selectChange(this)" id="commentSelect" data-bind="foreach:adviceList">
+				 <option data-bind="text:advice"></option>
+				 </select>
+			</div>
+			<div style="width: 100%" class="textCenter">
+				<a class="btn btnConfirm" onclick="saveExamine()">确定</a>
+				<a class="btn btnCancel" onclick="$('#dlg').dialog('close')">取消</a>
+			</div>
+		</div>
+	</div>
+	</div>
+	<div id="tagAdd" style="padding:10px 20px;display:none">
+	 <input placeholder="请输入标签" data-bind="value:tagToAdd">
+	 <div class="textRight">
+	 <button class="btn btnConfirm" data-bind="click:pushTag">保存</button>
+	 <button class="btn btnCancel" onclick="layer.closeAll()">取消</button>
+	 </div>
+	</div>
+	<!--审核对话框 -->
+
+	<script type="text/javascript">
+		var _res=eval(${res});
+		var defaultOption={code:"",name:"全部"};
+		var typeList=eval(${typeList});
+		    typeList.unshift(defaultOption);
+		var teacherList=eval(${teacherList});
+		    teacherList.unshift({userName:"不确定",userName:"不确定"});
+		var thumbnailList=eval(${thumbnailList});
+		var model =new ViewModel(_res);
+		var resId=_res.id;
+		$(function() {	
+			var orgDiv=$('#orgList');
+			$("#makerOrgName")[0].oninput=function(){
+			   var bind_name = 'keyup';
+			   if (navigator.userAgent.indexOf("MSIE") != -1)
+			   { bind_name = 'input propertychange'; }
+			   $(this).unbind(bind_name);
+			   $(this).bind(bind_name,function(){
+				var orgName=$(this).val();
+				if(orgName=="")return false;
+				$.ajax({
+			       	url:"/manage/company/getOrgByName.html",
+			       	type:"POST",
+			       	data:{orgName:orgName,isLike:1},
+			       	success:function (res){
+			       		orgDiv.empty();
+			       		orgDiv.show();
+			       		var orgList=res.data
+			       		var objects=eval(orgList);
+						$.each(objects,function(i,object){
+							 $("<div>").text(object.orgName).val(object.orgCode).appendTo(orgDiv).click(function(){
+								$("#makerOrgName").val(object.orgName);
+								model.makerOrgCode(object.orgCode);
+								model.makerOrgName(object.orgName);
+								orgDiv.toggle();
+				        	 });
+						})
+			       	},
+				  });
+				});
+			};
+			_.each(thumbnailList,function(item){
+				var path=pathHandle(item.path);
+				model.thumbnailList.push({"coverPath":path,"realPath":item.path});
+			});
+			model.flagAllowDownload.source([{name:"允许",code:1},{name:"不允许",code:0}]);
+			var coverPath=_res.coverPath||(model.thumbnailList()[0]?model.thumbnailList()[0].coverPath:"");
+			model.coverPath(coverPath);
+			model.realPath(_res.coverPath);
+			model.tags(_res.tags||[]);
+			model.flagAllowDownload.val(_res.flagAllowDownload);
+			model.user.source(teacherList);
+			model.type.source(typeList);
+			ko.applyBindings(model, $('#body')[0]);
+			var userList=model.user.source();
+			model.user.val(getTeacher(_res.makerName,userList)||"不确定");
+			model.type.val(_res.resSpecialTypeL1);
+			setTimeout(function(){model.project.val(_res.resSpecialTypeL2);},100);
+			model.makerOrgCode.subscribe(function(data){
+				getTeacherList(data);
+			})
+			
+		})
+		function getTeacher(value,list){
+			if(list==null||list==undefined){
+				return "";
+			}
+			var _value="";
+			$.each(list,function(i,data){
+				if(data.userName==value){
+					_value=value;	
+				};
+			})
+			return _value;
+		}
+		//判断数据库保存的数据的的值在列表中书否存在 
+		function getValue(value,list){
+			if(list==null||list==undefined){
+				return "";
+			}
+			var _value="";
+			$.each(list,function(i,data){
+				if(data.code==value){
+					_value=value;	
+				};
+			})
+			return _value;
+		}
+
+		function easyuiDefaultModel(){
+			var self=this;
+			self.source=ko.observableArray();
+			self.val=ko.observable("");
+			self.viewSettings={
+					valueField:'code',
+					textField:'name',
+					panelHeight:'auto'
+			}
+		}
+		var changed,selectRow;
+		function ViewModel(res) {
+			var type=new easyuiDefaultModel();
+			type.viewSettings.onChange=typeChange;
+			var project=new easyuiDefaultModel();
+			var user=new easyuiDefaultModel();
+			var flagAllowDownload=new easyuiDefaultModel();
+			flagAllowDownload.viewSettings.required=true;
+			user.viewSettings.valueField="userName";
+			user.viewSettings.textField="userName";
+			user.viewSettings.onChange=function(){
+				changed=true;
+			},
+			user.viewSettings.onHidePanel=function(){
+				var t = $(this).combogrid('getValue');
+				if(changed){
+					if(selectRow==null||t!=selectRow.userName){
+						var msg=t==""?"请选择老师":"请从下拉框中选择";
+						$.messager.alert("信息",msg,"info");
+						$(this).combobox('setValue','')
+					}
+					changed=false;
+					selectRow=null;
+				}
+			},
+			user.viewSettings.onSelect=function(row,index){
+				selectRow=row;
+			}
+			var self = this;
+			self.tags=ko.observableArray();
+			self.thumbnailList=ko.observableArray();
+			self.flagAllowDownload=flagAllowDownload;
+			self.currentSrc=ko.observable();
+			self.currentRealSrc=ko.observable();
+			self.coverPath=ko.observable();
+			self.realPath=ko.observable();
+			self.project=project;
+			self.resName = ko.observable(res.resName || "");
+			self.userName =ko.observable(res.makerName || "");
+			self.makeTime = ko.observable(res.makeTime || "");
+			self.makerOrgCode=ko.observable(res.makerOrgCode||"");
+			self.shareLevelStr = ko.observable(res.shareLevelStr || "");
+			self.makerOrgName = ko.observable(res.makerOrgName || "");
+			self.resDesc = ko.observable(res.resDesc || "");		
+			self.deny=ko.observable(false);
+			self.user=user;
+			self.type=type;
+			self.tagToAdd=ko.observable("");
+			self.pushTag=function(){
+				if(self.tagToAdd().trim()==""){
+					layer.alert("请输入标签内容");
+					return
+				}
+				if(self.tagToAdd().length>10){
+					layer.alert("标签长度不能超过10");
+					return 
+				}
+				if(self.tags()&&self.tags.indexOf(self.tagToAdd())>=0){
+					layer.alert("标签已经存在");
+					return 
+				}
+				self.tags.push(self.tagToAdd());
+				layer.closeAll();
+				self.tagToAdd("");
+			}
+			self.deleteTag=function(data){
+				self.tags.remove(data);
+			}
+			self.addTag=function(){
+				if(self.tags()&&self.tags().length==5){
+					layer.alert("最多只能添加5个标签");
+				}else{
+					self.tagToAdd("");
+					layer.open({
+						type:'1',
+						title:'添加标签',
+						area:['400px','160px'],
+						content:$('#tagAdd'),
+					})
+				}
+			}
+			self.adviceList=ko.observableArray([]);
+			return self;
+		}
+		function getTeacherList(data){
+			$.ajax({
+				url:"/manage/teacher/getTeacherList.html",
+				data:{
+					orgCode:data
+				},
+				success:function(res){
+					model.user.val("");
+					model.user.source(res);
+				}
+			})
+		}
+		
+		//保存操作
+		function save(){
+			var resName=model.resName();
+			var _coverPath=model.realPath();
+			var resSpecialTypeL1=model.type.val();
+			var resSpecialTypeL2=model.project.val(); 
+			if(resName==null||resName==""){
+				$.messager.alert("信息","请输入资源名称！","info");
+				return false;
+			}
+			var makerName=model.user.val();	
+			var teacherList=model.user.source();
+			var teacher=_.find(teacherList,function(item){
+				return item.userName==makerName;
+			})
+			var makerCode=teacher?teacher.teacherCode:"";
+			var makerOrgCode=model.makerOrgCode();						//机构
+			var makerOrgName=model.makerOrgName();
+			if(makerName==""||makerName==null){
+				$.messager.alert("信息","请选择作者！","info");
+				return false;
+			}
+			var orgExits=true;
+			$.ajax({
+		       	url:"/manage/company/getOrgByName.html",
+		       	type:"POST",
+		       	data:{orgName:makerOrgName,isLike:0},
+		       	async:false,
+		       	success:function (res){
+		       		var orgList=res.data
+		       		var objects=eval(orgList);
+		       		if(objects==null||objects==undefined||objects.length<=0){
+		       			orgExits=false;
+		       		}
+		       	},
+			  });
+			if(!orgExits){
+				$.messager.alert("信息","机构不存在!","info");
+				return false;	
+			}
+			if(resSpecialTypeL1==null||resSpecialTypeL1==""){
+				$.messager.alert("信息","请选择类别!","info");
+				return false;
+			}
+			var resDesc=model.resDesc();
+			var id=_res.id;
+			var flagAllowDownload=model.flagAllowDownload.val();
+			var tags="";
+			_.each(model.tags(),function(item){
+				tags=tags+item+",";
+			})
+			tags=tags.substring(0,tags.length-1);
+			var opts={
+					url:'/manage/resMediaSpecial/updateBasicInfo.html',
+	    			type:"post",
+					data:{
+						makerCode:makerCode,
+						makerName:makerName,
+						resName:resName,
+						makerOrgName:makerOrgName,
+						makerOrgCode:makerOrgCode,
+						resSpecialTypeL1:resSpecialTypeL1,
+						resSpecialTypeL2:resSpecialTypeL2,
+						resDesc:resDesc,
+						coverPath:_coverPath,
+						flagAllowDownload:flagAllowDownload,
+						id:id,
+						tags:tags,
+					},
+					success:function(res){
+						window.top.$.messager.alert("提示", res.msg, "info");
+						if(res.success){
+							easyui_closeTopWindow(true);
+						}
+					},
+					error:function(XMLHttpRequest, textStatus, errorThrown) {
+							alert("网络繁忙请稍后再试");
+					 },
+					complete:function() {
+							
+					}
+			}
+			$.ajax(opts);
+		}
+		
+		//类别选择事件
+		function typeChange(newValue,oldValue){
+			var opts={
+					url:'/manage/resMediaSpecial/getListByPCode.html',
+	    			type:"post",
+					data:{
+						pcode:newValue
+					},
+					success:function(data){
+						model.project.val("");
+						var selectAll = {
+								code : "",
+								name : "全部"
+						};
+						data.unshift(selectAll);
+						model.project.source(data);
+					},
+					error:function(XMLHttpRequest, textStatus, errorThrown) {
+							alert("网络繁忙请稍后再试");
+					 },
+					complete:function() {
+							
+					}
+			}
+			$.ajax(opts);
+		}
+		
+		//取消操作
+		function cancel(){
+			easyui_closeTopWindow(false);
+		}
+		
+/* 		//审核，通过或退回
+		function examine(code){
+			$("#comment").val("");
+			$("#commentCheck").attr("checked",false);
+			$('#commentSelect').find("option:eq(0)").attr("selected","selected"); 
+			if (code == 20) {
+				model.deny(false);
+				$('#dlg').dialog({
+					title : "审核意见(非必填)"
+				}).dialog('center').dialog('open');
+			} else {
+				model.deny(true);
+				$('#dlg').dialog({
+					title : "审核意见(必填)"
+				}).dialog('center').dialog('open');
+			}
+		}
+		 */
+		//保存审核
+		function saveExamine() {
+			var arrResCode = new Array();
+			var arrCheckShareLevel = new Array();
+			arrResCode.push(_res.resCode);
+			arrCheckShareLevel.push(_res.shareCheckLevel);
+			var checkComments=$("#comment").val().trim();
+			var shareCheckStatus=model.deny() ? "5" : "20";
+			if(shareCheckStatus=="5"&&checkComments==""){
+				$.messager.alert("提示", "审核意见不能为空！", 'info');
+				$("#comment").focus();
+				return false;
+			}
+			var data = {};
+			data.shareCheckStatus = shareCheckStatus;
+			data.checkComments = checkComments;
+			data.resCode = arrResCode;
+			data.shareCheckLevel = arrCheckShareLevel;
+			var opts = {
+					url : "/manage/resMediaSpecial/check/saveExamine.html",
+					type : "POST",
+					data : data,
+					success : function(result) {
+						window.top.$.messager.alert("提示", result.msg, "info");
+						if (result.success) {
+							$('#dlg').dialog('close');
+							easyui_closeTopWindow(true);
+						}
+					},
+					error : function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("网络繁忙请稍后再试");
+					},
+					complete : function() {
+
+					},
+				}
+				$.ajax(opts);
+		}
+		
+		//图片路径处理
+		function pathHandle(path){
+			   var _path="";
+			   if(path!=null&&path!=""){
+				   if(path.indexOf("img_upload")>=0){
+					   _path="${imgHost}"+"/"+path;
+				   }else{
+					   _path="${videoHost}"+"/"+path;
+				   }	
+			   }
+			   return _path;
+		}
+		
+		//把缩略图设为封面	
+		function chooseImage(){
+			model.coverPath(model.currentSrc());
+			model.realPath(model.currentRealSrc());
+		}
+	</script>
+</body>
+</html>

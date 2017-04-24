@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<script src="/manage/template/comboChange/orgComboChange.js"></script>
+<title>行政班级修改</title>
+</head>
+
+<body>
+	<div  id="tabs" class="easyui-tabs" fit="true">
+		<div title="基本信息">
+			<form id="classFm" class="box">
+				<div class="attrDiv">
+					<span class="labelWidth60">名称</span><input id="className"
+						class="easyui-validatebox" maxlength="20"
+						data-options="required:true">
+				</div>
+				<div class="attrDiv">
+					<span class="labelWidth60">年级</span><input id="gradeCode"
+						class="easyui-combobox"
+						data-options="textField:'name',valueField:'code',editable:false,required:true,onChange:gradeChange">
+				</div>
+				<span class="clear"></span>
+				<div class="attrDiv">
+					<span class="labelWidth60">班主任</span><input id="headTeacherCode"
+						class="easyui-combobox"
+						data-options="required:true,textField:'userName',valueField:'teacherCode'">
+				</div>
+				<div class="attrDiv">
+					<span class="labelWidth60">入学年份</span><input  id="entryYear" disabled>
+				</div>
+				<input id="gid" style="display: none" /> 
+				<span class="clear"></span>
+				<div class="align-right ">
+					<a class="btn btnConfirm" onClick="saveAdminClass()">确定</a>
+					<span class="space5"></span>
+					<a class="btn btnCancel " onClick="closeWindow()">取消</a>
+				</div>
+			</form>
+
+		</div>
+		<div title="任教信息设置" >
+			<div id="lay" class="easyui-layout" data-options="fit:true" >
+				<#include "/manage/adminClass/adminClassSubject.html"/>
+			</div>
+		</div>
+	</div>
+	<script>
+		var adminClassCode = "${adminClassCode}",
+			sectionCode="${sectionCode}",
+		    gradeList=eval(${gradeList}),
+		    teacherList=eval(${teacherList}),
+		    adminClass=null;
+			var model = {
+					editing : ko.observable(false),
+				};
+			ko.applyBindings(model);
+
+		$(function() {
+			$('#gradeCode').combobox('loadData',gradeList);
+			$('#headTeacherCode').combobox('loadData',teacherList);
+			
+			//修改
+			if(adminClassCode){
+				getAdminClass();	
+			}
+			
+		})
+		
+		//获取入学年份
+		function gradeChange(newValue,oldValue){
+			//只有新增的时候才自动计算
+			if(!adminClassCode){
+				$.get('/manage/common/getEntryYear.html',{gradeCode:newValue},function(res){
+					$('#entryYear').val(res);
+				})
+			}
+		}
+		
+	 	//查询行政班级
+		function getAdminClass() {
+			$.post('/manage/adminClass/getAdminClass.html',{adminClassCode:adminClassCode},function(res){
+				adminClass = res;
+				$('#className').val(adminClass.className);
+				$('#gradeCode').combobox('setValue',adminClass.gradeCode).combobox('disable');
+				$('#headTeacherCode').combobox('setValue',adminClass.headTeacherCode);
+				$('#entryYear').val(adminClass.entryYear);
+				
+				//加载任课信息
+				$('#classSubjectDg').datagrid({
+					url:'/manage/adminClass/teachingInfo/search.html',
+				    fit:true,
+				    rownumbers:true,
+				    singleSelect:true,
+				    fitColumns:true,
+				    onBeforeLoad:onBeforeLoad,
+				})
+			})
+		} 
+		
+		//保存行政班级信息
+		function saveAdminClass(){
+			if($('#classFm').form('validate')){
+				var data={
+						className:$('#className').val(),
+						gradeCode:$('#gradeCode').combobox('getValue'),
+						entryYear:$('#entryYear').val(),
+						headTeacherCode:$('#headTeacherCode').combobox('getValue'),	
+				};
+				//修改
+				if(adminClass){
+					data.gid=adminClass.gid;
+				}
+				$.ajax({
+					url:'/manage/adminClass/addOrUpdateAdminClass.html',
+					data:data,
+					success:function(res){
+						 alert(res.msg,function(){
+							 if(res.data){
+								 adminClassCode=res.data;
+								 getAdminClass();//获取id使得继续操作为修改
+								 $('#tabs').tabs('select',1)
+							 }
+						 }); 
+					}
+				})
+			}
+		}
+		
+		//关闭窗口
+		function closeWindow(){
+			easyui_closeTopWindow();
+		}
+	</script>
+</body>
+</html>

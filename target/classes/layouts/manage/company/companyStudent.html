@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<script type="text/javascript"
+	src="/manage/template/js/jatoolPrinter.js"></script>
+<script type="text/javascript"
+	src="/manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript" src="/manage/template/user/modifyPwd.js"></script>
+<title>机构学生信息</title>
+<style type="text/css">
+.attrDiv {
+	width: 284px;
+	float: left;
+	margin-right: 20px;
+	line-height: 40px;
+}
+
+.attrDiv>span {
+	width: 90px;
+	display: inline-block;
+}
+
+#msg {
+	color: red
+}
+
+.red {
+	border-color: #ffa8a8;
+	background-color: #fff3f3;
+	color: #000;
+}
+</style>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'">
+		<div class="box">
+			<div class="labelBox">
+				<div data-bind="visible:show()" class="labelLine240">
+					<span class="labelWidth60">学段：</span><input
+						class="easyui-combobox width120" id="section"
+						data-options=" 
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							onSelect:sectionSelect
+						" />
+				</div>
+				<div data-bind="visible:show()" class="labelLine240">
+					<span class="labelWidth60">年级：</span> <input
+						class="easyui-combobox width120" id="grade"
+						data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable:false,
+							onSelect:gradeSelect,
+							data:[{name:'请选择',code:''}]" />
+				</div>
+
+				<#if "${teachingClassCode}"=="" && "${adminClassCode}"=="">
+				<div class="labelLine240">
+					<span class="labelWidth60">班级：</span> <input
+						class="easyui-combobox width120" id="adminClass"
+						data-options="
+							valueField: 'classCode',
+							textField: 'className',
+							panelHeight: 'auto',
+							editable: false
+							" />
+				</div>
+				</#if> <span class="clear10"></span>
+				<div class="labelLine240">
+					<span class="labelWidth60">姓名：</span> <input id="userName"
+						placeholder="请输入姓名" />
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60">账号：</span> <input id="loginAccount"
+						placeholder="请输入账号" />
+				</div>
+				<span class="clear10"></span>
+				<div class="labelLine240">
+					<span class="labelWidth60">学号：</span> <input id="studentNumber"
+						placeholder="请输入学号" />
+				</div>
+				<#if "${studentChoose}"=="">
+				<div class="labelLine240">
+					<input id="noAdminClass" type="checkBox" />仅查看未指定班级的学生
+				</div>
+				</#if>
+			</div>
+			<div class="btnBox t20">
+				<a class="btn btnBlue search"
+					onclick="javascript:$('#dg').datagrid('reload')">查询</a> <#if
+				"${studentChoose}"==""> <a class="btn btnBlue add"
+					onClick="addStudent()">新增</a> </#if> <#if
+				"${teachingClassCode}"==""&&"${adminClassCode}"==""> <a
+					class="btn btnBlue import" onclick="importStudent()">导入</a> <a
+					class="btn btnYellow" href="/manage/student/downLoadTemp.html">下载模板</a>
+				</#if> <#if "${studentChoose}"!=""> <a class="btn btnBlue"
+					onclick="chooseStudent()" data-options="iconCls:'icon-add'">选择
+				</a> </#if>
+			</div>
+		</div>
+	</div>
+	<#if "${studentChoose}"=="">
+	<div id="tb">
+		<a class="btn btnBlue align-right" onclick="modifyBatch()">批量修改密码</a>
+	</div>
+	</#if>
+	<div data-options="region:'center'">
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+			    pagination:true,
+			    fit:true,
+			    toolbar:'#tb',
+			    rownumbers:true,
+			    onBeforeLoad:onBeforeLoad,
+			    url:'/manage/student/studentPageInfo.html'
+		    ">
+			<thead>
+				<tr>
+					<#if "${teachingClassCode}"==""&&"${adminClassCode}"=="">
+					<th data-options="field:'ck',checkbox:true"></th>
+					<th
+						data-options="field:'opt',width:280,formatter:optfmt,halign:'center',align:'center'">操作</th>
+					</#if>
+					<th
+						data-options="field:'userName',width:120,halign:'center',align:'left'">姓名</th>
+					<th
+						data-options="field:'loginAccount',halign:'center',width:150,align:'left'">登录账号</th>
+					<th
+						data-options="field:'studentNumber',width:120,halign:'center',align:'left'">学号</th>
+					<th
+						data-options="field:'sectionName',width:100,halign:'center',align:'center'">学段</th>
+					<th
+						data-options="field:'gradeName',width:100,halign:'center',align:'left',align:'left'">年级</th>
+					<th
+						data-options="field:'className',width:120,halign:'center',align:'left'">班级</th>
+
+					<th
+						data-options="field:'genderStr',width:80,halign:'center',align:'center'">性别</th>
+					<th
+						data-options="field:'enterSchoolDate',formatter:timefmt,width:180,align:'center',halign:'center'">入学年月</th>
+					<!-- <th data-options="field:'studentHardNo',width:90,halign:'center',align:'center'">学生硬件编号</th> -->
+					<th
+						data-options="field:'mobilePhone',width:200,align:'center',halign:'center'">手机号</th>
+					<th
+						data-options="field:'mail',width:200,halign:'center',align:'left'">邮箱</th>
+
+				</tr>
+			</thead>
+		</table>
+	</div>
+
+	<div id="dl" class="easyui-dialog"
+		data-options="
+	width:400,
+	height:160,
+	closed:true,
+	modal:true,
+	">
+		<form id="fmUp" style="padding: 10px" target="ifm"
+			action="/manage/student/importStudent.html" method="post"
+			enctype="multipart/form-data">
+			<input type="file" name="file" accept=".xlsx,.xls" /> <a id="suBtn"
+				class="btn btnBlue " onclick="submitRequest()">提交</a>
+			<div class="t10">
+				<span id="msg"></span>
+			</div>
+			<div style="position: absolute; right: 10px; bottom: 10px">
+				<a class="btn btnGrey" onclick="closeDl()">取消</a>
+			</div>
+		</form>
+		<div id="menu" class="easyui-menu" style="width: 120px;">
+			<!-- 	 <div  data-options="iconCls:'icon-edit',name:'useful'">设为有效</div>   
+   	 <div data-options="iconCls:'icon-edit',name:'useless'">设为无效</div>   
+ -->
+			<div data-options="iconCls:'icon-edit',name:'modifypwd'">修改密码</div>
+		</div>
+	</div>
+
+
+	<script type="text/javascript">
+		var gradeList=eval(${gradeList}),
+		adminClassList=eval(${adminClassList}),
+		sectionList=eval(${sectionList}),
+		termCombo=$('#term'),
+		teachingClassCode="${teachingClassCode}";//课程班级编码
+		var model={
+				show:ko.observable(true),
+		}
+		ko.applyBindings(model);
+		$(function(){
+			//行政班级学生查看页面不显示学段年级
+			if("${adminClassCode}"||"${gradeCode}"){
+				model.show(false);
+			}
+			
+			if("${adminClassCode}"==""||"${teachingClassCode}"==""){
+				adminClassList.unshift({className:"全部",classCode:""})
+				$('#adminClass').combobox('loadData',adminClassList);
+			}
+			
+			if(sectionList!=null){
+				$('#section').combobox('loadData',sectionList);
+				$('#section').combobox('select',sectionList[0].code);
+			}
+		})
+		
+		//学段选择事件
+		function sectionSelect(record) {
+			sectionGrade(record.code, $('#grade'));
+		}
+
+		//年级选择事件，根据年级查询行政班级
+		function gradeSelect(record){
+			$('#adminClass').combobox('clear');
+			getAdminClassListByGrade(record.code);
+		}
+		
+		//根据年级查询行政班级
+		function getAdminClassListByGrade(gradeCode){
+			$.ajax({
+				url:'/manage/adminClass/getAdminClassList.html',
+				data:{
+					gradeCode:gradeCode
+				},
+				success:function(data){
+					data.unshift({className:"全部",classCode:""})
+					$('#adminClass').combobox('loadData',data);
+				}
+			});
+		}
+		
+		//操作格式化
+		function optfmt(value,row){
+			if(teachingClassCode==""){
+				return "<a href='javascript:void(0)' onclick='modifyPwd(this)'>重置密码</a>"
+						+"&nbsp;&nbsp;<a href='javascript:void(0)' onclick='editStudent(this)'>修改</a>"
+						+"&nbsp;&nbsp<a href='javascript:void(0)' onclick='delStudent(\""+row.studentCode+"\")'>删除</a>"
+			}else{
+				return ""
+			}
+		}
+		//数据列表加载前 参数传递
+		function onBeforeLoad(param) {
+			var sectionCode = $('#section').combobox('getValue');
+			var gradeCode = $('#grade').combobox('getValue')||"${gradeCode}";
+			var userName = $('#userName').val();
+			param["sectionCode"] = sectionCode;
+			param["gradeCode"] = $.trim(gradeCode);
+			param["orgCode"] = "${orgCode}";
+			param["userName"] = userName;
+			param["studentNumber"]=$('#studentNumber').val().trim();
+			param["loginAccount"]=$('#loginAccount').val();
+			
+			//行政班级学生选择页面
+			if("${studentChoose}"==""){
+				param["noAdminClass"]=$('#noAdminClass').prop("checked");	
+			}
+			
+		 	if("${teachingClassCode}"==""&&"${adminClassCode}"==""){
+				param["adminClassCode"]=$('#adminClass').combobox('getValue');
+			} else{
+				param["adminClassCode"]="${adminClassCode}";	
+			}
+		 	
+		 	
+			if("${teachingClassCode}"!=""){//教学班级可以主动选行政班级
+				param["type"]=0;   //0课程班级 1 行政班级
+			}else{
+				param["type"]=1;
+			}
+			
+			param["teachingClassCode"]="${teachingClassCode}";
+			param["studentChoose"]="${studentChoose}"; 
+		}
+		
+		
+	/*************************学生导入 ***********************************/	
+		//导入学生的表单
+		$('#fmUp').form({
+			success:function(json){
+				var res=$.parseJSON(json);
+				$('#msg').html("");
+				var reg=new RegExp("&lt;","g");
+				var	reg2=new RegExp("&gt;","g");
+				var msg=res.msg.replace(reg,"<").replace(reg2,">");
+				$.messager.alert("信息 ",msg);
+				if(res.success){
+					$('#dg').datagrid('reload');
+					$('#dl').dialog('close');
+				}
+				isSaving=false;	
+			}
+		})
+		var isSaving=false;
+		function submitRequest(){
+			if(!isSaving){
+				$('#fmUp').submit();
+				$('#suBtn').attr("readOnly","readOnly");
+				$('#msg').html("正在保存中请耐心等待...")
+				isSaving=true;	
+			}else{
+				return false;
+			}
+		}
+		
+		//打开导入学生窗口
+		function importStudent(){
+			$("input[type='file']").val("");
+			$('#dl').dialog({"title":"导入学生"}).dialog('open');
+		}
+		
+		//关闭文件上传窗口
+		function closeDl(){
+			$('#dl').dialog('close');
+		}
+		
+		/*************************新增学生页面 ***********************************/	
+		//修改学生
+		function editStudent(obj){
+			var row=getRow(obj);
+			easyui_openNoResizeWindow("学生修改",700,400,"/manage/student/toStudentEdit.html?adminClassCode="+encodeURI("${adminClassCode}")+"&studentCode="+row.studentCode+"&gradeCode=${gradeCode}",function(r){
+				if(r){
+					$('#dg').datagrid('reload');
+					
+				}
+			})
+		}
+		
+		//新增学生
+		function addStudent(){
+			if("${adminClassCode}"!=""){
+				easyui_openTopWindow("行政班级学生选择",900,800,"/manage/company/toSchoolStudentInfo.html?adminClassCode="+encodeURI("${adminClassCode}")+"&studentChoose=1&gradeCode=${gradeCode}",function(r){
+					if(r){
+						$('#dg').datagrid('reload');
+						parent.$('#dg').datagrid('reload');
+						
+					}
+				})	
+			}else{
+				easyui_openNoResizeWindow("学生新增 ",700,500,"/manage/student/toStudentAdd.html?adminClassCode="+encodeURI("${adminClassCode}")+"&gradeCode=${gradeCode}",function(r){
+					if(r){
+						$('#dg').datagrid('reload');
+						
+					}
+				})
+			}
+		}
+		
+		//修改密码
+		function modifyPwd(obj){
+			var row=getRow(obj);
+			modifypwd(row.studentCode);
+		}
+		 //获取选中的学生编码
+		function getSelectUserCodes(){
+			var selections=$('#dg').datagrid('getSelections');
+			if(!selections||selections.length<=0){
+				return [];
+			}
+			return _.pluck(selections,"studentCode");
+		}
+		 
+		 //批量修改密码
+		function modifyBatch(){
+			var userCodes=getSelectUserCodes();
+			if(userCodes.length<=0){
+				alert("请选择要修改的学生");
+				return false;
+				
+			}
+			batchModifyPwd(userCodes)
+		}
+		
+		//删除学生
+		function delStudent(studentCode){
+			$.messager.confirm("信息","确认要删除吗?",function(r){
+				var url="/manage/student/deleteStudent.html";
+				if("${adminClassCode}"!=""){
+					url="/manage/adminClassStudent/deleteAdminClassStudent.html"
+				}
+				if(r){
+					$.ajax({
+						url:url,
+						data:{
+							userCode:studentCode,
+							adminClassCode:"${adminClassCode}"
+						},
+						success:function(res){
+							$.messager.alert("信息",res.msg);
+							if(res.success){
+								$('#dg').datagrid('reload');
+								parent.$('#dg').datagrid('reload');
+							}
+						}
+					})
+				}
+			})
+		}
+		
+	/*************************课程班级行政班级选学生********************************/
+		//选择学生
+		function chooseStudent(){
+			var rows=$('#dg').datagrid('getSelections');
+			var userCodes=new Array(), userNames=new Array();
+			if(rows!=null&&rows.length>0){
+				for(var i=0;i<rows.length;i++){
+					userCodes.push(rows[i].studentCode);
+					userNames.push(rows[i].userName);
+				}
+			}
+			var url="/manage/teachingClassStudent/addClassStudent.html";
+			if("${adminClassCode}"!=""&&"${teachingClassCode}"==""){
+				url="/manage/adminClassStudent/addClassStudent.html";
+			}
+			$.ajax({
+				url:url,
+				data:{
+					userCode:userCodes,
+					userName:userNames,
+					adminClassCode:"${adminClassCode}",
+					teachingClassCode:"${teachingClassCode}",
+					
+				},
+				success:function(res){
+					$.messager.alert("信息",res.msg);
+					easyui_closeTopWindow(true);
+				}
+			})
+		}
+		
+	</script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>平台临时账号设置页面</title> 
+<style type="text/css">
+  .title{
+     border-bottom:1px solid grey;
+     padding-bottom:20px;
+     font-weight: bold;
+     font-size: 16px;
+     font-family: 微软雅黑,黑体 
+  }
+  .container{
+	  padding: 40px;
+  }
+</style>
+</head>
+<body>
+	<div class="container">
+		<div class="title">临时账号设置</div>
+		<div style="margin-top: 20px">
+			<#if "${platformInfo.flagForbidLogin}"=="1">
+				<input type="checkbox" name="flagForbidLogin" onclick="changeAllowLogin(this)" checked="checked" id="flagForbidLogin"/>禁止临时账号登录
+				<#else>
+					<input type="checkbox" name="flagForbidLogin" onclick="changeAllowLogin(this)" id="flagForbidLogin"/>禁止临时账号登录
+			</#if>
+		</div>
+	</div>
+    
+    <script type="text/javascript">
+        function changeAllowLogin(obj){
+        	var data={};
+        	if(obj.checked){
+        		data={
+        		   gid:"${platformInfo.gid}",
+        		   flagForbidLogin:1
+        		}
+        	}
+        	else{
+        		data={
+             		   gid:"${platformInfo.gid}",
+             		   flagForbidLogin:0
+             	}
+        	}
+        	var opts = {
+					url : '/manage/otherSettings/accountSet/save.html',
+					type : "post",
+					data : data,
+					success : function(res) {
+						window.top.$.messager.alert("提示", res.msg, "info");
+					},
+					error : function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("网络繁忙请稍后再试");
+					},
+					complete : function() {
+
+					}
+				}
+			$.ajax(opts);
+        }
+    
+    </script>
+</body>
+</html>

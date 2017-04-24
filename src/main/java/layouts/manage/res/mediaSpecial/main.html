@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>特色资源主页面</title>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+<div data-options="region:'center'" data-options="fit:true">
+	<div id="tt" class="easyui-tabs" data-options="
+			fit:true,
+			onLoad:function(){$(this).tabs('resize')},
+			onSelect:onSelect
+	        ">
+	<div title="全部" >
+	<iframe src="/manage/resMediaSpecial/all.html" frameborder="0" height="100%" width="100%"></iframe> 
+	</div>
+	<div title="待审核" >
+	<iframe src="/manage/resMediaSpecial/check.html" frameborder="0" height="100%" width="100%"></iframe> 
+	</div>
+	<div title="已通过" >
+	<iframe src="/manage/resMediaSpecial/checked.html" frameborder="0" height="100%" width="100%"></iframe> 
+	</div>
+	<div title="已退回" >
+	<iframe src="/manage/resMediaSpecial/backed.html" frameborder="0" height="100%" width="100%"></iframe> 
+	</div>
+	</div>
+</div>
+<script type="text/javascript">
+		function onSelect(title,index){
+			var window=$('#tt').tabs('getTab',index).panel('panel').find('iframe')[0].contentWindow;
+			if(window.$){
+				window.$('#dg').datagrid('reload');
+			}
+		} 
+</script>
+</body>
+</html>

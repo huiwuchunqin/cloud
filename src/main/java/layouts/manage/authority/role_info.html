@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>角色管理</title>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body>
+    <div class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north',split:false,border:false">
+	<div class="box form">
+		<div class="labelBox">
+			<div class="labelLine300">
+             <div class="labelWidth60">角色名称</div>
+			 <input class="easyui-validatebox" id="roleName" maxlength="50" placeholder="角色名称"/>
+			</div>
+		</div>
+		<div class="btnBox">
+			<a class="btn btnBlue search"  onclick="query()">查询</a>
+		</div>
+	</div>
+	</div>
+	<div data-options="region:'center',border:false">
+    <table id="dg" class="easyui-datagrid"
+		data-options="
+	    pagination:true,
+	    fit:true,
+	    toolbar:'#bar',
+	    rownumbers:true,
+	    onBeforeLoad:dgOnBeforeLoad,
+	    singleSelect:true,
+	    url:'/manage/role/search.html'
+	    ">
+		<thead>
+			<tr>
+			    <th data-options="field:'operate',width:130,align:'center',formatter:operatefmt,halign:'center'">操作</th>
+				<th data-options="field:'name',width:150,align:'left',halign:'center'">角色名称</th>
+				<th data-options="field:'memo',width:500,align:'left',halign:'center'">备注</th>
+				<th data-options="field:'id',width:90,hidden:true,halign:'center'">id</th>
+				<th data-options="field:'sysRole',width:90,hidden:true">sysRole</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="bar" class="btnToolbar">
+		<a id="btnAdd" class="btn btnBlue search" onclick="addRole()" data-options="iconCls:'icon-add',plain:true">新增</a>
+	</div>
+	</div>
+	</div>
+<script type="text/javascript">
+    
+    //查询参数
+	function dgOnBeforeLoad(param) {
+		param["name"]=$('#roleName').val();
+	}
+    
+    //页面初始化
+	$(function() {
+		
+	})
+	
+	//查询角色信息
+	function query() {
+		$("#dg").datagrid("reload");
+	}
+	
+	//添加角色
+	function addRole() {
+		easyui_openTopWindow("新增角色", 550, 380, "/manage/role/roleAdd.html",
+				function(r) {
+			      $('#dg').datagrid('reload');
+		});
+	}
+	
+	//操作格式化
+	function operatefmt(value,row){
+		var str="";
+		if(row.sysRole!="1"){
+	      str="<a href='javascript:void(0)' onclick='edit(this)'>修改</a>&nbsp;&nbsp;<a href='javascript:void(0)' onclick='del(this)'>删除</a>";
+		}
+		return str;
+	}
+	
+	//删除功能
+	function del(obj){
+		var index=$(obj).closest("tr").index();
+		$('#dg').datagrid('selectRow',index);
+		var row=$('#dg').datagrid('getSelected');
+		var opts={
+				url:'/manage/role/delete.html',
+				data:{
+					id:row.id,
+				},
+				success:function(json){
+					var res=json;
+					$.messager.alert('信息',res.msg,'info',function(r){
+						$('#dg').datagrid('reload');
+					})
+				},
+				error : function(XMLHttpRequest, textStatus, errorThrown) {
+					alert("网络繁忙请稍后再试");
+				}
+		}
+		$.messager.confirm("提示", "确定删除该角色？", function (r){
+	    	  if(r){
+	    	       $.ajax(opts);
+	    	  }
+	    });
+	}
+	
+	//修改功能
+	function edit(obj){
+		var index = $(obj).closest("tr").index();
+		$('#dg').datagrid('selectRow',index);
+		var row=$('#dg').datagrid('getSelected');
+		easyui_openTopWindow("修改角色",510, 320, "/manage/role/roleEdit.html?id="+row.id, function(r) {
+			if(r){
+				$('#dg').datagrid('reload');	
+			}
+			});
+	}
+</script>
+</body>
+</html>
+

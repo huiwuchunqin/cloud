@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>教材版本新增</title>
+</head>
+<style type="text/css">
+.container{
+padding:20px 10px;
+}
+.container>div:fist-child{
+text-align:left;
+}
+
+.sectionList{
+position: relative;
+top: 0.5px;
+}
+.title{
+text-align:center;
+padding:5px 20px;
+cursor: pointer;
+background: #fff;
+float:left;
+}
+.active{
+color:#3196c9;
+border:1px solid ;
+border-bottom: none;
+}
+.subjectTab{
+    padding: 10px 10px 0px;
+    border: 1px solid #e1e1e1;
+    min-height:165px
+}
+.item{
+display: inline-block;
+width: 140px;
+text-overflow: ellipsis;
+white-space: nowrap;
+margin-bottom: 10px;
+min-height: 16px;
+}
+.item>span:last-child{
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 123px;
+    display: inline-block;
+    overflow: hidden;
+}
+.check{
+	display: inline-block;
+	position: relative;
+	top: -2px;
+	width: 14px;
+	height: 14px;
+	cursor: pointer;
+	background: url("/manage/resources/images/auth/check.png") 0 28px;
+	
+}
+.check.checkActive{
+background-position: 0 0;
+}
+.clearfix:before, .clearfix:after {
+    content: " ";
+    display: table;
+}
+.clearfix:after {
+    clear: both;
+}
+.btnDiv{
+position:absolute;
+bottom:10px;
+right:10px
+}
+.check.readOnly{
+background-position: 0 55px;
+}
+</style>
+<body>
+	<div class="box">
+		<div class="labelLine640">
+			<span class="labelWidth60">版本名称</span> <input id="name" data-bind="value:name"
+				class="easyui-validatebox" maxlength="20"
+				data-options="validType:'length[0,20]',required:true">
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="sectionList clearfix" data-bind="foreach:sections">
+		<div  class="title" data-bind="text:name,css:{active:$root.activeIndex()==$index()},click:$root.tabClick.bind($data,$index())"></div>
+		</div>
+		 <div class="subjectTab">
+			<!--ko foreach: sections -->
+			<div  data-bind="if:$root.activeIndex()==$index()">
+			   <div>
+			   <span class="item">
+			   <span  id="check" class="check " data-bind="css:{checkActive:allCheck()},event:{click:checkAll}"></span><span>全选</span>
+			   </span>
+			   </div>
+				<!--ko foreach: subjects -->
+				<span class="item">
+				 <span class="check" data-bind="css:{checkActive:itemCheck(),readOnly:hasRelated()},event:{click:checkItem}"></span>
+				 <span data-bind="text:name,attr:{title:name}"></span>
+				</span>
+				<!--/ko  -->
+			</div>
+			<!--/ko  -->
+		</div>
+	</div>
+	<p class="red" style="margin-left:20px">灰色的表示已经创建了教材或者知识体系不能删除</p>
+	<div class="align-right btnDiv">
+	   <a class="btn btnConfirm" data-bind="click:save">保存</a>
+	    <a class="btn btnCancel"  onclick="javascript:easyui_closeTopWindow(false)">取消</a>
+	</div>
+<script>
+	 var sectionList=eval(${sectionList});
+	 var verList=[];
+	 function getVerList(){
+		 if("${name}"!=""){
+			 $.ajax({
+				 url:'/manage/textbook/getTextbookVerList.html',
+				 async:false,
+				 data:{
+					 name:"${name}"
+				 },
+				 success:function(res){
+					 verList=res;
+				 }
+			 }) 
+		 } 
+	 }
+	 $(function(){
+		 getVerList();
+		 init();
+	 })
+	function init(){
+		function PageModel(sectionList,verList){
+		var self=this;
+		self.name=ko.observable("").extend({
+			required:{
+				message:" ",
+			}
+		});
+		self.sections=ko.observableArray([]);
+		self.activeIndex=ko.observable(0);
+		self.tabClick=function(index,data){
+			self.activeIndex(index);
+			};
+		self.save=function(){
+				var errors = ko.validation.group(self);
+				if (errors().length > 0) {
+					$('#name').focus();
+					return false;
+				}
+				
+				var addArrys=[];
+				var editArrys=[];
+				var editCodeArrys=[];
+				var delArrys=[]; 
+				_.each(self.sections(),function(section){
+					_.each(section.subjects(),function(subject){
+						if(subject.itemCheck()){
+							if(self.savedSubject().indexOf(subject.code)>=0){
+								var target=_.find(verList,function(ver){
+									return ver.subjectCode==subject.code
+								})
+								editArrys.push(target.gid);
+								editCodeArrys.push(target.subjectCode)
+								/* self.savedSubject.remove(subject.code); */
+							}else{
+								addArrys.push(subject.code);
+							}
+						}
+					})
+				});
+				_.each(self.savedSubject(),function(subjectCode){
+					if(editCodeArrys.indexOf(subjectCode)<0){
+						var target=_.find(verList,function(ver){
+							return ver.subjectCode==subjectCode
+						})
+						delArrys.push(target.gid);
+					}
+				})
+			/* 	_.each(self.savedSubject(),function(subectCode){
+					var target=_.find(verList,function(ver){
+						return subectCode==ver.subjectCode
+					})
+					delArrys.push(target.gid);	
+				}) */
+				if(addArrys.length<=0&&editArrys.length<=0&&delArrys.length<=0){
+					alert("请选择学科");
+					return false;
+				}
+			/* 	if(addArrys.length<=0&&self.name()==self.originalName()){
+					alert("你没有做任何修改");
+					return false;
+				} */
+				$.ajax({
+					url:"/manage/textbook/addTextbook.html",
+					data:{
+						addCodes:addArrys,
+						delGid:delArrys,
+						editGid:editArrys,
+						name:self.name().trim(),
+						originalName:self.originalName(),
+					}
+				}).then(function(res){
+					$.messager.alert("信息",res.msg,"info",function(){
+						if(res.success){
+							easyui_closeTopWindow(res.success);		
+						}
+					})
+				})
+			};
+		self.savedSubject=ko.observableArray([]);
+		self.originalName=ko.observable();
+		self.init=(function(){
+			 
+			
+			
+			/*修改初始化  */
+			if(verList&&verList.length>0){
+				self.name(verList[0].name);
+				self.originalName(verList[0].name);
+				_.each(verList,function(item){
+					self.savedSubject.push(item.subjectCode);	
+				})
+				var sectionCodes=_.pluck(sectionList,"code");
+				var defaultSection=self.savedSubject()[0].substr(0,1);
+				var index=sectionCodes.indexOf(defaultSection);
+				self.activeIndex(index);
+			}
+			
+			/*页面数据准备 */
+			  _.each(sectionList,function(item,index){
+				  var result=ajaxRequest("/manage/sectionSubjectRef/sectionSubject.html",{sectionCode : item.code});
+				  _.each(result,function(subject){
+					  subject.itemCheck=ko.observable(false);
+					  subject.hasRelated=ko.observable(0); 
+					  if(verList&&verList.length>0){
+						 var same= _.find(verList,function(item){return item.subjectCode==subject.code})
+						 if(same){
+							 subject.hasRelated=ko.observable(same.hasTextbook||same.hasKps); 
+						 }
+					  }
+				  })
+				  
+				 item.subjects=ko.observableArray(result||[]);
+				  item.allCheck=ko.observable(false);
+				  _.each(item.subjects(),function(subject){
+					  subject.checkItem=function(){
+						  if(!subject.hasRelated()){
+							  subject.itemCheck(!subject.itemCheck());
+							  var length=0;
+								 _.each(item.subjects(),function(subject){
+									 if(subject.itemCheck())length++;
+								 })
+							  item.allCheck(item.subjects().length==length) 	  
+						  }else{
+							  if(!subject.itemCheck()){
+								  subject.itemCheck(true)  
+							  }
+						  }
+						 } 
+					  if(self.savedSubject().indexOf(subject.code)>=0){
+						  subject.checkItem(true); 
+					  }
+				  })
+				
+				 item.checkAll=function(){
+					 item.allCheck(!item.allCheck())
+					 _.each(item.subjects(),function(subject){
+						    if(!subject.hasRelated()){
+						    	subject.itemCheck(item.allCheck());	
+						    }
+					 })
+				 }
+			  })
+			
+			  self.sections(sectionList);	
+		})()
+	}
+	var model=new PageModel(sectionList,verList);
+	ko.applyBindings(model);
+	}
+</script>
+</body>
+</html>

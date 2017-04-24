@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<style type="text/css">
+p {
+	background-color: #ffffff;
+	color: blue;
+	size: 76px;
+	margin-top: 10px;
+}
+
+.second {
+	background: url(/manage/template/images/delete.png) no-repeat;
+	display: inline-block;
+	width: 21px;
+	height: 19px;
+	cursor: pointer;
+	position: relative;
+	top: 2px;
+	/*   left:-21px; */
+	/*  backrground-cplor:#fff; */
+}
+span{
+    display: inline-block;
+    width: 223px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+</style>
+<title>园区数据同步</title>
+</head>
+<body>
+	<div style="padding: 20px">
+		<div style="overflow: hidden">
+			<div class="labelLine320">
+				<span class="labelWidth60">请输入更新批次</span> <input id="batch"
+					class="easyui-numberbox" data-options="min:0">
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">请输入关键字</span> <input id="filter"
+					placeholder="输入筛选关键字" data-bind="textInput:filter">
+			</div>
+		</div>
+		<span class="clear"></span>
+		<div style="overflow: hidden"
+			data-bind="visible:$root.allOrgList().length>0">
+			<div>
+				<input type="checkbox" data-bind="checked:allSelected">全选
+			</div>
+			<div data-bind="foreach:allOrgList" style="min-width: 900px">
+				<div data-bind="visible:isShow()==1"
+					style="float: left; width: 300px">
+					<input type="checkbox" data-bind="checked:checked"><span
+						data-bind="text:orgName"></span>
+				</div>
+			</div>
+		</div>
+		<div style="padding-left: 80px; margin-top: 50px">
+			<button class="btn btnBlue" onclick="synchronizeSelected()">同步所选中学校</button>
+
+			<button class="btn btnGrey" onclick="synchronizeCurrent()">同步当前登录用户学校</button>
+
+			<button class="btn btnGrey" onclick="synchronizeAll()">同步所有学校</button>
+		</div>
+		<div id="tip"></div>
+		<div id="info"></div>
+	</div>
+	<script type="text/javascript">
+var orgList=eval(${orgList});
+_.each(orgList,function(item){item.isShow=ko.observable(1);item.checked=ko.observable(false)});
+var model={
+		filter:ko.observable("").extend({ deferred: true }),
+		allOrgList:ko.observableArray(orgList),
+		allSelected:ko.observable(""),
+	};
+//机构过滤
+model.filter.subscribe(function(value){
+_.each(model.allOrgList(),function(item){ item.isShow(item.orgName.includes(model.filter())?1:0);});
+})
+//全选框
+model.allSelected.subscribe(function(value){
+_.each(model.allOrgList(),function(item){if(item.isShow()==1){item.checked(value)}});	
+})
+$(function(){
+	$('#org').combobox('loadData',orgList);
+	ko.applyBindings(model,$("body")[0]);
+	
+})
+
+var synchronizing=false;
+function synchronizeAll(){
+	var batch=$('#batch').val();
+	synchronize("/manage/sychonize/sychonizeAll.html",{batch:batch,},"确定要同步所有学校？");
+}
+
+function synchronizeSelected(){
+	var batch=$('#batch').val();
+	var checkOrgList=_.filter(model.allOrgList(),function(item){return item.checked()==true});
+	var orgList=_.pluck(checkOrgList,"orgCode");
+	if(orgList.length<=0){
+		alert("请选择机构");
+		return;
+	}
+	synchronize("/manage/sychonize/sychonizeSelected.html",{batch:batch,orgCode:orgList},"确定要同步所选学校？");	
+}
+
+function synchronizeCurrent(){
+	var batch=$('#batch').val();
+	synchronize("/manage/sychonize/sychonizeCurrent.html",{batch:batch,},"确定要同步当前登录的学校？");
+}
+
+function synchronize(url,data,info){
+	$.messager.confirm("信息",info,function(r){
+		if(r){
+			if(!synchronizing){
+				$('#info').empty();
+				synchronizing=true;
+				$('#tip').html("正在同步中。。。");
+				$.ajax({
+					url:url,
+					data:data,
+					success:function(res){
+						synchronizing=false;
+						$('#tip').html("");
+						alert(res.msg);
+						var info=new Array();
+						if(res.msg&&!res.success){
+							info=res.msg.split("@");
+							_.each(info,function(item){
+								var p=$("<p></p>")
+								p.html(item)
+								$("#info").append(p);
+							})
+						}
+					}
+				})	
+			}else{
+				alert("正在更新请等候");
+			}
+		}
+	})
+}
+</script>
+</body>
+</html>

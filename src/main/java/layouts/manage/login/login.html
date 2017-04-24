@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_css.html"/>
+<#include "/manage/common/meta_js.html"/>
+<link rel="stylesheet" type="text/css" href="/manage/template/css/login.css"/>
+<title>${sharePlatform.name}-后台登录</title>
+<script type="text/javascript">
+	$(function() {
+		$('#platformLogo').attr("src","${imgHost}/"+"${sharePlatform.platformLogo}");
+		var ch = document.documentElement.clientHeight;
+		$(".login_header_2").css("padding-top", (ch - 480) / 2 + "px");
+		$('input:first').focus();
+		var $inp = $('input:first');
+		$inp.bind('keydown', function(e) {
+			if (event.keyCode === 13) {
+				e.preventDefault();
+				$('input:eq(1)').focus();
+			}
+		})
+		var $inp2 = $('input:eq(1)');
+		$inp2.bind('keydown', function(e) {
+			if (event.keyCode === 13) {
+				e.preventDefault();
+				btnLogin();
+			}
+		})
+		if(${agentEnable}){
+					//根据机构显示logo等信息 
+			$.post("/manage/domain/getDomain.html?url="+location.hostname,function(res){
+				if(res){
+					$('#platformLogo').attr("src","${imgHost}/"+res.domainURL);
+					$("title").html(res.domainName);
+					$('#platName').html(res.domainName+"-互动课堂后台管理")
+				}
+			})
+		}else{
+			$('#platformLogo').attr("src","${imgHost}/${sharePlatform.platformLogo}");
+			$("title").html("${sharePlatform.name}");
+			$('#platName').html("${sharePlatform.name}-后台管理")
+		}
+	})
+
+	function btnLogin() {
+		var loginAccount = $("#loginAccount").val();
+		var password = $("#password").val();
+		//验证登录账号
+		if (loginAccount == "") {
+			$.messager.alert("提示", "登录账号不能为空！", "info", function() {
+				$('#loginAccount').focus();
+			});
+			return false;
+		}
+		//验证登录密码
+		if (password == "") {
+			$.messager.alert("提示", "登录密码不能为空", "info", function() {
+				$('#password').focus();
+			});
+			return false;
+		}
+
+		//验证
+		var opts = {
+			url : "/manage/login/check.html",
+			type : "POST",
+			data : {
+				loginAccount : loginAccount,
+				password : password,
+				domain : window.location.hostname,
+			},
+			success : function(result) {
+				if (result.success != true) {
+					$.messager.alert("信息", result.msg, "info", function() {
+						$('#password').val('');
+						$('#loginAccount').focus();
+					});
+				} else {
+					if (result.data.flagSuperAdmin == "1") {//超级管理员登录
+						window.location.href = "/manage/index.html";
+					}
+					else if(result.data.roleList&&result.data.roleList.length>1){//普通用户登录(该登录用户有多个角色的情况)
+						  $("#userName").html(result.data.userInfo.loginAccount);
+						  $('#role').combobox('loadData',result.data.roleList);
+						  $('#role').combobox('setValue', result.data.roleList[0].id);//默认加载角色列表的第一项数据
+						  $("#chooseRole-dg").dialog('open');//打开角色选择窗口
+					}
+					  /* window.location.href = "/manage/index.html"; */
+					else if(result.data.roleList&&result.data.roleList.length==1){//普通用户登录(该登录用户只有一个角色的情况)
+					      window.location.href = "/manage/index.html";
+					}else{
+						  $.messager.alert("提示", "该账号没有分配任何角色，无法登录", "info");
+						  return;
+					} 
+					
+				}
+			}
+		}
+		$.ajax(opts);
+	}
+	
+	//登录用户选择角色后的确定操作
+	function save(){
+		var roleId=$('#role').combobox('getValue');
+		if(roleId===""){
+			$.messager.alert("提示", "请先选择您的角色，再进行登录！", "info");
+			return false;
+		}
+		var opts={
+				url:"/manage/multiRoleLogin.html",
+				type:"POST",
+				data:{
+					roleId:roleId,
+				},
+				success:function(jsonStr){
+					var res = jsonStr;
+					if(res.success){
+						window.location.href = "/manage/index.html"; 
+					}
+				}
+		}
+		$.ajax(opts);
+	}
+	
+	//取消操作
+	function cancel(){
+		$("#chooseRole-dg").dialog('close');
+	}
+</script>
+</head>
+<body>
+	<div class="login_header login_header_2">
+		<h1 id="platName"><img id="platformLogo" style="display: block;float: left;max-width: 300px;max-height: 50px;"/></h1>  
+	</div>
+	<div class="login_body_2">
+		<div class="login_area">
+			<img src="/manage/template/images/login/login_img.jpg" />
+			<div class="login_box">
+				<h1>管理后台登录</h1>
+				<p>
+					<input id="loginAccount" type="text" class="user" placeholder="登录账号" />
+				</p>
+				<p>
+					<input id="password" type="password" class="password" placeholder="登录密码" />
+				</p>
+				<button onclick="btnLogin()">登录</button>
+			</div>
+		</div>
+	</div>
+	<div class="login_footer">
+		<p> <a href="http://www.baizhitong.net" target="_blank">苏州百智通信息技术有限公司</a>提供技术支持&nbsp;&nbsp;&nbsp;</p>
+	</div>
+	
+	<div id="chooseRole-dg" class="easyui-dialog" title="选择角色"
+		style="width: 400px; height: 200px;"
+		data-options="resizable:false,modal:true,closed:true">
+		<ul class="list">
+			<li>欢迎您，<span id="userName" style="color:red"></span></li>
+			<li>
+			<span>请选择您的角色:</span>
+			<input id="role" class="easyui-combobox" style="width: 175px"
+				data-options="editable:false,valueField:'id',textField:'name'"/>
+			</li>
+			<li style="margin-left: 80px;margin-top: 15px;">
+				<a class="btn btnConfirm" onclick="save()">确定</a>
+				<a class="btn btnCancel" onclick="cancel()" style="margin-left: 15px;">取消</a></li>
+		</ul>
+	</div>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/> <#include
+"/manage/res/common/resCheckCommon.html"/>
+</head>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript" src="/manage/template/res/resCommon.js"></script>
+<script type="text/javascript" src="/manage/template/res/flash.js"></script>
+<script type="text/javascript" src="/manage/template/resCheck/check.js"></script>
+<script type="text/javascript" src="/manage/template/resCheck/export.js"></script>
+<title>互动资源</title>
+<style type="text/css">
+.datagrid-cell-rownumber {
+	width: 50px;
+	text-align: center;
+	margin: 0px;
+	padding: 3px 0px;
+}
+
+.datagrid-header-rownumber {
+	width: 50px;
+	text-align: center;
+	margin: 0px;
+	padding: 3px 0px;
+}
+</style>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'" title=" " style="height: 135px;">
+		<div class="box ">
+			<div class="labelBox">
+				<span class="labelLine440"> <span id="timeQuery"
+					class="labelWidth60">日期:</span> <input id="checkTimeStart"
+					class="Wdate"
+					onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'checkTimeEnd\')}',dateFmt:'yyyy-MM-dd',lang:'zh-cn'})"
+					type="text"> <span style="width: 10px; line-height: 20px">~</span>
+					<input id="checkTimeEnd" class="Wdate"
+					onFocus="WdatePicker({minDate:'#F{$dp.$D(\'checkTimeStart\')}',dateFmt:'yyyy-MM-dd',lang:'zh-cn'})"
+					type="text">
+				</span>
+				<div class="clear10"></div>
+				<span class="labelLine240"> <span class="labelWidth60">学段：</span>
+					<input id="section" class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false,onSelect:sectionSelect">
+				</span> <span class="labelLine240"> <span class="labelWidth60">学科：</span>
+					<input id="subject" class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false">
+				</span> <span class="labelLine240"> <span class="labelWidth60">年级：</span>
+					<input id="grade" class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false">
+				</span>
+				<div class="clear10"></div>
+				<#if "${areaAdmin}"==1> <span class="labelLine240"> <span
+					class="labelWidth60">机构名称：</span> <input id="orgName" placeholder="请输入机构名称">
+				</span> </#if> <span class="labelLine240"> <span
+					class="labelWidth60">资源名称：</span> <input id="resName"
+					placeholder="请输入资源名称">
+				</span> <span class="labelLine240"> <span class="labelWidth60">作者：</span>
+					<input id="makerName" placeholder="请输入作者">
+				</span>
+
+			</div>
+			<div class="btnBox">
+				<a class="btn btnBlue search" onclick="$('#dg').datagrid('reload')">查询</a>
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<div id="tb">
+			<@btnBar "${checkStatus}" 15/>
+			<div class="btnBox">
+				<form id="fm" method="post">
+					<a class="btn btnBlue"
+						onclick="exportFlashCheck('${checkStatus}','${areaAdmin}')">导出</a>
+				</form>
+			</div>
+		</div>
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+    pagination:true,
+    fit:true,
+    toolbar:'#tb',
+    rownumbers:true,
+    onBeforeLoad:onBeforeLoad,
+    url:'/manage/flash/list.html'
+
+">
+			<thead>
+				<tr>
+					<th
+						data-options="field:'ck',checkbox:true,width:80,halign:'center',headalign:'center'"></th>
+					<th
+						data-options="field:'resName',formatter:flashfmt,width:260,align:'left',halign:'center'">资源名称</th>
+					<th data-options="field:'orgName',width:200,halign:'center'">机构名称</th>
+					<th
+						data-options="field:'sectionName',width:70,align:'center',halign:'center'">学段</th>
+					<th
+						data-options="field:'subjectName',width:80,align:'left',halign:'center'">学科</th>
+					<th
+						data-options="field:'gradeName',width:70,align:'left',halign:'center'">年级</th>
+					<th
+						data-options="field:'shareLevelStr',width:120,align:'center',halign:'center'">当前级别</th>
+					<th
+						data-options="field:'checkStatusStr',width:160,align:'center',halign:'center'">共享审核状态</th>
+					<th
+						data-options="field:'allowDownLoad',width:100,align:'center',halign:'center'">可下载</th>
+					<th
+						data-options="field:'userName',width:90,align:'left',halign:'center'">作者</th>
+					<#if "${checkStatus}"!=10>
+					<th
+						data-options="field:'applyTime',width:200,align:'center',halign:'center',formatter:timeLongfmt">申请时间</th>
+					<th data-options="field:'checkerName',width:100,halign:'center'">审核人</th>
+					<th
+						data-options="field:'shareCheckTime',width:200,align:'center',halign:'center',formatter:timeLongfmt">审核日期</th>
+					<th
+						data-options="field:'checkComments',width:400,halign:'center',formatter:lengthSubfmt">审核意见</th>
+					<th
+						data-options="field:'checkCommentsDetail',width:120,halign:'center',formatter:detailPreviewfmt">审核意见详情</th>
+					<!-- <th data-options="field:'detail',formatter:detailfmt,width:120,align:'center',halign:'center'">审核情况</th> -->
+					<#else>
+					<th
+						data-options="field:'shareTime',width:200,align:'center',halign:'center',formatter:timeLongfmt">申请日期</th>
+					</#if>
+				</tr>
+			</thead>
+		</table>
+
+		<!--通过对话框  -->
+		<@dialog 15/>
+		<!--/通过对话框 -->
+
+	</div>
+	<script type="text/javascript">
+		var sectionList = ${sectionList};
+		//dom
+		var _subjectCombo = $('#subject');
+		var _gradeCombo = $('#grade');
+		var _sectionCombo = $('#section');
+		var model = {
+			deny : ko.observable(true),
+			adviceList : ko.observableArray([]),
+		};
+		$(function() {
+			ko.applyBindings(model);
+			UIChange("${checkStatus}");
+			
+			sectionList.splice(0, 0, defaultOpt);
+			_sectionCombo.combobox('loadData', sectionList);
+			_sectionCombo.combobox('select', -1);
+
+		})
+		
+		//查询参数传递 
+		function onBeforeLoad(param) {
+			$.extend(param,getFlashCheckParam());
+		}
+	
+		//获取参数
+		function getFlashCheckParam(){
+			var param={};
+			param["gradeCode"] = _gradeCombo.combobox('getValue');
+			param["subjectCode"] = _subjectCombo.combobox('getValue');
+			param["sectionCode"] = _sectionCombo.combobox('getValue');
+			param["shareCheckStatus"] = "${checkStatus}";
+			if ("${checkStatus}" == 10) {
+				param["resStatusSuccess"] = 20;
+				param["shareTimeStart"] = $('#checkTimeStart').val();
+				param["shareTimeEnd"] = $('#checkTimeEnd').val()
+			} else {
+				param["checkTimeStart"] = $('#checkTimeStart').val();
+				param["checkTimeEnd"] = $('#checkTimeEnd').val()
+			}
+			if ("${shareCheckLevel}") {
+				param["shareCheckLevel"] = "${shareCheckLevel}";
+			}
+			<#if "${areaAdmin}"==1>
+			param["orgName"] = $('#orgName').val();
+			</#if>
+			param["resName"] = $('#resName').val();
+			param["makerName"] = $('#makerName').val();
+			return param;
+		}
+		
+		// 操作列格式化
+		function flashfmt(value, row) {
+			return "<a href='javascript:void(0)' onclick='edit(\"" + row.id + "\",\""
+					+ row.resCode + "\",1)'>" + value + "</a>";
+		}
+	</script>
+</body>
+</html>

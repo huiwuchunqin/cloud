@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<title>机构信息</title>
+<style type="text/css">
+.attrDiv {
+	width: 350px;
+	float: left;
+	height: 40px;
+	line-height: 40px;
+	margin-left: 10px;
+}
+
+.attrDiv>span:first-of-type {
+	width: 160px;
+	display: inline-block;
+}
+
+.attrDiv>input, select {
+	width: 130px;
+}
+
+.attrDiv>select {
+	width: 130px;
+}
+
+.tip {
+	position: absolute;
+	left: 197px;
+	top: 45px;
+	width: 55px;
+	height: 0px;
+	line-height: 21px;
+	color: grey;
+}
+</style>
+</head>
+<body>
+	<div id="tb">
+		<div class="box">
+			<div class="labelBox">
+				<div class="labelLine240">
+					<span class="labelWidth60">机构名称：</span>
+					<input id="orgName" class="width130" placeholder="请输入机构名称">
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60">学段：</span><input id="section"
+						class="easyui-combobox"
+						data-options="editable:false,textField:'name',valueField:'code',
+						          data:[
+						          {code:' ',name:'请选择',selected:true}
+						           <#if (sectionList?exists && sectionList?size>0)>
+							  		<#list sectionList as section>
+							  			,{code:'${section.code}', name:'${section.name?default('&nbsp;')}'}
+							  		</#list>
+								 </#if>]
+								 ">
+				</div>
+			</div>
+			<div class="btnBox">
+				<a class="btn btnBlue search" iconCls="icon-search" onclick="query()">查询</a>
+				<a class="btn btnBlue add" iconCls="icon-add" onclick="addCompany()">新增</a>
+			</div>
+		</div>
+	</div>
+	<table id="dg" class="easyui-datagrid"
+		data-options="
+	    pagination:true,
+	    toolbar:'#tb',
+	    fit:true,
+	    rownumbers:true,
+	    singleSelect:true,
+	    url:'/manage/company/companyPageInfo.html',
+	    onBeforeLoad:onBeforeLoad,
+	    fitColumns:true,
+	    ">
+		<thead>
+			<tr>
+				<th data-options="field:'opt',width:80,formatter:optfmt,align:'center'">操作</th>
+				<th data-options="field:'orgName',width:250,halign:'center',align:'left'">学校名称</th>
+				<th data-options="field:'orgNameShort',halign:'center',width:100,align:'left'">简称</th>
+				<th data-options="field:'sectionName',halign:'center',align:'center',width:80">学段</th>
+				<th data-options="field:'mail',width:180,halign:'center',align:'left'">电子邮箱</th> 
+				<th data-options="field:'topName',width:100,halign:'center'">联系人</th> 
+				<th data-options="field:'phone',width:100,align:'center',halign:'center'">联系电话</th> 
+				<th data-options="field:'modifyTime',width:140,halign:'center',formatter:timefmt,align:'center'">更新时间</th>
+			</tr>
+		</thead>
+	</table>
+	<div id="dlg" class="easyui-dialog windowPadding20"
+		data-options="
+	height:460,
+	width:850, 
+	closed:true,
+	modal:true,
+	">
+		<form id="fm" >
+			<div class="attrDiv">
+				<span>机构名称</span> <input id="EorgName" name="EorgName"
+					class="easyui-validatebox" maxLength="60"
+					data-options="required:true,validType:'length[0,60]'">
+			</div>
+			<div class="attrDiv">
+				<span>机构简称</span> <input id="orgNameShort" name="orgNameShort"
+					class="easyui-validatebox" maxLength="10"
+					data-options="required:true,validType:'length[0,10]'">
+			</div>
+			<span class="clear10"></span>
+			<div class="attrDiv">
+				<span>机构性质</span> <input id="orgType" class="easyui-combobox" name="orgType" data-options="
+				textField:'name',
+				valueField:'code',
+				editable:false,
+				required:true,
+				data:[
+				{'name':'学校','code':'10'},
+				{'name':'企业','code':'20'},
+				]
+				"/>
+				
+			</div>
+			<div class="attrDiv">
+				<span>网站备案号</span> <input id="icp_no" name="icp_no"
+					class="easyui-validatebox" data-options="validType:'length[0,20]'">
+			</div>
+			<span class="clear10"></span>
+			<div class="attrDiv">
+				<span>有效起始日期</span> <input id="validDateStart" name="validDateStart"
+					class="Wdate" onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'validDateEnd\')}',dateFmt:'yyyy-MM-dd'})" >
+			</div>
+			<div class="attrDiv">
+				<span>有效结束日期</span> <input id="validDateEnd" name="validDateEnd"
+					class="easyui-validatebox Wdate" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'validDateStart\')}',dateFmt:'yyyy-MM-dd'})">
+			</div>
+			
+			<span class="clear10"></span>
+			<div class="attrDiv" data-bind="visible:add()">
+				<span>所属学段</span> <input id="sectionCode"   name="sectionCode"
+					class="easyui-combobox" data-options="required:true,textField:'name',valueField:'code',editable:false" >
+			</div>
+		    <div class="attrDiv">
+				<span>联系人工号</span> <input id="topWorkNo" name="topWorkNo"
+					class="easyui-validatebox" data-options="validType:'length[0,20]'">
+			</div>
+			<span class="clear10"></span>
+			<div class="attrDiv">
+				<span>联系人</span> <input id="topName" name="topName"
+					class="easyui-validatebox" data-options="validType:'length[0,20]'">
+			</div>
+			<div class="attrDiv">
+				<span>联系电话</span> <input id="phone" name="phone"
+					class="easyui-validatebox" data-options="validType:'mobileTel'">
+			</div>
+			<span class="clear10"></span>
+			<div class="attrDiv">
+				<span>电子信箱</span> <input id="mail" name="mail"
+					class="easyui-validatebox" data-options="validType:'email'">
+			</div>
+				<div class="attrDiv">
+				<span>作业进度自动保存间隔（秒）</span> <input id="exerciseAutoSaveInterval"
+					name="exerciseAutoSaveInterval" class="easyui-validatebox"
+					data-options="validType:'betweenInter[0,1000]'">
+			</div>
+			<span class="clear10"></span>
+			<div class="attrDiv">
+				<span>学习进度自动保存间隔（秒）</span> <input id="learningAutoSaveInterval"
+					name="learningAutoSaveInterval" class="easyui-validatebox"
+					data-options="validType:'betweenInter[0,1000]'">
+			</div>
+			<input hidden="hidden" id="orgCode">
+		</form>
+		<span class="clear10"></span>
+		<div class="btnBox">
+		<button class="btn btnConfirm" onClick="saveCompany()">保存</button>
+		<button class="btn btnCancel" onClick="cancel()">取消</button>
+		</div>
+		<!-- <form id="image" enctype="multipart/form-data" method="post" action="/manage/company/uploadImage.html">
+			<div class="attrDiv" style="height:0px">
+			<input  hidden="hidden" type="file" name="file" id="file" accept="image/*" onchange=showPicture()/>
+			<input 	hidden="hidden" id="fileType" name="fileType" value="company"/>
+			</div>
+			<span class="clear" style="height:5px"></span>
+			<div class="attrDiv" style="position:relative;width:400px">
+				<span style="float:left">机构Logo</span>
+				<img id="img" style="position: relative;z-index:100;height:120px;width:120px;border:0;padding-left: 4px;cursor: pointer;" onclick="$('#file').click()"/>
+				<label class="tip">上传图片</label>
+			</div>
+		
+		</form>  -->
+	</div>
+	<script type="text/javascript">
+		var model={
+				add:ko.observable(true),
+		};
+		ko.applyBindings(model);
+		var sectionList=eval(${sectionJsonList});
+		$(function(){
+			$('#sectionCode').combobox('loadData',sectionList)
+		})
+		
+		function onBeforeLoad(param) {
+			var orgName = $('#orgName').val();
+			var sectionCode = $('#section').combobox('getValue');
+			param["sectionCode"] = sectionCode;
+			param["orgName"] = orgName;
+		}
+		
+		function query() {
+			$('#dg').datagrid('reload');
+		}
+		function timefmt(value, row) {
+			if (value != "" && value != undefined) {
+				return moment(value).format("YYYY-MM-DD  HH:mm");
+			}
+		}
+		//修改
+		function optfmt(value,row){
+			return "<a href='javascript:void(0)'class='easyui-linkbutton' onclick='editDlg(this)'>修改</a>";
+		}
+		//新增机构
+		function addCompany() {
+			model.add(true);
+			$('#fm').form('clear');
+			$('#dlg').dialog({
+				'title' : "新增机构"
+			}).dialog('open');
+		}
+		//修改机构信息
+		function editDlg(obj){
+			model.add(false);
+			$('#fm').form('clear');
+			var index=$(obj).closest("tr").index();
+			$('#dg').datagrid('selectRow',index);
+			var row=$('#dg').datagrid('getSelected');
+			$('#EorgName').val(row.orgName);
+			/* $('#fileType').val("company"); */
+			$('#orgNameShort').val(row.orgNameShort);
+			$('#orgType').combobox('setValue',row.orgType);
+			$('#validDateStart').val(row.validDateStart);
+			$('#validDateEnd').val(row.validDateEnd);
+			var array=new Array();
+			array.push(row.sectionCode);
+			$('#sectionCode').combobox('setValues',array);
+			$('#phone').val(row.phone);
+			/* $('#logoUrl').val(row.logoUrl); */
+			$('#icp_no').val(row.icp_no);
+			$('#mail').val(row.mail);
+			$('#topWorkNo').val(row.topWorkNo);
+			$('#topName').val(row.topName);
+			$('#exerciseAutoSaveInterval').val(row.exerciseAutoSaveInterval);
+			$('#learningAutoSaveInterval').val(row.learningAutoSaveInterval);
+			$('#orgCode').val(row.orgCode);
+			/* $('#imgage').form('clear'); */
+			$('#dlg').dialog({
+				'title' : "修改机构"
+			}).dialog('open');
+		}
+		//var isSaving=false;
+		
+		//保存机构
+		function saveCompany(){
+			//if(isSaving)return false;
+			if($('#fm').form('validate')){
+				//isSaving=true;
+				var data={
+						orgName:$('#EorgName').val(),
+						orgNameShort:$('#orgNameShort').val(),
+						orgType:$('#orgType').combobox('getValue'),
+						validDateStartStr:$('#validDateStart').val(),
+						validDateEndStr:$('#validDateEnd').val(),
+						phone:$('#phone').val(),
+						icp_no:$('#icp_no').val(),
+						mail:$('#mail').val(),
+						topWorkNo:$('#topWorkNo').val(),
+						topName:$('#topName').val(),
+						exerciseAutoSaveInterval:$('#exerciseAutoSaveInterval').val(),
+						learningAutoSaveInterval:$('#learningAutoSaveInterval').val(),
+						orgCode:$('#orgCode').val()
+				}
+				if(model.add()){
+					data.sectionCodes=$('#sectionCode').combobox('getValues').join();
+					if(data.sectionCodes.length<=0){
+						$.messager.alert("信息","请选择学段","info");
+						return false;
+					}
+				}
+				$.ajax({
+					url:'/manage/company/saveCompany.html',
+					data:data,
+					success:function(res){
+						$.messager.alert("信息" ,res.msg,"info");
+						if(res.success){
+							$('#dg').datagrid('reload');
+							$('#dlg').dialog('close');
+						}
+					}
+				})	
+			}
+		}
+		
+		//取消
+		function cancel(){
+			$('#dlg').dialog('close');
+		}
+
+	</script>
+</body>
+</html>

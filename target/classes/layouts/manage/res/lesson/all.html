@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript" src="/manage/template/res/resCommon.js"></script>
+<script type="text/javascript" src="/manage/template/res/lesson.js"></script>
+<title>课程审核-全部页面</title>
+<style type="text/css">
+</style>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'" title=" ">
+		<div class="box">
+			<div class="labelBox">
+				<div class="labelLine440">
+					<span class="labelWidth90">创建日期：</span> <input id="startDate"
+						class="Wdate"
+						onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})" />
+					~ <input id="endDate" class="Wdate"
+						onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})" />
+				</div>
+				<span class="clear10"></span>
+				<div class="labelLine250">
+					<span class="labelWidth90">学段：</span><input id="section"
+						class="easyui-combobox width100"
+						data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							onSelect:sectionSelect
+							" />
+				</div>
+				<div class="labelLine240">
+					<div class="labelWidth60">学科：</div>
+					<input class="easyui-combobox width100" id="subject"
+						data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data:[{name:'请选择',code:'',selected:true}]
+							" />
+				</div>
+				<div class="labelLine240">
+					<div class="labelWidth60">年级：</div>
+					<input class="easyui-combobox width100" id="grade"
+						data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code: '',name: '请选择',selected:true}]
+							" />
+				</div>
+				<span class="clear10"></span>
+				<div class="labelLine250">
+					<span class="labelWidth90">作者：</span><input
+						class="easyui-validatebox" id="teacherName" name="teacherName"
+						maxlength="20" placeholder="作者名称" />
+				</div>
+				<#if "${isAreaAdmin}"=="true">
+					<div class="labelLine240">
+						<span class="labelWidth60">机构名称：</span><input
+							class="easyui-validatebox" id="orgName" name="orgName"
+							maxlength="60" placeholder="机构名称" />
+					</div>
+				</#if>
+				<div class="labelLine250">
+					<span class="labelWidth60">课程名称：</span><input
+						class="easyui-validatebox" id="lessonName" name="lessonName"
+						maxlength="40" placeholder="课程名称" />
+				</div>
+				 <span class="clear10"></span>
+				<div class="labelLine250">
+					<div class="labelWidth90">共享审核状态：</div>
+					<input class="easyui-combobox width100" id="shareCheckStatus"
+						data-options="
+							valueField: 'value',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								 {value: '',name: '不限',selected:true}
+								,{value: '60',name: '未提交'}
+								,{value: '10',name: '待审核'}
+								,{value: '20',name: '已通过'}
+								,{value: '5',name: '已退回'}
+							]" />
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60">共享级别</span> <input id="shareLevel"
+						class="easyui-combobox"
+						data-options="textField:'name',valueField:'value',editable:false">
+				</div>
+			</div>
+			<div class="btnBox">
+				<button class="btn btnBlue search" style="margin-top: 20px"
+					onclick="query()">查询</button>
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<div id="tb">
+			<button class="btn btnBlue" style="float: right"
+				onclick="exportData()">导出</button>
+			<span style="clear: both; display: none;"></span>
+		</div>
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+		 pagination:true,
+		 onBeforeLoad:onBeforeLoad,
+		 rownumbers:true,
+		 toolbar:'#tb',
+		 fit:true,
+		 url:'/manage/lesson/all/search.html',
+		 singleSelect:true
+		 ">
+			<thead>
+				<tr>
+					<th
+						data-options="field:'lessonName',formatter:lookfmt,width:280,halign:'center',align:'left'">课程名称</th>
+					<th
+						data-options="field:'orgName',width:280,halign:'center',align:'left'">机构名称</th>
+					<th
+						data-options="field:'sectionName',width:100,align:'center',halign:'center'">学段</th>
+					<th
+						data-options="field:'subjectName',width:100,align:'left',halign:'center'">学科</th>
+					<th
+						data-options="field:'gradeName',width:100,align:'left',halign:'center'">年级</th>
+					<th
+						data-options="field:'shareLevel',width:120,align:'center',halign:'center',formatter:shareLevelfmt">当前级别</th>
+					<th
+						data-options="field:'shareCheckLevel',width:150,align:'center',halign:'center',formatter:shareLevelfmt">共享审核级别</th>
+					<th
+						data-options="field:'shareCheckStatus',width:150,halign:'center',align:'center',formatter:checkStatusfmt">共享审核状态</th>
+					<th
+						data-options="field:'teacherName',width:100,align:'left',halign:'center'">作者</th>
+					<th
+						data-options="field:'createTime',width:200,align:'center',halign:'center',formatter:timeLongfmt">创建时间</th>
+					<th data-options="field:'lessonCode',hidden:true"></th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<script type="text/javascript">
+	var sectionList=eval(${sectionList});	
+	var setting=window.parent.settings;
+	var isSyncCourse=setting?setting.isSyncCourse:1;
+	$(function(){
+		sectionList.unshift({code:"-1",name:"不限"}); 
+		$('#section').combobox('loadData',sectionList);
+		$('#section').combobox('select',-1); 
+		$('#shareLevel').combobox('loadData',_SHARELEVEL);
+	})
+   
+	function sectionSelect(data){
+		sectionSubject(data.code,$('#subject'));
+		sectionGrade(data.code,$('#grade')); 
+    }
+	
+
+	function onBeforeLoad(param) {
+		param["sectionCode"]=$("#section").combobox('getValue');
+		param["subjectCode"]=$("#subject").combobox('getValue');
+		param["gradeCode"]=$("#grade").combobox('getValue');
+		param["shareCheckStatus"]=$("#shareCheckStatus").combobox('getValue');
+		<#if "${isAreaAdmin}"=="true">
+		param["orgName"]=$("#orgName").val();
+		</#if>
+		param["startDate"]=$("#startDate").val();
+		param["endDate"]=$("#endDate").val();
+		param["lessonName"]=$("#lessonName").val();
+		param["teacherName"]=$("#teacherName").val();
+		param["shareLevel"]=$("#shareLevel").combobox('getValue');
+		param["isSyncCourse"]=isSyncCourse;
+	}
+	//数据导出
+	function exportData(){
+		canDownLoad(function(){
+			var sectionCode=$("#section").combobox('getValue');
+			var subjectCode=$("#subject").combobox('getValue');
+			var gradeCode=$("#grade").combobox('getValue');
+		    var shareCheckStatus=$("#shareCheckStatus").combobox('getValue');
+			var startDate=$("#startDate").val();
+			var endDate=$("#endDate").val();
+			var lessonName=$("#lessonName").val();
+			var teacherName=$("#teacherName").val();
+		
+			//区域管理员
+			<#if "${isAreaAdmin}"=="true">
+			var orgName=$("#orgName").val();
+			window.location.href="/manage/lesson/all/export.html?sectionCode="+sectionCode+"&subjectCode="+subjectCode
+					+"&orgName="+encodeURI(encodeURI(orgName))+"&gradeCode="+gradeCode+"&startDate="+startDate+"&endDate="+endDate
+					+"&isSyncCourse="+isSyncCourse
+					+"&shareCheckStatus="+shareCheckStatus+"&lessonName="+encodeURI(encodeURI(lessonName))+"&teacherName="+encodeURI(encodeURI(teacherName));
+			<#else>
+			//机构管理员
+			window.location.href="/manage/lesson/all/export.html?sectionCode="+sectionCode+"&subjectCode="+subjectCode
+					+"&gradeCode="+gradeCode+"&startDate="+startDate+"&endDate="+endDate
+					+"&isSyncCourse="+isSyncCourse
+					+"&shareCheckStatus="+shareCheckStatus+"&lessonName="+encodeURI(encodeURI(lessonName))+"&teacherName="+encodeURI(encodeURI(teacherName));
+			</#if>		
+		})
+	}
+	
+
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+.like-checkbox {
+	display: inline-block;
+	position: relative;
+	top: 2px;
+	width: 14px;
+	height: 14px;
+	cursor: pointer;
+	background: url("../../images/auth/check.png") 0 28px;
+}
+
+.like-checkbox.active {
+	background-position: 0 0;
+}
+
+.account-set-pop {
+	padding: 0 20px;
+	overflow: hidden;
+}
+
+.account-set-pop .account-info .line-box {
+	margin-top: 15px;
+	height: 40px;
+}
+
+.account-set-pop .account-info .line-box .name {
+	line-height: 40px;
+	float: left;
+	width: 70px;
+}
+
+.account-set-pop .account-info .line-box .value {
+	float: left;
+	width: 300px;
+	margin-top: 1px;
+}
+
+.account-set-pop .account-info .line-box .value .bzt-input {
+	height: 37px;
+}
+
+.account-set-pop .option-box {
+	margin-top: 20px;
+}
+
+.section-list {
+	position: relative;
+	top: 1px;
+}
+
+.account-set-pop .option-box .name {
+	float: left;
+	width: 70px;
+}
+
+.account-set-pop .option-box .name.section-name {
+	line-height: 38px;
+}
+
+.account-set-pop .option-box .name.grade-name {
+	line-height: 62px;
+}
+
+.account-set-pop .option-box .value {
+	width: 600px;
+	height: auto;
+	float: left;
+}
+
+.account-set-pop .option-box .value .item {
+	margin-right: 15px;
+	float: left;
+	cursor: pointer;
+	min-width: 60px;
+	margin-top: 10px;
+}
+
+.account-set-pop .option-box .value .item.section {
+	margin-right: 0;
+	float: left;
+	min-width: 80px;
+	height: 38px;
+	line-height: 38px;
+	text-align: center;
+	margin-top: 0px;
+	position: relative;
+	top: 1px;
+	border: 1px solid transparent;
+}
+
+.account-set-pop .option-box .value .item.section-active {
+	border: 1px solid #e1e1e1;
+	color: #2E8CBD;
+	background: #fff;
+	border-bottom: none;
+}
+
+.account-set-pop .option-box .value .subject-box {
+	width: 100%;
+	padding: 20px;
+	border: 1px solid #e1e1e1;
+}
+
+.account-set-pop .option-box .value .grade-box {
+	width: 100%;
+	padding: 20px;
+	border: 1px solid #e1e1e1;
+}
+
+.account-set-pop .option-box .value .grade-box .item {
+	margin-top: 0;
+}
+
+.account-set-pop .btn-box {
+	position: absolute;
+	bottom: 30px;
+	right: 20px;
+}
+
+.clearfix:before, .clearfix:after {
+	content: " ";
+	display: table;
+}
+
+.clearfix:after {
+	clear: both;
+}
+
+.text-color-light {
+	color: #898989;
+}

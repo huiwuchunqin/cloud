@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/> <#include
+"/manage/common/resource_display.html">
+<script type="text/javascript" src="/manage/template/js/manageRes/resUpload.js"></script>
+<script type="text/javascript" src="/manage/template/js/manageRes/docResAdd.js"></script>
+<script type="text/javascript"
+	src="/manage/moveToCommon/js/knockout-easyui-Lite/knockout-easyui.js"></script>
+<title>视频资源预览</title>
+<style>
+.row_list li>span {
+	min-width: 97px;
+	display: inline-block;
+	text-align: right;
+}
+
+.row_list li>span.required {
+	min-width: 0px;
+}
+
+.row_list li {
+	float: left
+}
+
+.childList {
+	margin-left: 100px
+}
+
+;
+.childList>div {
+	padding: 5 px
+}
+
+.childList>div>span {
+	min-width: 97px
+}
+
+a.cursor {
+	color: blue;
+}
+
+.combobox-item {
+	min-height: 20px;
+}
+
+.listSpan {
+	min-width: 90px;
+	margin-left: 15px;
+	text-align: right;
+	color: blue;
+}
+</style>
+</head>
+<body class="easyui-accordion">
+	<div  title="观看资源"  data-options="animate:true,fit:true" 
+		style="height: 350px; overflow: auto"><@resourceDisplay
+		r_resource=resourse/></div>
+	<div title="视频信息" data-options="animate:true,fit:true,selected:true">
+		<div style="position: relative; top: 20px; padding-left: 10px">
+			<div class="labelLine320">
+				<span class="labelWidth60">分享级别:</span> <span>${res.shareLevelStr} </span>
+			</div>
+			<!-- <div class="labelLine320">
+				<span class="labelWidth60">下载点数:</span> <span>${res.downloadPoints}</span>
+			</div> -->
+			<div class="labelLine320">
+				<span class="labelWidth60">允许下载?</span> <span>${res.allowDownLoad}</span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">允许预览? </span> <span>${res.allowBrowser}</span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">视频来源：</span><span>${res.sourceName}</span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">资源性质：</span><span>${res.unionResStr}</span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">上传时间：</span><span>${res.makeTime}</span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">上传人：</span><span>${res.uploader} </span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">点击次数：</span><span>${res.clickCount} </span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">浏览总数：</span><span>${res.browseCount}</span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">下载总数：</span><span>${res.downloadCount}</span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">引用总数：</span><span>${res.referCount}</span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">收藏总数：</span><span>${res.favoriteCount}</span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">点赞总数：</span><span>${res.goodCount} </span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">点踩总数：</span><span>${res.badCount} </span>
+			</div>
+			<div class="labelLine320">
+				<span class="labelWidth60">评论总数：</span><span>${res.commentCount}</span>
+			</div>
+				<span class="clear"></span>
+            <div class="labelLine640">
+				<span class="labelWidth60">所属学段:</span> <#list relateSection as
+				section> <span class="listSpan">${section.name}</span> </#list>
+			</div>
+			<span class="clear"></span>
+			<div class="labelLine640">
+				<span class="labelWidth60">所属年级:</span> <#list relateGrade as
+				grade> <span class="listSpan">${grade.name}</span> </#list>
+			</div>
+			<span class="clear"></span>
+
+			<div class="labelLine640">
+				<span class="labelWidth60">所属学科:</span> <#list relateSubject as
+				subject> <span class="listSpan">${subject.name}</span> </#list>
+			</div>
+			<span class="clear"></span>
+			<div class="labelLine640">
+				<span class="labelWidth60">教材版本:</span> <#list relateVersion as
+				version> <span class="listSpan">${version.name}</span> </#list>
+			</div>
+			<span class="clear"></span>
+
+			<div class="labelLine640">
+				<span class="labelWidth60">知识点:</span> <#list relateKnowLedgeList as
+				knowledge> <span class="listSpan">${knowledge.name},</span> </#list>
+			</div>
+			<span class="clear"></span>
+
+			<div class="labelLine640">
+				<span class="labelWidth60">教材章节:</span> <#list relateChapterList as
+				chapter> <span class="listSpan">${chapter.name},</span> </#list>
+			</div>
+		
+			<span class="clear"></span>
+			<div class="labelLine640">
+				<span class="labelWidth60">资源描述：</span><span>${res.resDesc}</span>
+			</div>
+			<span class="clear"></span>
+			<div class="labelLine320">
+				<span class="labelWidth60">审核状态：</span> <span>${res.checkStatusStr}</span>
+			</div>
+			<span class="clear"></span>
+			<#if isExamine==1>
+			<div style="margin:10px auto;">
+			<input style="margin-left:100px" name="checkStatus" type="radio" value="20">审核通过  <input style="margin-left:100px" name="checkStatus"type="radio" value="30">审核不通过
+			</div>	
+			<div class="btnBox"  style="height:55px">
+				<a class="btn btnConfirm" onclick="save()">保存</a>
+				<a class="btn btnCancel"  onclick="closeWin()">取消</a>
+			</div>		
+			</#if>
+		</div>
+	</div>
+<script type="text/javascript">
+var resId=${res.id};
+function save(){
+var resTypeL2='${res.resTypeL2}';
+var status=$("input[type='radio']:checked").val();
+var opt={
+		url:'/manage/res/examine.html',
+		data:{
+			status:status,
+			resId:resId,
+			type:10,
+		},
+		type:'post',
+		success:function(res){
+			$.messager.alert("信息",res.msg,"info");
+			easyui_closeTopWindow(true);
+		}
+	}	
+	if(status==""||status==undefined){
+		$.messager.alert("信息","请选择审核状态","info");
+		return false;
+	}
+	if(resTypeL2==""&&status==20){
+		$.messager.alert("提示","所属学段,所属学科等必填信息尚未填写,请先填写","info");
+	}else{
+		$.ajax(opt);	
+	}
+
+}
+function closeWin(){
+	easyui_closeTopWindow();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+
+<!-- 视频 -->
+<#macro video resource>
+
+    <link href="/manage/moveToCommon/js/plugins/video-js/video-js.css" rel="stylesheet">
+	<script src="/manage/moveToCommon/js/plugins/video-js/video.js"></script>
+	<script>
+  		videojs.options.flash.swf = "/manage/moveToCommon/js/plugins/video-js/video-js.swf"
+	</script>
+	<div id="hide_div_for_width" style="width:100%"></div>
+	<video id="resource_video" class="video-js vjs-default-skin"
+	  controls preload="auto" 
+	  src="${videoHost}/${resource.highPath}" 
+	  data-setup>
+	 <source src="${videoHost}/${resource.highPath}" type='video/mp4' />
+	 <p class="vjs-no-js">To view this video please enable JavaScript, and consider upgrading to a web browser that <a href="http://videojs.com/html5-video-support/" target="_blank">supports HTML5 video</a></p>
+	</video>
+	
+    <script type="text/javascript">
+    var screen_width=$("#hide_div_for_width").width();
+    videojs("resource_video",{
+    	width:screen_width,
+    	height:screen_width*9/16
+    });
+    </script>
+</#macro>
+
+<!-- 音频 -->
+<#macro audio resource>
+     <audio src="${videoHost}/${resource.highPath}" autoplay controls style="width:100%"></audio>
+</#macro>
+
+<!-- 一般文档 -->
+<#macro document resource>
+<div id="readerContent" style="width: 100%;">
+	<div class="vod" style="margin: 300px auto;">
+		<img src="/manage/moveToCommon/js/plugins/docreader/image/icon_loading3.gif" />
+	</div>
+</div>
+
+<script src="/manage/moveToCommon/js/bzt-doc-player/jquery.bzt.doc.player.js"></script>
+<script type="text/javascript">
+
+var url="${docHost}/${resource.convertedPathImages}".replace("%.swf",1+".jpg");
+var config={
+		width: 800,
+		height:600,
+		mode: "single",
+		url: "/manage/res/getJsonForRes.html?resId=${resource.id}",
+		toolbarAutoHide: true,
+		initPageNo: 1,
+		fitWithHeight: true,
+}
+$(document).ready(function(){
+	var reader = $("#readerContent").bztdocplayer(config);
+});
+</script>
+</#macro>
+
+<!-- 其他 -->
+<#macro other msg>
+<div id="readerContent" style="width: 100%;height:426px">
+    <#if (msg)>
+    ${msg}
+    <#else>
+    资源暂时无法查看
+    </#if>  
+</div>
+</#macro>
+
+<!-- 互动PPT -->
+<#macro ppt resource>
+<iframe id="ppt_res"  src="${docHost}/${resource.convertedPathImages}" style="width: 100%;height:100%">
+
+</iframe>
+<script type="text/javascript">
+$("#ppt_res").height($("#ppt_res").width() * 0.618);
+</script>
+</#macro>
+
+<#macro resourceDisplay r_resource>
+	<!-- 资源转码成功 -->
+	<#if (r_resource.resStatus=20)>
+	    <!-- 视音频 -->
+	    <#if (r_resource.resTypeL1=10)>
+		    <!-- 视频 -->
+		     <@video resource=r_resource/>
+		   
+	    <!-- 文档 -->
+	    <#elseif (r_resource.resTypeL1=20)>
+	        <!-- 互动ppt -->
+	        <#if (r_resource.flagDynamicPPT=1)>
+	        	 <@ppt resource=r_resource/>
+	        <!-- 一般文档 -->
+	        <#else>
+	             <@document resource=r_resource/>
+	        </#if>
+	    <!-- 其他 -->
+	    <#else>
+	        <@other />
+	    </#if>
+	<!-- 资源转码中 -->
+    <#elseif (r_resource.resStatus=10)>
+    	<@other msg="文件转码中，请稍后"/>
+    <!-- 资源转码失败 -->
+    <#elseif (r_resource.resStatus=30)>
+        <@other msg="文件转码失败，请联系管理员"/>
+    <#else>
+        <@other />
+    </#if>
+</#macro>

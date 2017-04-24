@@ -1,0 +1,71 @@
+<!-- 
+<script type="text/javascript" src="${bztSyscommHost}/libjs?v=0.0.1"></script>
+<script type="text/javascript" src="${bztSyscommHost}/static/bztlib/js/common/lib/moment.min.js"></script>
+<script type="text/javascript" src="../../manage/template/js/easyui_inc.js"></script>
+<script type="text/javascript" src="../../manage/template/js/jquery.highlighter.js"></script>
+<script type="text/javascript" src="../../manage/template/js/codeMaster.js"></script>
+<script type="text/javascript" src="../../manage/template/js/jquery.query.js"></script>
+<script type="text/javascript" src="../../manage/template/js/support.js"></script>
+<script type="text/javascript" src="../../manage/template/js/codeMaster.js"></script>
+<script type="text/javascript" src="../../manage/template/js/support.js"></script>
+<script type="text/javascript" src="${bztSyscommHost}/static/plugins/easyui-1.4.2/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="${bztSyscommHost}/static/plugins/easyui-1.4.2/easyui.validatebox.extend.js"></script>
+<script type="text/javascript" src="${bztSyscommHost}/static/plugins/my97-4.8/WdatePicker.js"></script>
+<script type="text/javascript" src="${bztSyscommHost}/static/plugins/easyui-1.4.2/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript " src="../../manage/template/js/knockout.mapping-2.4.1.js "></script>
+<script type="text/javascript" src="../manage/moveToCommon/js/knockout-easyui-Lite/knockout-easyui.js"></script>
+<script type="text/javascript" src="../manage/moveToCommon/js/kovalidate/knockout.validation.min.js"></script>
+easyui 鐨勫叡閫氬簱
+<script type="text/javascript" src="../../manage/template/js/common.datagrid.js"></script> -->
+
+
+
+
+
+<script type="text/javascript" src="../../manage/template/js/jquery-1.8.3.min.js"></script>
+<script type="text/javascript" src="../../manage/template/js/underscore-min.js"></script>
+<script type="text/javascript" src="../../manage/template/js/easyui_inc.js"></script>
+<script type="text/javascript" src="../../manage/template/js/jquery.highlighter.js"></script>
+<script type="text/javascript" src="../../manage/template/js/codeMaster.js"></script>
+<script type="text/javascript" src="../../manage/template/js/jquery.query.js"></script>
+<script type="text/javascript" src="../../manage/template/js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../../manage/template/js/moment.min.js"></script>
+<script type="text/javascript" src="../../manage/template/js/common.validatebox.js"></script>
+<script type="text/javascript" src="../../manage/template/js/My97DatePicker/WdatePicker.js"></script>
+<script type="text/javascript" src="../../manage/template/js/easyui.validatebox.extend.js"></script>
+<script type="text/javascript" src="../../manage/template/js/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="../../manage/template/js/support.js"></script>
+<script type="text/javascript" src="../../manage/template/js/common.datagrid.js"></script>
+<script type="text/javascript" src="../../manage/template/js/layer/layer.js"></script>
+<script type="text/javascript " src="../../manage/template/js/knockout-3.3.0.js "></script>
+<script type="text/javascript " src="../../manage/template/js/knockout.validation.min.js "></script>
+<script type="text/javascript " src="../../manage/template/js/knockout.mapping-2.4.1.js "></script>
+<script type="text/javascript " src="../../manage/template/helper/helper.js "></script>
+<script type="text/javascript" src="../../manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript " src="../../manage/template/common/constants.js "></script>
+<script type="text/javascript " src="../../manage/template/fmt/fmt.js "></script>
+<script type="text/javascript " src="../../manage/template/photoSwipe-master/PhotoSwipe-master/dist/photoswipe.min.js"></script>
+<script type="text/javascript " src="../../manage/template/photoSwipe-master/PhotoSwipe-master/dist/photoswipe-ui-default.min.js"></script>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="renderer" content="webkit">
+<script type="text/javascript">
+var $ajax=$.ajax;
+$.ajax =function(option){
+	var success=option.success;
+	if(success&&typeof success==='function'){
+		option.success=function(result,status,obj){
+			var booleanSessionOut=obj.getResponseHeader("sesstionOut");
+			if(booleanSessionOut&&booleanSessionOut==1){
+				top.location.href="/manage/login.html";
+			}else{
+				success.apply(this, arguments);	
+			}
+		} 
+	}
+	 return $ajax.apply(this, arguments);
+}
+
+function dataTooMany(){
+	alert("数据有点多,加点查询条件限制一下");
+}
+</script>

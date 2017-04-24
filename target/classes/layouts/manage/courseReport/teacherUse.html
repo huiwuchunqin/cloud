@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>课程统计-教师使用情况统计</title> <#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<style type="text/css">
+#tb {
+	height: 30px;
+	line-height: 30px;
+	background-color: #FFF8DC;
+	padding: 5px;
+}
+
+.attr {
+	width: 110px;
+	display: inline-block;
+	color: #898989;
+}
+
+.attr>label {
+	color: black;
+}
+</style>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'">
+			<div class="box">
+				<div class="labelBox">
+					<div class="labelLine440">
+						<span class="labelWidth60">日期：</span> <input id="startDate"
+							class="Wdate"
+							onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})"/>
+						~ <input id="endDate" class="Wdate"
+							onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})"/>
+					</div>
+					<div class="clear10"></div> 
+					<div class="labelLine240">
+						<span class="labelWidth60">姓名：</span><input
+							class="easyui-validatebox width130" id="teacherName"
+							name="teacherName" maxlength="36" placeholder="请输入教师姓名" /> 
+					</div>
+					<div class="labelLine240">
+						<span class="labelWidth60">学校：</span><input
+							class="easyui-validatebox width130" id="orgName" name="orgName"
+							maxlength="60" placeholder="请输入学校名称" />
+					</div>
+				</div>
+				<div class="btnBox">
+					<button class="btn btnBlue search" style="margin-top: 10px"
+						onclick="query()">查询</button>
+				</div>
+			</div>
+		</div>
+		<div data-options="region:'center'">
+			<div id="tb">
+				<span class="attr" style="margin-left: 10px">人数：<label
+					id="teacherNum"></label></span>
+				<!-- <span class="attr"
+					style="margin-left: 10px">被引用数：<label id="referCount"></label></span> -->
+				<span class="attr" style="margin-left: 10px">引用数：<label
+					id="referedCount"></label></span>
+				<button class="btn btnBlue" style="float: right"
+					onclick="exportData()">导出</button>
+				<span style="clear: both; display: none"></span>
+			</div>
+			<table id="dg" class="easyui-datagrid"
+				data-options="
+					 pagination:true,
+					 onBeforeLoad:onBeforeLoad,
+					 rownumbers:true,
+					 singleSelect:true,
+					 toolbar:'#tb',
+					 fit:true,
+					 url:'/manage/course/teacherUse/search.html'
+		        ">
+				<thead>
+					<tr>
+						<th
+							data-options="field:'teacherName',width:100,halign:'center',align:'left'">姓名</th>
+						<th
+							data-options="field:'loginAccount',width:100,halign:'center',align:'left'">登录账号</th>
+						<th
+							data-options="field:'orgName',width:300,halign:'center',align:'left'">学校</th>
+						<!-- <th
+							data-options="field:'referCount',width:100,halign:'center',align:'center'">被引用数</th> -->
+						<th data-options="field:'teacherCode',hidden:true"></th>
+						<th
+							data-options="field:'referedCount',width:100,halign:'center',align:'center'">引用数</th>
+						<th data-options="field:'teacherCode',hidden:true"></th>
+						<th data-options="field:'orgCode',hidden:true"></th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+	<script type="text/javascript">
+		//查询
+		function query() {
+			$('#dg').datagrid('reload');
+			queryTotal();
+		}
+
+		//查询总数
+		function queryTotal() {
+			var teacherName = $("#teacherName").val();
+			var orgName = $("#orgName").val();
+			var startDate = $("#startDate").val();
+			var endDate = $("#endDate").val();
+			if (endDate == "" || endDate == null) {
+				endDate = moment(new Date()).format("YYYY-MM-DD");
+			}
+			var opts = {
+				url : '/manage/course/teacherUse/searchTotal.html',
+				type : "post",
+				data : {
+					teacherName : teacherName,
+					orgName : orgName,
+					startDate : startDate,
+					endDate : endDate
+				},
+				success : function(data) {
+					$('#teacherNum').text(data.teacherNum || 0);
+					$('#referCount').text(data.referCount || 0);
+					$('#referedCount').text(data.referedCount || 0);
+				},
+				error : function(XMLHttpRequest, textStatus, errorThrown) {
+					alert("网络繁忙请稍后再试");
+				},
+				complete : function() {
+
+				}
+			}
+			$.ajax(opts);
+		}
+
+		$(function() {
+			queryTotal();
+		})
+
+		function onBeforeLoad(param) {
+			param["teacherName"] = $("#teacherName").val();
+			param["orgName"] = $("#orgName").val();
+			param["startDate"] = $("#startDate").val();
+			var endDate = $("#endDate").val();
+			if (endDate == "" || endDate == null) {
+				endDate = moment(new Date()).format("YYYY-MM-DD");
+			}
+			param["endDate"] = endDate;
+		}
+
+		//导出数据
+		function exportData() {
+			var teacherName = $("#teacherName").val();
+			var orgName = $("#orgName").val();
+			var startDate = $("#startDate").val();
+			var endDate = $("#endDate").val();
+			if (endDate == "" || endDate == null) {
+				endDate = moment(new Date()).format("YYYY-MM-DD");
+			}
+			var downloadUrl = "/manage/course/teacherUse/export.html?startDate="
+					+ startDate
+					+ "&teacherName="
+					+ encodeURI(teacherName)
+					+ "&orgName="
+					+ encodeURI(orgName)
+					+ "&endDate="
+					+ endDate
+					+ "&fileName=" + getExportName();
+			downloadHelper(downloadUrl);
+		}
+	</script>
+</body>
+</html>

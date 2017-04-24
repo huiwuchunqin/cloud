@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>教材知识点信息</title> <#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript"
+	src="/manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript" src="/manage/template/helper/helper.js"></script>
+</head>
+<style type="text/css">
+.shang {
+	background: url(/manage/template/images/moveUp.png) no-repeat center;
+	width: 20px;
+	position: relative;
+	top: 3px;
+	height: 15px;
+	display: inline-block;
+	margin-left: 30px
+}
+
+.xia {
+	background: url(/manage/template/images/moveDown.png) no-repeat center;
+	width: 20px;
+	position: relative;
+	top: 3px;
+	height: 15px;
+	display: inline-block;
+}
+.datagrid-row-selected  #moveArea,.datagrid-row-over  #moveArea{
+	display:inline-block!important
+}
+#moveArea{
+display:none
+}
+</style>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north',split:false,border:false">
+			<div class="box form">
+				<div class="labelBox">
+					<!-- 学段 -->
+					<div class="labelLine240">
+						<div class="labelWidth60">学段：</div>
+						<input class="easyui-combobox" id="section"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{code: '',name: '不限',selected:true}
+								<#if (sectionList?exists && sectionList?size>0)>
+							  		<#list sectionList as section>
+							  			,{code:'${section.code}', name:'${section.name?default('&nbsp;')}'}
+							  		</#list>
+								</#if>
+							],onSelect:sectionSelect" />
+					</div>
+					<!-- 学科 -->
+					<div class="labelLine240">
+						<div class="labelWidth60">学科：</div>
+						<input class="easyui-combobox" id="subject"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code: '',name: '不限',selected:true}]
+							" />
+					</div>
+					<!-- 年级 -->
+					<!-- 	<div class="labelLine300">
+						<div class="labelWidth60">年级</div>
+						<input class="easyui-combobox" id="grade"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code: '',name: '请选择',selected:true}]
+							
+							" />
+					</div> -->
+					<div class="clear" style="height: 5px"></div>
+					<!-- 教材版本 -->
+					<!-- 	<div class="labelLine300">
+						<div class="labelWidth60">教材版本</div>
+						<input class="easyui-combobox" id="version"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code:'',name: '请选择',selected:true}],
+							onSelect:textbookVerSelect	
+							" />
+					</div> -->
+					<!-- 教材 -->
+					<!-- 	<div class="labelLine300">
+						<div class="labelWidth60">教材</div>
+						<input class="easyui-combobox" id="textbook" data-options="
+							valueField: 'tbCode',
+							textField: 'tbName',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{tbCode:'',tbName: '请选择教材版本',selected:true}]							
+							"/>
+					</div> -->
+					<!-- 学期 -->
+					<!-- 	<div class="labelLine300">
+						<div class="labelWidth60">学期</div>
+						<input class="easyui-combobox" id="term" data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+							{code:'',name: '请选择',selected:true},
+							{code:'1',name: '上学期'},
+							{code:'2',name: '下学期'},
+							]"/>
+					</div> -->
+
+				</div>
+				<div class="btnBox">
+					<button id="btnAdd" class="btn btnBlue" onclick="addSerial()">新增体系</button>
+					<button id="btnSearch" class="btn btnBlue search l10"
+						onclick="queryKnowledge()">查询</button>
+				</div>
+			</div>
+		</div>
+		<!-- <div data-options="region:'center',border:false,title:'教材知识点结构'">
+			<ul class="easyui-tree" id="knowledge_tree" data-options="
+				animate: true"></ul>
+		 </div>-->
+		<div data-options="region:'center'">
+			<table id="knowledge_tree">
+
+			</table>
+			<div id="knowledge_mm" class="easyui-menu" style="width: 120px"
+				data-options="onClick:knowledgeMenuHandler">
+				<div id="btnAddSibling"
+					data-options="name:'addSibling',iconCls:'icon-add'">添加同级节点</div>
+				<div id="btnAddChild"
+					data-options="name:'addChild',iconCls:'icon-add'">添加子节点</div>
+				<div id="btnUpdate"
+					data-options="name:'editKnowledge',iconCls:'icon-edit'">修改</div>
+				<div id="btnDelete"
+					data-options="name:'deleteKnowledge',iconCls:'icon-remove'">删除</div>
+			</div>
+			<div id="serial_mm" class="easyui-menu" style="width: 120px;"
+				data-options="onClick:serialMenuHandler">
+				<div id="addSerial"
+					data-options="name:'addSerial',iconCls:'icon-add'">添加体系</div>
+				<div id="addKnowledge"
+					data-options="name:'addKnowledge',iconCls:'icon-add'">添加知识点</div>
+				<div id="editSerial"
+					data-options="name:'editSerial',iconCls:'icon-edit'">修改</div>
+				<div id="deleteSerial"
+					data-options="name:'deleteSerial',iconCls:'icon-remove'">删除</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		$(function(){
+			<#if "${sectionCode}" != ""&&"${subjectCode}" != "">
+			   $('#section').combobox('setValue',"${sectionCode}");
+			   sectionSubject("${sectionCode}", $('#subject'));
+			   $('#subject').combobox('setValue',"${subjectCode}"); 
+			</#if>
+			$('#knowledge_tree').treegrid({    
+				 idField:'gid',
+				 treeField:'text',
+				 fit:true,
+				 striped:false,
+				 rowStyler:rowStyle,
+				 onContextMenu:gridOnContextMenu,
+				 onBeforeLoad:onBeforeLoad,
+				 url:'/manage/textbook/getKnowledgeTree.html',
+			     columns:[[    
+			        {title:'体系名称',field:'text',formatter:sortfmt,align:'left',halign:'center',width:400},    
+			        {title:'学段',field:'sectionName',halign:'center',width:70,align:'center'},
+			        {title:'学科',field:'subjectName',halign:'center',width:90,align:'left'},
+			        {title:'描述',field:'description',halign:'center',align:'left',width:400}    
+			     ]]  
+			});  
+		})
+	
+		//学段选择事件
+		function sectionSelect(record) {
+			sectionGrade(record.code, $('#grade'));
+			sectionSubject(record.code, $('#subject'));
+		}
+		//年级选择事件
+		function gradeSelect(record) {
+			gradeSubject(record.code, $('#subject'));
+		}
+		//学科选择事件
+		function subjectSelect(record) {
+			subjectTextbookVer(record.code, $('#version'))
+		}
+		//教材版本选择事件
+		function textbookVerSelect(record) {
+			var sectionCode = $("#section").combobox('getValue');
+			var subjectCode = $("#subject").combobox('getValue');
+			var gradeCode = $("#grade").combobox('getValue');
+			textbookVerTextbook(sectionCode, subjectCode, gradeCode,
+					record.code, $('#textbook'))
+		}
+		//当右键点击节点时触发菜单
+		function gridOnContextMenu(e, node) {
+			e.preventDefault();
+			$(this).treegrid("select", node.gid);
+			if (node.nodeType == "knowledgeSerial") {
+				//显示右键菜单
+				$("#serial_mm").menu("show", {
+					left : e.pageX,
+					top : e.pageY
+				});
+			} else if (node.nodeType == "knowledge") {
+				//显示右键菜单
+				$("#knowledge_mm").menu("show", {
+					left : e.pageX,
+					top : e.pageY
+				});
+			}
+
+		}
+		//样式 
+		function rowStyle(row) {
+			if (row != "" && row != undefined
+					&& row.nodeType == "knowledgeSerial") {
+				return 'font-family: SimSun;font-weight: bold;font-size:30px;weight:20px';
+			}
+		}
+		//章节右击菜单选项 
+		function knowledgeMenuHandler(item) {
+			var node = $('#knowledge_tree').treegrid('getSelected');
+			var level = node.level;
+			var pcode = node.pcode;
+			var name = item.name;
+			if (name == "addSibling" || name == "addChild") {
+				if (name == "addChild") {
+					level = level + 1
+					pcode = node.code;
+					appendNodeId = node.gid;
+				}
+
+				addKnowledge(level, pcode, node.kpSerialCode, name, node.gid);
+			} else if (name == "editKnowledge") {
+				editKnowledge(node);
+			} else if (name = "deleteKnowledge") {
+				delKnowledge(node.gid);
+			}
+
+		}
+		//知识体系右击菜单选项 
+		function serialMenuHandler(item) {
+			var node = $('#knowledge_tree').treegrid('getSelected');
+			var name = item.name;
+			if (name == "addSerial") {
+				addSerial("", node.gid);
+			} else if (name == "addKnowledge") {
+				addKnowledge(1, "", node.code, "addChild", node.gid)
+			} else if (name == "editSerial") {
+				editSerial(node);
+			} else if (name = "deleteSerial") {
+				delSerial(node.gid);
+			}
+		}
+		//新增知识点
+		function addKnowledge(level, pcode, kpSerialCode, type, gid) {
+			var url = "/manage/textbook/knowledgeAdd.html?level=" + level
+					+ "&pcode=" + pcode + "&kpSerialCode=" + kpSerialCode;
+			easyui_openNoResizeWindow("新增知识点", 500, 280, url, function(r) {
+				if (r == undefined || r == "")
+					return false;
+				if (r) {
+					if (type == "addSibling") {
+						$('#knowledge_tree').treegrid('insert', {
+							after : gid,
+							data : r
+						});
+					} else {
+						var dataList = new Array();
+						dataList.push(r);
+						$('#knowledge_tree').treegrid('append', {
+							parent : gid,
+							data : dataList
+						});
+					}
+
+				}
+			})
+		}
+		//新增知识点体系
+		function addSerial(kpSerialCode, gid) {
+			var url = '/manage/knowledgeSerial/knowledgeSerialAdd.html';
+			if (kpSerialCode != "" && kpSerialCode != undefined)
+				url = '/manage/knowledgeSerial/knowledgeSerialAdd.html?kpSerialCode='
+						+ kpSerialCode;
+			easyui_openNoResizeWindow("新增知识点体系", 663, 450, url, function(r) {
+				if (r == undefined || r == "")
+					return false;
+				$('#knowledge_tree').treegrid('reload');
+				if (r && gid) {
+					$('#knowledge_tree').treegrid('insert', {
+						after : gid,
+						data : r
+					});
+				} else {
+					var list = new Array();
+					list.push(r);
+					$('#knowledge_tree').treegrid('append', {
+						data : list
+					});
+				}
+			})
+		}
+		//修改知识点
+		function editKnowledge(node) {
+			easyui_openNoResizeWindow("修改知识点", 450, 280,
+					'/manage/textbook/editKnowledge.html?gid=' + node.gid,
+					function(r) {
+						if (r == undefined || r == "")
+							return false;
+						if (r) {
+							node.text = r.text;
+							node.description = r.description;
+							$('#knowledge_tree').treegrid('update', {
+								id : node.gid,
+								row : node
+
+							})
+						}
+					})
+		}
+		//修改知识点体系
+		function editSerial(node) {
+			easyui_openNoResizeWindow("修改知识点体系", 450, 280,
+					'/manage/knowledgeSerial/editKnowledgeSerial.html?gid='
+							+ node.gid, function(r) {
+						if (r == undefined || r == "")
+							return false;
+						if (r) {
+							node.text = r.text;
+							node.description = r.description;
+							$('#knowledge_tree').treegrid('update', {
+								id : node.gid,
+								row : node
+
+							})
+						}
+					})
+		}
+		//删除知识点
+		function delKnowledge(gid) {
+			$.messager.confirm("信息", "确认要删除吗?", function(r) {
+				if (r == undefined)
+					return;
+				if (r) {
+					$.ajax({
+						url : '/manage/textbook/delKnowledge.html',
+						data : {
+							gid : gid,
+						},
+						type : 'post',
+						success : function(res) {
+							alert(res.msg);
+							if (res.success) {
+								$('#knowledge_tree').treegrid('remove', gid);
+							}
+						}
+					})
+				}
+			})
+		}
+		//删除知识点体系
+		function delSerial(gid) {
+			$.messager
+					.confirm(
+							"信息",
+							"确认要删除吗?",
+							function(r) {
+								if (r) {
+								$.ajax({
+									url : '/manage/knowledgeSerial/delKnowledgeSerial.html',
+									data : {
+										gid : gid,
+									},
+									type : 'post',
+									success : function(res) {
+										alert(res.msg);
+										if (res.success) {
+											$('#knowledge_tree')
+													.treegrid(
+															'remove',
+															gid);
+										}
+									}
+								})
+								}
+							})
+		}
+		var subjectCode = "";
+		var textbookCode = "";
+		var sectionCode = "";
+		var gradeCode = "";
+		var textbookVerCode = "";
+		var textbookCode = "";
+		var termCode = "";
+		
+		//排序格式化
+		function sortfmt(value,row) {
+			if(row.nodeType!="knowledgeSerial"){
+				return value+"<span id='moveArea'>"
+							+"<span class='shang' onclick='move(this,\""+row.kpSerialCode+"\",\""+row.gid+"\",1)'></span>"
+							+"<span class='xia' onclick='move(this,\""+row.kpSerialCode+"\",\""+row.gid+"\",2)'></span>"
+							+"</span>"
+			}else{
+				return value;
+			}
+		}
+		/*
+		*@param moveType 1向上 2向下	
+		*/
+		function move(obj,kpSerialCode,gid,moveType){
+				$.ajax({
+					url:'/manage/textbook/updateKnowledgeDispOrder.html',
+					data:{
+						gid:gid,
+						type:moveType,
+						kpSerialCode:kpSerialCode,
+					},
+					async:false,
+					success:function(res){
+						if(res.success){
+							var parent=$('#knowledge_tree').treegrid('getParent',gid);	
+						/* 	if(parent){
+								$('#knowledge_tree').treegrid('reload',parent.gid);
+							}else{
+								$('#knowledge_tree').treegrid('reload');	
+							} */
+							if(parent){
+								var siblings=$('#knowledge_tree').treegrid('getChildren',parent.gid);
+								siblings=_.filter(siblings,function(item){return item._parentId==parent.gid});
+								var orgGid=_.pluck(siblings,'gid');
+								var array=new Array();
+								if(moveType==1){
+									for(var i=0;i<siblings.length;i++){
+										if(siblings[i].gid==gid){
+											if(i==0){
+												return false;
+											}
+											var temp=siblings[i-1];
+											siblings[i-1]=siblings[i];
+											siblings[i]=temp;
+											break;
+										}
+									}
+								}else{
+									for(var i=0;i<siblings.length;i++){
+										if(siblings[i].gid==gid){
+											if(i==siblings.length-1){
+												return false;
+											}
+											var temp=siblings[i+1];
+											siblings[i+1]=siblings[i];
+											siblings[i]=temp;
+											break;
+										}
+									}	
+								}
+								for(var i=0;i<siblings.length;i++){
+									array.push(siblings[i])
+								}
+								for(var i=0;i<orgGid.length;i++){
+									$('#knowledge_tree').treegrid('remove',orgGid[i]);
+									$('#knowledge_tree').treegrid('append',{
+										parent:parent.gid,
+										data:[array[i]],
+									});
+								}
+							}
+						}else{
+							alert(res.msg);
+						}
+					}
+				})
+		}
+		
+		function onBeforeLoad(row, param) {
+			//学段
+			sectionCode = $('#section').combobox('getValue');
+			//学科
+			subjectCode = $('#subject').combobox('getValue');
+			if (row != undefined && row != null) {
+				param["nodeType"] = row.nodeType;
+				param["code"] = row.code;
+			}
+			param["sectionCode"] = sectionCode;
+			param["subjectCode"] = subjectCode;
+			param["gradeCode"] = gradeCode;
+			param["textbookCode"] = textbookCode;
+			param["termCode"] = termCode;
+			param["textbookVerCode"] = textbookVerCode;
+		}
+		
+		//查询教材知识点
+		function queryKnowledge() {
+			//查询
+			$('#knowledge_tree').treegrid('reload');
+		}
+	</script>
+</body>
+</html>

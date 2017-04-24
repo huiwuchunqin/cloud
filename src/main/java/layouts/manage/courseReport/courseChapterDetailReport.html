@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>课程章节体系详情</title> 
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<link rel="stylesheet"
+	href="/manage/template/js/zTree_v3/css/zTreeStyle/zTreeStyle.css"
+	type="text/css">
+<script type="text/javascript"
+	src="/manage/moveToCommon/js/plugins/zTree_v3/js/jquery.ztree.core-3.5.js"></script>
+<link rel="stylesheet" type="text/css"
+	href="/manage/template/reportTableGenerate/reportTable.css" />
+<script type="text/javascript"
+	src="/manage/template/reportTableGenerate/reportTableGenerate.js"></script>
+<style>
+.td {
+	width: 100px;
+	top: 0px;
+	bottom: 0px;
+	text-indent: 2px;
+}
+ul.title{
+    border: 1px solid #009DD9;
+    height: 33px;
+}
+ul.title >li{
+    float: left;
+    list-style: none;
+    background-color: white;
+    height: 100%;
+    text-align: center;
+    line-height: 33px;
+    width: 100%;
+    color: #009DD9;
+}
+.treeDiv{
+padding: 5px 10px;
+}
+.treeDiv ul{
+border:none
+}
+ul.title >li.active{
+ background-color: #009DD9;
+ color:white;
+}
+.searchDiv{
+    position: relative;
+    padding-right: -2px;
+    padding-left: 12px;
+    border: 1px solid #CCCCCC;
+    background-color: white
+}
+.searchDiv>input{
+    width: 82%;
+    height: 25px;
+    line-height: 25px;
+    border: none;
+    outline: none;
+}
+.searchDiv>i{
+	position: absolute;
+    top: 6px;
+    right: 6px;
+    color: #009DD9;
+    font-size: 18px;
+}
+</style>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'" class="tbClass">
+		<div class="attr">
+			<span>学段：</span><label id="sectionName"></label>
+		</div>
+		<div class="attr">
+			<span>学科：</span><label id="subjectName"></label>
+		</div>
+		<div class="attr">
+			<span>年级：</span><label id="gradeName"></label>
+		</div>
+		<div class="attr">
+			<span>教材版本：</span><label id="tbvName"></label>
+		</div>
+		<div class="attr">
+			<span>章节节点数：</span><label id="chapterNum"></label>
+		</div>
+		<div class="attr">
+			<span>课程数：</span><label id="lessonNum"></label>
+		</div>
+		<div class="attr">
+			<span>课程覆盖率：</span><label id="lessonCoverage"></label>
+		</div>
+		<button class="btn btnBlue align-right" onclick="exportData()">导出</button>
+		
+	</div>
+	<!--章节面板  -->
+	<div data-options="region:'west'" title="　"style="width:200px">
+			<div>
+				<ul class="title">
+				<li id="chapter"  class="active">章节</li>
+				</ul>
+				  
+				  <div  class="treeDiv" id="chapterRoot" >
+				  <div class="searchDiv"><input id="chapterName" placeholder="请输入关键字" onkeydown="chapterKeyDown()"/><i class="fa fa-2x fa-search" onclick="fliterChapter()"></i></div>
+				   <#include "/manage/report/chapterTree.html"/>
+				  </div>
+				  
+			</div>
+	</div>
+	<div data-options="region:'center',fit:true" style="margin-left:10px">
+	<div id="tb" ></div>
+	</div>
+<script type="text/javascript">
+var param=window.top.$("#courseChapterfm").data("param");
+var titleList={lessonNum:"课程数",filpLesson:"翻转课堂模式",autonomousLesson:"自主创建模式"};
+$(function(){
+	$('#sectionName').html(param.sectionName);
+	$('#subjectName').html(param.subjectName);
+	$('#gradeName').html(param.gradeName);
+	$('#tbvName').html(param.tbvName);
+	$('#chapterNum').html(param.chapterNum);
+	$('#lessonNum').html(param.lessonNum);
+	$('#lessonCoverage').html(param.lessonCoverage?(Math.round(param.lessonCoverage*10000)/100+"%"):0);
+	query();
+	initTable();
+	
+})
+var tbCode,kpsCode,chapterZTreeObj,chapterOrignalList,selectedChapterCode="";
+//查询树
+function query(){
+			//加载教材教材章节
+			$.ajax({
+				url:"/manage/textbook/getChapterAll.html",
+				data:{
+					subjectCode:param.subjectCode,
+					sectionCode:param.sectionCode,
+					gradeCode:param.gradeCode,
+					textbookCode:param.tbCode,
+				},
+				success:function(res){
+					chapterOrignalList=res.data;
+					if(chapterZTreeObj){
+						chapterZTreeObj.destroy();	
+					}
+					chapterZTreeObj=$.fn.zTree.init($("#chapterTree"), chapterSetting, chapterOrignalList);
+				}
+			})	
+		
+}
+function initTable(){
+	$.ajax({
+		url:"/manage/courseChapterDetailReport/detailList.html",
+		data:{
+			tbCode:param.tbCode,
+			chapterCode:selectedChapterCode,
+		},
+		success:function(res){
+			$('#tb').getTable(res,titleList);
+		}
+	})	
+	
+}
+//过滤章节
+function fliterChapter(){
+	if($('#chapterName').val()==""){
+		if(chapterZTreeObj){
+			chapterZTreeObj.destroy();	
+		}
+		chapterZTreeObj=$.fn.zTree.init($("#chapterTree"), chapterSetting, chapterOrignalList);
+	}else{
+		var filterList=_.filter(chapterOrignalList,function(item){
+			return bztContains(item.name,$('#chapterName').val(),false);
+		})
+		chapterZTreeObj.destroy();
+		chapterZTreeObj=$.fn.zTree.init($("#chapterTree"), chapterSetting, filterList);	
+	}
+}
+//章节点击事件
+chapterSetting.callback.onClick=function chapterZtreeClick(event,treeId,treeNode){
+	if(chapterZTreeObj&&treeNode.code.indexOf('top')<0){
+		selectedChapterCode=chapterZTreeObj.getSelectedNodes()[0]?chapterZTreeObj.getSelectedNodes()[0].code:"";
+	}else{
+		selectedChapterCode="";
+	}
+	initTable();
+}
+
+function chapterKeyDown(){
+	var e=window.event;
+	if(e.keyCode==13){
+		fliterChapter();
+	}
+}
+
+function exportData(){
+	var fileName=getUnencodePanelTitle()+"("+$('#sectionName').text()
+	+" "+$('#gradeName').text()
+	+" "+$('#subjectName').text()
+	+" "+$('#tbvName').text()
+	+" 章节节点数-"+$('#chapterNum').text()
+	+" 课程数-"+$('#lessonNum').text()
+	+" 课程覆盖率-"+$('#lessonCoverage').text()
+	+").xls"
+	window.location.href="/manage/courseChapterDetailReport/exportchapter.html?fileName="+encodeURI(fileName)
+			+"&tbCode="+param.tbCode
+			+"&chapterCode="+param.chapterCode
+	
+}
+</script>
+</body>
+</html>

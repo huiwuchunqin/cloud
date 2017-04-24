@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>校内待审核资源</title> <#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/> <#include
+"/manage/common/fileUpload.html"/>
+<script type="text/javascript"
+	src="/manage/template/comboChange/comboChange.js"></script>
+	<style type="text/css">
+.labelBox input{width:100px}
+.datagrid-cell-rownumber{
+width:50px;
+text-align:center;
+margin:0px;
+padding:3px 0px;
+}
+.datagrid-header-rownumber{
+width:50px;
+text-align:center;
+margin:0px;
+padding:3px 0px;
+}
+</style>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'" style="height:115px">
+		<div>
+			<div class="box form">
+				<div class="labelBox">
+					<div style="float: left; width: 220px">
+						<span class="labelWidth60">学段：</span> <input
+							class="easyui-combobox" id="section"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							onSelect:sectionSelect,
+							data: [
+								{code: '',name: '不限',selected:true}
+								<#if (sectionList?exists && sectionList?size>0)>
+							  		<#list sectionList as section>
+							  			,{code:'${section.code}', name:'${section.name?default('&nbsp;')}'}
+							  		</#list>
+								</#if>
+							]," />
+					</div>
+					<div style="float: left; width: 220px">
+						<span class="labelWidth60">学科：</span> <input
+							class="easyui-combobox" id="subject"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data:[{name:'不限',code:'',selected:true}]" />
+					</div>
+					<div style="float: left; width: 220px">
+						<span class="labelWidth60">年级</span> <input
+							class="easyui-combobox" id="grade"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data:[{name:'不限',code:'',selected:true}]" />
+					</div>
+						<div class="clear" style="height: 0px"></div>
+					<div style="float: left; width: 220px">
+						<span class="labelWidth60">资源类型</span> <input
+							class="easyui-combobox" id="resTypeL1"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data:[
+							{name:'视频',code:'10',selected:true},
+							{name:'文档',code:'20'},						
+							]" />
+					</div>
+					<div style="float: left; width: 220px">
+						<span class="labelWidth60">审核状态</span> <input
+							class="easyui-combobox" id="shareCheckStatus"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data:[
+							{name:'未提交',code:'0'},
+							{name:'审核被拒绝',code:'05'},
+							{name:'审核中',code:'10',selected:true},
+							{name:'审核通过',code:'20'},
+							]" />
+					</div>
+					
+					<div style="float: left; width: 220px">
+						<span class="labelWidth60">学校</span> <input id="orgName"
+							placeholder="请输入学校名称">
+					</div>
+					<div class="clear" style="height: 0px"></div>
+					<div style="float: left; width: 220px">
+						<span class="labelWidth60">资源名称</span> <input id="resName"
+							placeholder="请输入资源名称">
+					</div>
+					<div style="float: left; width: 220px">
+						<span class="labelWidth60">作者</span> <input id="userName"
+							placeholder="请输入作者名称">
+					</div>
+					<div style="float: left; width: 440px">
+						<span style="float: left; width: 400px"> <span
+							class="labelWidth60">上传时间</span> <input id="uploadTimeStart"
+							class="wdate"
+							onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'uploadTimeEnd\')}',dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn'})"
+							type="text" class="width130"> <span
+							style="width: 10px; line-height: 20px">~</span> <input
+							id="uploadTimeEnd" class="wdate"
+							onFocus="WdatePicker({minDate:'#F{$dp.$D(\'uploadTimeStart\')}',dateFmt:'yyyy-MM-dd HH:mm:ss',lang:'zh-cn'})"
+							type="text" class="width130">
+						</span>
+					</div>
+				</div>
+				<div style="margin-left:100px">
+					<a class="easyui-linkbutton" data-options="iconCls:'icon-search'"
+						onclick="query()"><img src="/manage/template/images/search.png">查询</a>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+		    pagination:true,
+		    fit:true,
+		    rownumbers:true,
+		    singleSelect:true,
+		    onBeforeLoad:onBeforeLoad,
+		    url:'/manage/res/getAllRes.html',
+		    ">
+			<thead>
+				<tr>
+					<th data-options="field:'operate',width:130,halign:'center',align:'center',formatter:examineFmt">操作</th>
+					<th data-options="field:'resName',halign:'center',width:320,align:'left'">资源名</th>
+					<th data-options="field:'resTypeL1',formatter:typeFmt,width:70,halign:'center',align:'left'">资源类型</th>
+					<th data-options="field:'resTypeL2Name',width:70,halign:'center',align:'left'">小类</th>
+					<th data-options="field:'subjectName',width:90,halign:'center',align:'left'">学科</th>
+					<th data-options="field:'gradeName',width:90,halign:'center',align:'left'">年级</th>
+					<th data-options="field:'orgName',width:120,halign:'center',align:'left'">学校</th>
+					<th data-options="field:'userName',width:90,halign:'center',align:'left'">作者</th>
+					<th data-options="field:'makeTime',width:120,halign:'center',formatter:timefmt,align:'center'">上传时间</th>
+					<th data-options="field:'flagAllowDownload',width:60,formatter:donwloadFmt,halign:'center',align:'center'">允许下载?</th>
+					<th data-options="field:'shareLevel',width:90,halign:'center',formatter:shareFmt,align:'center'">共享级别</th>
+					<th data-options="field:'resStatusStr',width:80,align:'center',halign:'center'">资源状态</th>
+					<th data-options="field:'shareCheckStatus',formatter:checkStatusFmt,width:100,halign:'center',align:'center'">审核状态</th>
+					<th data-options="field:'resDesc',width:440,halign:'center',align:'left'">资源描述</th>
+				</tr>
+			</thead> 
+		</table>
+	</div>
+	<script type="text/javascript">
+		function onBeforeLoad(param) {
+			var gradeCode = $('#grade').combobox('getValue');
+			var subjectCode = $('#subject').combobox('getValue');
+			var sectionCode = $('#section').combobox('getValue');
+			var resTypeL1 = $('#resTypeL1').combobox('getValue');
+			var shareCheckStatus = $('#shareCheckStatus').combobox('getValue');
+			var userName = $('#userName').val();
+			var uploadStartTime = $('#uploadTimeStart').val();
+			var uploadEndTime = $('#uploadTimeEnd').val();
+			var orgName=$('#orgName').val();
+			var resName=$('#resName').val();
+			param["gradeCode"] = gradeCode;
+			param["sectionCode"] = sectionCode;
+			param["subjectCode"] = subjectCode;
+			param["resTypeL1"] = resTypeL1;
+			param["shareCheckStatus"] = shareCheckStatus;
+			param["userName"] = userName;
+			param["uploadStartTime"] = uploadStartTime;
+			param["uploadEndTime"] = uploadEndTime;
+			param["shareCheckLevel"] = 30;//区域
+			param["orgName"] = orgName;
+			param["resName"] = resName;
+			
+		}
+		function timefmt(value,row){
+			if(value!=""&&value!=undefined){
+				return moment(value).format("YYYY-MM-DD  H:mm");
+			}
+		}
+		//学段选择事件
+		function sectionSelect(record) {
+			sectionGrade(record.code, $('#grade'));
+			sectionSubject(record.code, $('#subject'));
+		}
+		//审核状态格式化
+		function checkStatusFmt(value,row){
+			if(value==0){
+				return "未提交";
+			}else if(value==05){
+				return "审核被拒绝";
+			}
+			else if(value==10){
+				return "审核中";
+			}
+			else if(value==20){
+				return "审核通过";
+			}
+			return "";
+		}
+		//共享级别
+		function shareFmt(value,row){
+			if(value==10){
+				return "私有";
+			}else if(value==20){
+				return "机构";
+			}
+			else if(value==30){
+				return "县区";
+			}
+			else if(value==40){
+				return "地市";
+			}
+			else if(value==50){
+				return "省级";
+			}
+			else if(value==60){
+				return "公开";
+			}
+			return "";
+		}
+		//资源类型
+		function typeFmt(value,row){
+			if(value==20){
+				return "文档";
+			}else if(value==10){
+				return "视频";
+			}
+			return "";
+		}
+		//是否可下载
+		function donwloadFmt(value,row){
+			if(value==0){
+				return "否";
+			}else if(value==1){
+				return "是";
+			}
+			return "";
+		}
+		//审核格式化
+		function examineFmt(value,row){
+			if(row==""||row==undefined)return;
+			var str="<a href='javascript:void(0)' onclick='examine("+row.id+","+row.resTypeL1+")'>审核</a>&nbsp;";
+			if(row.shareCheckStatus!="10"||row.resStatus==30){
+				str="";
+			}
+			return str;
+		}
+		function query(){
+			$('#dg').datagrid('reload');
+		}
+		//资源审核
+		function examine(id,type){
+			var url="";
+			if(type==10){
+			url	="/manage/res/resMediaPreview.html?resId="+id+"&isExamine=1"
+			}else if(type==20){
+			url	="/manage/res/resDocPreview.html?resId="+id+"&isExamine=1"
+			}else{
+				$.messager.alert("信息","资源没有类型信息无法审核","info");
+				return;
+			}
+			easyui_openTopWindow("资源审核",1100,540,url,function(r){
+				if(r){
+					query()
+				}	
+				})
+		}
+	
+	</script>
+</body>
+</html>

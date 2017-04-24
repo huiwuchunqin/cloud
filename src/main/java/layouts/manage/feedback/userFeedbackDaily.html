@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>反馈内容</title> 
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/js/photoSwipe.js"></script>
+</head> 
+<style type="text/css">
+	.feedback-content{
+		position: relative;
+		margin: 0 15px 40px 15px;
+	}
+	.title {
+		background: #fff;
+		text-align: center;
+	}
+
+	.feedback-box{
+		font-size: 14px;
+		margin: 10px 0;
+	}
+	#moduleName{
+		font-size: 14px;
+	}
+	#moduleDesc,#content p{
+		line-height: 28px;
+		text-indent: 2em;
+		font-family: "Microsoft YaHei", Arial !important;
+		font-size: 14px !important;
+	}
+	img {
+		max-width: 800px;
+		max-height: 800px;
+	}
+	#content{
+		position: relative;
+		overflow: hidden;
+		word-spacing: normal;
+		word-wrap: break-word;
+	}
+	.dealBox{
+		margin-bottom: 40px;
+	}
+	.btnBox{
+		position: fixed;
+		bottom: 0;
+		right: 0;
+	}
+</style>
+<body>
+	<div class="feedback-content">
+		<div class="feedback-box">
+			<span style="color: red"></span>
+			<span style="font-weight: bold;">功能模块：</span>
+			<span id="moduleName"></span> 
+		</div>
+
+		<div class="feedback-box">
+			<span style="color: red"></span>
+			<p style="font-weight: bold;">标题描述：</p>
+			<p id="moduleDesc"></p>
+		</div>
+
+		<div class="feedback-box">
+			<p style="color: red"></p><p style="font-weight: bold;">问题描述：</p>
+			<div id="content"></div>
+		</div>
+		<div class="fl dealBox">
+			<p style="color: red"></p><p style="font-weight: bold;">处理说明：</p>
+			<textarea id="disposeDesc" rows="12" cols="110"
+				style="margin-left:60px" class="textarea"
+				maxlength="500"></textarea>
+		</p> 
+
+		<div style="clear: both"></div>
+	</div>
+
+	<div class="btnBox">
+		<button id="handle" class="btn btnBlue" onclick="handle()">处理</button>
+		<button id="noHandle" class="btn btnBlue" onclick="noHandle()">无需处理</button>
+		<button id="cancle" class="btn btnCancel" onclick="cancel()">取消</button>
+	</div>
+	<script type="text/javascript">
+		var id = "";
+		var content = "";
+		var moduleName = "";
+		var moduleDesc = "";
+		var disposeDesc = "";
+		var disposeStatus = "";
+		var url = "${frontUrl}";
+		$(function() {
+			var params = easyui_getParam();
+			id = params["id"];
+			var result = Ajax_request(
+					"/manage/feedback/getUserFeedbackDaily.html", {
+						id : id,
+
+					})
+			disposeStatus = result.disposeStatus;
+			if (disposeStatus != 0) {
+				$("#disposeDesc").attr("readonly","readonly");
+				document.getElementById("handle").disabled = "disabled";
+				document.getElementById("noHandle").disabled = "disabled";
+				document.getElementById("handle").style.background="grey";
+				document.getElementById("noHandle").style.background="grey";
+			}
+			content = result.content;
+			moduleName = result.moduleName;
+			moduleDesc = result.moduleDesc;
+			disposeDesc = result.disposeDesc;
+			var a = /src.\S{0,30}stati/ig;
+			var b = /href.\S{0,30}assetsView/ig;
+			var c = /src.\S{0,30}assetsView/ig;
+			var d = /href.\S{0,30}stati/ig;
+			content = content.replace(a, "src=\"" + url + "/stati");
+			content = content.replace(b, "href=\"" + url + "/assetsView");
+			content = content.replace(c, "src=\"" + url + "/assetsView");
+			content = content.replace(d, "href=\"" + url + "/stati");
+			$("#moduleName").text(moduleName);
+			$("#moduleDesc").text(moduleDesc);
+			$("#content").html(content);
+			$("#disposeDesc").html(disposeDesc);
+			var all = $("a");
+			_.each(all, function(item) {
+				item.href = item.href + "?n=" + $(item).html()
+			})
+			var all = $("img");
+			_.each(all, function(item) {
+				$(item).click(function() {
+					$(this).photoSwipe(1);
+				});
+			})
+			var alla = document.getElementsByTagName("a");
+			for (var i = 0; i < alla.length; i++) {
+				$(alla[i]).prev().unbind('click').click(function() {
+					location.href = $(this).next()[0].href;
+				});
+			}
+		});
+
+		//ajax请求
+		function Ajax_request(url, data) {
+			var result = [];
+			$.ajax({
+				url : url,
+				data : data,
+				async : false,
+				type : 'post',
+				success : function(json) {
+					result = json;
+				}
+			})
+			return result;
+		}
+		
+		function cancel() {
+			easyui_closeTopWindow(false);
+		}
+		
+		function handle() {
+			disposeDesc = document.getElementById("disposeDesc").value.trim();
+			if (disposeDesc == null || disposeDesc == "") {
+				$.messager.alert("信息", "处理说明不能为空！", "info");
+				return;
+			}
+			$.messager.confirm("信息", "确认要处理吗？一旦处理将不可恢复！", function(r) {
+				if (r) {
+					var result = Ajax_request(
+							"/manage/feedback/updateDescUserFeedback.html", {
+								ids : id,
+								disposeDesc : disposeDesc
+							})
+					Ajax_request(
+							"/manage/feedback/updateStatusUserFeedback.html", {
+								ids : id,
+								operateType : 1
+							})
+					if (result.success) {
+						easyui_closeTopWindow(true);
+					}
+				}
+			});
+		}
+		
+		function noHandle() {
+			disposeDesc = document.getElementById("disposeDesc").value.trim();
+			if (disposeDesc == null || disposeDesc == "") {
+				$.messager.alert("信息", "处理说明不能为空！", "info"); 
+				return;
+			}
+			$.messager.confirm("信息", "确认要无需处理吗？一旦无需处理将不可恢复！", function(r) {
+				if (r) {
+					var result = Ajax_request(
+							"/manage/feedback/updateDescUserFeedback.html", {
+								ids : id,
+								disposeDesc : disposeDesc
+							})
+					Ajax_request(
+							"/manage/feedback/updateStatusUserFeedback.html", {
+								ids : id,
+								operateType : 2
+							})
+					if (result.success) {
+						easyui_closeTopWindow(true);
+					}
+				}
+			});
+		}
+	</script>
+</body>
+</html>

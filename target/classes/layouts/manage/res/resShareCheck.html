@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/> <#include
+"/manage/common/resource_display.html">
+<script type="text/javascript"
+	src="/manage/template/comboChange/comboChange.js"></script>
+<title>资源分享审核</title>
+<style type="text/css">
+.line320 {
+	width: 320px;
+	float: left;
+}
+</style>
+</head>
+<body class="easyui-layout">
+	<div data-options="region:'north'" style="height: 105px">
+		<div class="form box">
+			<div class="labelBox">
+			
+				<span class="line320">
+					<span class="labelWidth60">学　　段</span> <input class="easyui-combobox"
+						id="section"
+						data-options="
+			valueField: 'code',
+			textField: 'name',
+			panelHeight: 'auto',
+			editable: false,
+			onSelect:sectionSelect,
+		" />
+				</span>
+				<span class="line320">
+					<span class="labelWidth60">学　　　科</span> <input class="easyui-combobox"
+						id="subject"
+						data-options="
+			valueField: 'code',
+			textField: 'name',
+			panelHeight: 'auto',
+			editable: false,
+			data:[{name:'不限',code:'',selected:true}]" />
+				</span>
+				<span class="line320">
+					<span class="labelWidth60">年　　　级</span> <input class="easyui-combobox"
+						id="grade"
+						data-options="
+			valueField: 'code',
+			textField: 'name',
+			panelHeight: 'auto',
+			editable: false,
+			data:[{name:'不限',code:'',selected:true}]" />
+				</span>
+
+					<span class="clear"></span> 
+				 <span class="line320"> 
+				 <span class="labelWidth60">共享审核状态:</span> <input id="shareCheckStatus"
+					class="easyui-combobox"
+					data-options="
+		textField:'name',
+		valueField:'code',
+		editable:false,
+		data:[
+		{name:'全部',code:'',selected:true},
+		{name:'待审核',code:'10'},
+		{name:'已退回',code:'05'},
+		{name:'已通过',code:'20'}
+		],
+		">
+				</span>
+				<!-- 			<span class="line320">
+		<span class="labelWidth60">分享审核中级别:</span>
+		<input id="shareCheckLevel" class="easyui-combobox" data-options="
+		textField:'name',
+		valueField:'code',
+		editable:false,
+		data:[
+		{name:'全部',code:'',selected:true},
+		{name:'校内',code:'20'},
+		{name:'区域',code:'30'}
+		],
+		"
+		>
+		</span> -->
+
+	<!-- 			<span class="line320"> <span class="labelWidth60">资源大分类:</span>
+					<input id="resTypeL1" class="easyui-combobox"
+					data-options="
+		textField:'name',
+		valueField:'code',
+		editable:false,
+		data:[
+		{name:'请选择',code:'',selected:true},
+		{name:'视频',code:'10'},
+		{name:'特色资源',code:'11'},
+		{name:'文档',code:'20'},
+		{name:'测验',code:'30'},
+		{name:'试题',code:'50'},
+		{name:'课时',code:'60'}
+		
+		],
+		onChange:resTypeL1Change
+		">
+				</span> 
+			
+				<span class="line320"> <span
+					class="labelWidth90">资源小分类:</span> <input id="resTypeL2"
+					class="easyui-combobox"
+					data-options="
+		textField:'name',
+		valueField:'code',
+		editable:false,
+		data:[
+		{name:'请选择',code:'',selected:true}
+		],
+		">
+				</span> -->
+					<span class="labelLine320"> <span class="labelWidth60">资源名称:</span>
+					<input id="resName" placeholder="请输入资源名称">
+					</span>
+			</div>
+		
+		<div style="margin-left: 150px">
+			<a class="easyui-linkbutton" onclick="query()"
+				data-options="iconCls:'icon-search'"><img src="/manage/template/images/search.png">查询</a>
+		</div>
+	</div>
+	</div>
+	<div data-options="region:'center'">
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+ pagination:true,
+ fit:true,
+ toolbar:'#tb',
+ rownumbers:true,
+ singleSelect:true,
+ onBeforeLoad:onBeforeLoad,
+ url:'/manage/res/resShareCheckList.html',
+ onBeforeLoad:onBeforeLoad,
+
+">
+			<thead>
+				<tr>
+					<th
+						data-options="field:'operate',halign:'center',formatter:fmt,width:130">操作</th>
+					<th data-options="field:'resName',halign:'center',width:220">资源名称</th>
+					<th data-options="field:'sectionName',halign:'center',align:'center',width:80">学段</th>
+					<th data-options="field:'subjectName',halign:'center',align:'center',width:80">学科</th>
+					<th data-options="field:'gradeName',halign:'center',align:'center',width:80">年级</th>
+					
+					<th data-options="field:'resTypeL1Name',align:'center',halign:'center',width:80">资源大分类</th>
+				<!-- 	<th
+						data-options="field:'resTypeL2Name',align:'center',halign:'center',width:80">资源小分类</th> -->
+					<th data-options="field:'shareCheckLevel',align:'center',formatter:checkLevelfmt,halign:'center',width:100">共享审核级别</th>
+					<th data-options="field:'shareCheckStatus',align:'center',formatter:statusfmt,halign:'center',width:100">共享审核状态</th>
+					<th data-options="field:'applierName',halign:'center',width:80">申请人姓名</th>
+					<th data-options="field:'applierOrgName',halign:'center',width:140">申请机构名称</th>
+					<th data-options="field:'applyTime',align:'center',formatter:timefmt,halign:'center',width:140">申请时间</th>
+					<!-- <th data-options="field:'applyReason',halign:'center',width:300">申请理由</th> -->
+					<th data-options="field:'checkerName',halign:'center',width:120">审核人姓名</th>
+					<th data-options="field:'checkerOrgName',halign:'center',width:160">审核人机构名称</th>
+					<th
+						data-options="field:'checkTime',align:'center',formatter:timefmt,halign:'center',width:140">审核时间</th>
+					<th data-options="field:'checkComments',halign:'center',width:300">审核意见</th>
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div id="dlg" class="easyui-dialog"
+		data-options="
+height:200,
+width:500,
+closed:true,
+buttons:[{
+text:'保存',
+iconCls:'icon-save',
+handler:saveExamine
+},
+{
+text:'取消',
+iconCls:'icon-cancel',
+handler:function(){
+$('#dlg').dialog('close');
+}
+}],
+modal:true,
+">
+		<form id="fm" style="padding: 10px">
+			<span class="labelWidth60">审核意见</span>
+			<textarea maxlength="200" id="checkComments" cols="50" rows="4"></textarea>
+			<input id="resCode" hidden="hidden"> <input id="id"
+				hidden="hidden"> <input id="status" hidden="hidden">
+			<input id="resTypeL1" hidden="hidden"> <input
+				id="shareCheckLevel" hidden="hidden"> <input
+				id="applierCode" hidden="hidden"> <input id="applierOrgCode"
+				hidden="hidden">
+		</form>
+	</div>
+	<script type="text/javascript">
+var sectionList=eval(${sectionList});	
+$(function(){
+	sectionList.unshift({code:"-1",name:"请选择"});
+	$('#section').combobox('loadData',sectionList);
+	$('#section').combobox('select',-1);
+	keyWordBind();
+})
+function onBeforeLoad(param){
+/* param["resTypeL2"]=$('#resTypeL2').combobox('getValue');	
+param["resTypeL1"]=$('#resTypeL1').combobox('getValue');	 */	
+param["resName"]=$('#resName').val();
+param["userName"]=$('#userName').val();
+param["orgName"]=$('#orgName').val();
+param["shareCheckStatus"]=$('#shareCheckStatus').combobox('getValue');
+param["sectionCode"]=$('#section').combobox('getValue');
+param["subjectCode"]=$('#subject').combobox('getValue');
+param["gradeCode"]=$("#grade").combobox('getValue');
+/* param["shareCheckLevel"]=$('#shareCheckLevel').combobox('getValue'); */	
+}
+function keyWordBind() {
+	$("#keyWord").keyup(function() {
+						$('.datagrid-body').highLight();
+						var _ul = $(".datagrid-body tr"), this_value = $(this)
+								.val();
+						if (this_value != '') {
+							$('.datagrid-body').highLight($(this).val());
+						}
+						$.each(_ul,function(i, v) {
+											var _this = $(this), _highLight = _this
+													.find(".highlight"), isHavekeyword = _highLight.length > 0;
+											var index = $(this).index();
+											if (isHavekeyword
+													|| this_value == "") {
+												_this.show();
+												$(" div.datagrid-body-inner ")
+														.find("tr").eq(index)
+														.show();
+											} else if (!isHavekeyword) {
+												_this.hide();
+												$(" div.datagrid-body-inner ")
+														.find("tr").eq(index)
+														.hide();
+											}
+										});
+					});
+}
+//操作格式化
+function fmt(value,row){
+	if(row==""||row==undefined)return;
+	var str="";
+	 if(row.shareCheckStatus==10){ 
+		str="<a href='javascript:void(0)' onclick='examine(\""+row.resCode+"\",20,"+row.resTypeL1+","+row.shareCheckLevel+","+row.id+",\""+row.applierCode+"\",\""+row.applierOrgCode+"\")'>审核通过</a>&nbsp;";
+		str+="<a href='javascript:void(0)' onclick='examine(\""+row.resCode+"\",05,"+row.resTypeL1+","+row.shareCheckLevel+","+row.id+",\""+row.applierCode+"\",\""+row.applierOrgCode+"\")'>审核不通过</a>&nbsp;";
+	 } 
+	 str=str+"<a href='javascript:void(0)' onclick='preview(\""+row.resAccessPath+"\")' >预览</a>"
+	return str;
+}
+//时间格式化
+function timefmt(value){
+	return value?moment(value).format("YYYY-MM-DD  H:mm"):"";
+}
+
+//分享级别格式化
+function checkLevelfmt(value){
+	if(value==10){
+		return "个人私有";
+	}else if(value==20){
+		return "校内共享";
+	}
+	else if(value==30){
+		return "区域共享";
+	}
+	else if(value==40){
+		return "地市";
+	}
+	else if(value==50){
+		return "省级";
+	}
+	else if(value==60){
+		return "公开";
+	}
+	return "";
+}
+//预览
+function preview(url){
+	easyui_openTopWindow("资源预览",1100,800,url,function(r){
+		
+		})
+}
+//审核状态格式化
+function statusfmt(value){
+	var str="";
+	if(value=="5"){
+		str="<center><span style='color:red'>已退回</span></center>"
+	}else if(value=="10"){
+		str="<center><span>待审核</span></center>"; 
+	}else if(value=="20"){
+		str="<center><span>已通过</span></center>";
+	}else{
+		str="<center><span style='color:grey'>未提交</span></center>";
+	}
+	return str;
+}
+function resTypeL1Change(newValue,oldValue){
+	var commonData={"name":"请选择",code:""}
+	if(newValue){
+		$.ajax({
+			url:'/manage/resType/resTypeL2List.html',
+			data:{
+				resTypel1:newValue,
+			},
+			success:function(res){
+				$('#resTypeL2').combobox('clear');
+				if(res){
+					res.unshift(commonData)
+					$('#resTypeL2').combobox('loadData',res);		
+				}
+			}
+		})
+	}else{
+		$('#resTypeL2').combobox('clear');
+		$('#resTypeL2').combobox('loadData',[commonData])
+	}
+}
+//查询
+function query(){
+	$('#dg').datagrid('reload');
+}
+//审核 
+function examine(resCode,status,resTypeL1,shareCheckLevel,id,applierCode,applierOrgCode){
+	$('#fm').form('clear');
+	$('#resCode').val(resCode);
+	$('#id').val(id);
+	$('#status').val(status);
+	$('#resTypeL1').val(resTypeL1);
+	$('#shareCheckLevel').val(shareCheckLevel);
+	$('#applierCode').val(applierCode);
+	$('#applierOrgCode').val(applierOrgCode);
+	$('#dlg').dialog({title:"审核"}).dialog('open');
+}
+
+
+function sectionSelect(data){
+	sectionSubject(data.code,$('#subject'),true);
+	sectionGrade(data.code,$('#grade'),true);
+}
+
+
+function saveExamine(){
+	var checkComments= $('#checkComments').val();
+	var resCode=$('#resCode').val();
+	var id=$('#id').val();
+	var status=$('#status').val();
+	var resTypeL1=$('#resTypeL1').val();
+	var shareCheckLevel=$('#shareCheckLevel').val();
+	var applierCode=$('#applierCode').val();
+	var applierOrgCode=$('#applierOrgCode').val();
+	$.ajax({
+		url:'/manage/res/updateResShareCheck.html',
+		data:{
+			resCode:resCode,
+			id:id,
+			status:status,
+			resTypeL1:resTypeL1,
+			shareCheckLevel:shareCheckLevel,
+			applierCode:applierCode,
+			applierOrgCode:applierOrgCode,
+			checkComments:checkComments,
+		},
+		success:function(res){
+			$.messager.alert("信息",res.msg,"info");
+			if(res.success){
+				query();
+				$('#dlg').dialog('close');
+			}
+		}
+	})
+}
+
+</script>
+</body>
+</html>

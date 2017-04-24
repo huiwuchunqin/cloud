@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>审核意见详细页面</title> 
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body>
+	<div style="padding: 20px">
+	   <textarea id="content" rows="12" cols="75" disabled="disabled"></textarea>
+	</div>
+	<script type="text/javascript">
+		var content="";
+		$(function() {
+			var params = easyui_getParam();
+			if (params != null) {
+				content=params["checkComments"]||"";
+				if(content=="null"){content=""};
+				$("#content").text(content);
+			}
+		});	
+	</script>
+</body>
+</html>

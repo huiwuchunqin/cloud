@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学科统计页面</title>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript"
+	src="/manage/template/comboChange/comboChange.js"></script>
+<style type="text/css">
+</style>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'">
+			<div class="box">
+				<div class="labelBox">
+					<div class="labelLine440">
+						<span class="labelWidth60">日期：</span> <input id="startDate" class="Wdate"
+																	 onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})" />
+						~ <input id="endDate" class="Wdate"
+								 onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})" />
+					</div>
+					<span class="clear10"></span>
+					<div class="labelLine240">
+						<span class="labelWidth60">学段：</span><input id="section"
+																	class="easyui-combobox"
+																	data-options=" 
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{code: '',name: '全部',selected:true}
+								<#if (sectionList?exists && sectionList?size>0)>
+							  		<#list sectionList as section>
+							  			,{code:'${section.code}', name:'${section.name?default('&nbsp;')}'}
+							  		</#list>
+								</#if>
+							],onSelect:sectionSelect"/> 
+					</div>
+					<div class="labelLine240">
+						<div class="labelWidth60">学科：</div>
+						<input class="easyui-combobox" id="subject"
+							   data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data:[
+							   {code: '',name: '全部',selected:true}
+							]
+							" />
+					</div>
+					<div class="labelLine240">
+						<span class="labelWidth90">共享级别：</span><input id="shareLevel"
+																	  class="easyui-combobox"
+																	  data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{code: '',name: '全部',selected:true},
+								{code: '10',name: '个人私有'},
+								{code: '20',name: '校内共享'},
+								{code: '30',name: '区域共享'}
+							]" />
+					</div>
+				</div>
+				<div class="btnBox">
+					<button  class="btn btnBlue search" onclick="query()">查询</button>
+				</div>
+			</div>
+		</div>
+		<div data-options="region:'center'">
+			<div id="tb" class="tbClass">
+				<span class="attr" style="margin-left: 10px">学科数：<label
+					id="subjectTotal"></label></span> <span class="attr">视频数：<label
+					id="mediaTotal"></label></span> <span class="attr">文档数：<label
+					id="docTotal"></label></span> <span class="attr">测验数：<label
+					id="testTotal"></label></span> <span class="attr">题目数：<label
+					id="questionTotal"></label></span> <span class="attr">资源总数：<label
+					id="resTotal"></label></span> <button  class="btn btnBlue align-right" onclick="exportData()">导出</button>
+			</div>
+			<table id="dg" class="easyui-datagrid"
+				data-options="
+					 onBeforeLoad:dgOnBeforeLoad,
+					 rownumbers:true,
+					 singleSelect:true,
+					 toolbar:'#tb',
+					 fit:true,
+					fitColumns:true,
+					 url:'/manage/subjectReport/search.html'
+		      ">
+				<thead>
+					<tr>
+						<th data-options="field:'sectionName',width:110,halign:'center',align:'center'">学段</th>
+						<th data-options="field:'subjectName',width:110,halign:'center'">学科</th>
+						<th data-options="field:'shareLevelName',width:110,halign:'center',align:'center'">共享级别</th> 
+						<th data-options="field:'mediaCount',width:110,halign:'center',align:'center'">视频数</th>
+						<th data-options="field:'docCount',width:110,halign:'center',align:'center'">文档数</th>
+						<th data-options="field:'testCount',width:110,halign:'center',align:'center'">测验数</th>
+						<th data-options="field:'questionCount',width:110,halign:'center',align:'center'">题目数</th>
+						<th data-options="field:'totalCount',width:110,halign:'center',align:'center'">资源总数</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+	<script type="text/javascript">
+		//查询总数
+		function queryTotal() {
+			var opts = {
+				url : '/manage/subjectReport/searchTotal.html',
+				type : "post",
+				data :getParam(),
+				success : function(data) {
+					$('#subjectTotal').text(data.subjectTotal || 0);
+					$('#mediaTotal').text(data.mediaTotal || 0);
+					$('#docTotal').text(data.docTotal || 0);
+					$('#testTotal').text(data.testTotal || 0);
+					$('#questionTotal').text(data.questionTotal || 0);
+					$('#resTotal').text(data.resTotal || 0);
+				},
+				error : function(XMLHttpRequest, textStatus, errorThrown) {
+					alert("网络繁忙请稍后再试");
+				},
+				complete : function() {
+
+				}
+			}
+			$.ajax(opts);
+		}
+
+		//查询
+		function query() {
+			$('#dg').datagrid('reload');
+			queryTotal();
+		}
+
+		$(function() {
+			queryTotal();
+		})
+
+		//数据导出
+		function exportData() {
+			var url="/manage/subjectReport/export.html?fileName="+getExportName();
+			downloadHelper(urlWithParam(url,getParam()));
+		}
+
+		//学段选择事件
+		function sectionSelect(record) {
+			sectionSubject(record.code, $('#subject'));
+		}
+
+		function dgOnBeforeLoad(param) {
+			$.extend(param,getParam());
+		}
+		
+		function getParam(){
+			return{
+				 sectionCode  :  $("#section").combobox('getValue'),
+				 subjectCode  :  $("#subject").combobox('getValue'),
+				 shareLevel  :  $("#shareLevel").combobox('getValue'),
+				 startDate  :  $("#startDate").val(),
+				 endDate  :  $("#endDate").val(),
+			}
+		}
+	</script>
+</body>
+</html>

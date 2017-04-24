@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>平台商品待发放列表</title>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body>
+<div id="tb">
+	<div class="box">
+		<div class="labelBox">
+			<div class="labelLine240">
+				<span class="labelWidth60">机构名称：</span>
+				<input id="company" class="width130" placeholder="请输入机构名称">
+			</div>
+
+			<div class="labelLine240">
+				<span class="labelWidth60">商品名称：</span>
+				<input id="goodsName" class="width130" name="goodsName" placeholder="请输入商品名称">
+			</div>
+		</div>
+		<div class="btnBox">
+			<a class="btn btnBlue search" iconCls='icon-search' onclick="$('#dg').datagrid('reload')">查询</a>
+			<a class="btn btnBlue" iconCls='icon-ok' onclick="grant()">发放</a>
+		</div>
+	</div>
+</div>
+
+<table id="dg" class="easyui-datagrid" data-options="
+		pagination:true,
+		rownumbers:true,
+		toolbar:'#tb',
+		fit:true,
+		singleSelect:true,
+		onBeforeLoad:onBeforeLoad,
+		url:'/manage/pointGoodsGrantPlatform/list.html'
+      ">
+<thead>
+	<tr>
+		<th data-options="field:'orgName',width:150,halign:'center',align:'left'">机构名称</th>
+		<th data-options="field:'goodsName',width:150,halign:'center',align:'left'">商品名称</th>
+		<th data-options="field:'totalCount',width:90,halign:'center',align:'right'">数量</th>
+		<th data-options="field:'goodsSpecification',width:250,halign:'center',align:'left'">商品规格描述</th>
+	</tr>
+</thead>
+</table>
+<script type="text/javascript">
+$(function(){
+
+})
+//发放
+function grant(){
+	var orgName=$('#company').val();
+	var goodsName=$('#goodsName').val();
+	var datas=$('#dg').datagrid('getData');
+	if(!datas||datas.rows.length<=0){
+		alert("没有商品可以发放");
+	}else{
+		$.ajax({
+			url:'/manage/pointGoodsGrantPlatform/insert.html',
+			data:{
+				orgName:orgName,
+				goodsName:goodsName,
+			},
+			success:function(res){
+				$.messager.alert("信息",res.msg,"info",function(){
+					if(res.success){
+						$('#dg').datagrid('reload');
+					}
+				})
+			}
+		})	
+	}
+}
+
+function onBeforeLoad(param){
+	param["goodsName"]=$('#goodsName').val();
+	param["orgName"]=$('#company').val(); 
+}
+
+</script>
+</body>
+</html>

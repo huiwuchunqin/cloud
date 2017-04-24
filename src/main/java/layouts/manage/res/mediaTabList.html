@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>视频审核列表</title>
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body id="tb"class="easyui-layout" data-options="fit:true">
+<div data-options="region:'center'" data-options="
+fit:true,
+">
+	<div id="tt" class="easyui-tabs" data-options="
+	fit:true,
+	onLoad:function(){$(this).tabs('resize')},
+	onSelect:onSelect,
+	">
+	<div title="全部" >
+	<iframe src="/manage/res/toMediaList.html" frameborder="0"	height="99%" width="100%"></iframe>
+	</div>
+	<div title="待审核" >
+	<iframe  src="/manage/res/toMediaList.html?checkStatus=10" frameborder="0" height="99%" width="100%"></iframe>
+	</div>
+	<div title="已通过" >
+	<iframe src="/manage/res/toMediaList.html?checkStatus=20" frameborder="0" height="99%" width="100%"></iframe>
+	</div>
+	<div title="已退回" >
+	<iframe  src="/manage/res/toMediaList.html?checkStatus=05"frameborder="0" height="99%" width="100%"></iframe>
+	</div>
+	</div>
+</div>
+<script type="text/javascript">
+function onSelect(title,index){
+	var window=$('#tt').tabs('getTab',index).panel('panel').find('iframe')[0].contentWindow;
+	if(window.$){
+		window.$('#dg').datagrid('reload');
+	}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>作者统计页面-机构管理员查看</title>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+</head>
+<style type="text/css">
+
+.width100{
+    width:100px;
+}
+.width130{
+    width:130px;
+}
+</style>
+<body>
+<div class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'">
+		<div class="box">
+			<div class="labelBox">
+				<div class="labelLine440">
+					<span class="labelWidth60">日期：</span>
+					<input id="startDate" class="Wdate" onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})"/>
+					~
+					<input id="endDate" class="Wdate" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})"/>
+				</div>
+				<span class="clear10"></span> 
+				<div class="labelLine240">
+					<span class="labelWidth60">学段：</span><input id="section" class="easyui-combobox width100" data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{code: '',name: '请选择',selected:true}
+								<#if (sectionList?exists && sectionList?size>0)>
+							  		<#list sectionList as section>
+							  			,{code:'${section.code}', name:'${section.name?default('&nbsp;')}'}
+							  		</#list>
+								</#if>
+							],onSelect:sectionSelect"/>
+				</div>
+				<div class="labelLine240">
+					<div class="labelWidth60">学科:</div>
+					<input class="easyui-combobox width100" id="subject"
+						   data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code: '',name: '请选择',selected:true}]
+							"/>
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60">共享级别：</span><input id="shareLevel" class="easyui-combobox width100" data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{code: '',name: '请选择',selected:true},
+								{code: '10',name: '个人私有'},
+								{code: '20',name: '校内共享'},
+								{code: '30',name: '区域共享'}
+							]"/>
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60">作者：</span>
+					<input class="easyui-validatebox" id="userName" name="userName" maxlength="36" placeholder="请输入作者姓名"/>
+				</div>
+			</div>
+			<div class="btnBox">
+				<button  class="btn btnBlue search" onclick="query()">查询</button>
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<div id="tb" class="tbClass">
+			<span class="attr" style="margin-left: 10px;">作者数：<label id="authorTotal"></label></span> 
+			<span class="attr">资源数：<label id="resTotal"></label></span>
+			<span class="attr">视频数：<label id="mediaTotal"></label></span>
+			<span class="attr">文档数：<label id="docTotal"></label></span>
+			<span class="attr">测验数：<label id="exerciseTotal"></label></span>
+			<span class="attr">题目数：<label id="questionTotal"></label></span>
+			<button  class="btn btnBlue align-right" onclick="exportData()">导出</button>
+		</div>
+	 <table id="dg" class="easyui-datagrid" data-options="
+		 pagination:true,
+		 onBeforeLoad:onBeforeLoad,	
+		 rownumbers:true,
+		 singleSelect:true,
+		 toolbar:'#tb',
+		 fit:true,
+		 url:'/manage/orgTeacherResMakeDaily/search.html'
+		 ">
+	 <thead>
+	 	<tr>
+	 		<th data-options="field:'userName',width:100,halign:'center',align:'left'">作者</th>
+	 		<th data-options="field:'orgName',width:200,halign:'center',align:'left'">机构名称</th>
+	 		<th data-options="field:'resTotal',width:90,align:'center',halign:'center'">资源数</th>
+	 		<th data-options="field:'mediaTotal',width:90,align:'center',halign:'center'">视频数</th>
+	 		<th data-options="field:'docTotal',width:90,align:'center',halign:'center'">文档数</th>
+	 		<th data-options="field:'exerciseTotal',width:90,align:'center',halign:'center'">测验数</th>
+	 		<th data-options="field:'questionTotal',width:90,align:'center',halign:'center'">题目数</th>
+	 	</tr>
+	 </thead>
+	 </table>
+	</div>
+</div>
+<script type="text/javascript">
+
+	function getParam(){
+		var endDate=$("#endDate").val();
+		var startDate=$("#startDate").val();
+		if(endDate==""||endDate==null){
+			endDate=moment(new Date()).format("YYYY-MM-DD");
+		}
+		return {
+			 sectionCode : $("#section").combobox('getValue'),
+			 subjectCode : $("#subject").combobox('getValue'),
+			 userName : $("#userName").val(),
+			 startDate : $("#startDate").val(),
+			 endDate : endDate,
+			 shareLevel : $("#shareLevel").combobox('getValue'),
+			 orgCode	:"${orgCode}",
+		}
+	}
+    //查询总数
+    function queryTotal(){
+		var opts={
+				url:'/manage/orgTeacherResMakeDaily/searchTotal.html',
+    			type:"post",
+				data:getParam(),
+				success:function(data){
+					$('#authorTotal').text(data.authorTotal||0); 
+					$('#resTotal').text(data.resTotal||0);
+					$('#mediaTotal').text(data.mediaTotal||0);
+					$('#docTotal').text(data.docTotal||0);
+					$('#exerciseTotal').text(data.exerciseTotal||0);
+					$('#questionTotal').text(data.questionTotal||0);
+				},
+				error:function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("网络繁忙请稍后再试");
+				},
+				complete:function() {
+						
+				}
+		}
+		$.ajax(opts);
+    }
+
+	//查询
+	function query(){
+		$('#dg').datagrid('reload');
+		queryTotal();
+	}
+	
+	//学段选择事件
+	function sectionSelect(record) {
+		sectionSubject(record.code, $('#subject'));
+	}
+	
+	$(function() {
+		queryTotal();
+	})
+	
+	function onBeforeLoad(param){
+		$.extend(param,getParam());
+	}
+	
+	//导出数据
+	function exportData(){
+		var url="/manage/orgTeacherResMakeDaily/export.html?fileName="+getExportName();
+		var endDate=$("#endDate").val();
+		var startDate=$("#startDate").val();
+		if(endDate==""||endDate==null){
+			endDate=moment(new Date()).format("YYYY-MM-DD");
+		}
+		var param=getParam();
+	  param.startDate=startDate?moment(startDate).format("YYYYMMDD").toString():"";
+	  param.endDate=endDate?moment(endDate).format("YYYYMMDD").toString():"";
+		downloadHelper(urlWithParam(url,param));
+	}
+</script>
+</body>
+</html>

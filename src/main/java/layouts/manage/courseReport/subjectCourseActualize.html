@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学科课程实施情况统计</title>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<style type="text/css">
+.attr {
+	width: 130px;
+	display: inline-block;
+	color: #898989;
+}
+
+.attr>label {
+	color: black;
+}
+
+</style>
+</head>
+<body class="easyui-layout">
+    <div data-options="region:'north'">
+		<div class="box">
+			<div class="labelBox">
+				<div class="labelLine240">
+					<span class="labelWidth60">学年学期：</span><input id="yearTerm"
+							class="easyui-combobox" data-options="
+							valueField: 'yearTermCode',
+							textField: 'yearTermName',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{yearTermCode: '',yearTermName: '全部'}
+								<#if (yearTermList?exists && yearTermList?size>0)>
+							  		<#list yearTermList as yearTerm>
+							  			,{yearTermCode:'${yearTerm.yearTermCode}', yearTermName:'${yearTerm.yearTermName?default('&nbsp;')}'}
+							  		</#list>
+								</#if>
+							]"/>
+				</div>
+				<div class="labelLine440">
+					<span class="labelWidth60">日期：</span>
+					<input id="startDate" class="Wdate" onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})"/>
+					~ <input id="endDate" class="Wdate" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})"/>
+				</div>
+				<span class="clear10"></span>
+				<div class="labelLine240">
+					<span class="labelWidth60">学段：</span> <input id="section"
+																class="easyui-combobox"
+																data-options="textField:'name', 
+					valueField:'code',
+					editable:false,
+				    panelHeight: 'auto',
+				    data: [
+							{code: '',name: '全部',selected:true}
+							 <#if (sectionList?exists && sectionList?size>0)>
+							  		<#list sectionList as section>
+							  			,{code:'${section.code}', name:'${section.name?default('&nbsp;')}'} 
+							  		</#list>
+							 </#if>
+						],onSelect:sectionSelect">
+				</div>
+				<div class="labelLine240">
+					<span class="labelWidth60">学科：</span> <input id="subject"
+																class="easyui-combobox"
+																data-options="textField:'name',
+						valueField:'code',
+						editable:false,
+					    panelHeight: 'auto',
+					    data: [{code: '',name: '全部',selected:true}]
+					">
+				</div>
+			</div>
+			<div class="btnBox">
+				<a class="btn btnBlue search" onclick="query()">查询</a>
+			</div>
+		</div>
+	</div>
+    <div data-options="region:'center'">
+		<div id="tb" class="tbClass">
+			<span class="attr" style="margin-left: 10px">学科数：<label id="subjectNum"></label></span>
+			<span class="attr" style="margin-left: 10px">课程总数：<label id="lessonTotalNum"></label></span> 
+			<span class="attr" style="margin-left: 10px">课程实施数：<label id="usedClassTotalNum"></label></span>
+			<button class="btn btnBlue" style="float: right" onclick="exportData()">导出</button>
+			<span style="clear: both; display: none"></span>
+		</div>
+		<table id="dg">
+		</table>
+	</div>
+	<script type="text/javascript">
+    //查询
+	function query() {
+		$('#dg').datagrid('reload');
+	}
+
+	//学段选择事件
+	function sectionSelect(record) {
+		sectionSubject(record.code, $('#subject'));
+	}
+	
+	//查询总数
+	function queryTotal() {
+		var yearTermCode = $("#yearTerm").combobox("getValue");
+		var endDate=$("#endDate").val();
+		var sectionCode=$("#section").combobox("getValue");
+		var subjectCode=$("#subject").combobox("getValue");
+		if(endDate==""||endDate==null){
+			endDate=moment(new Date()).format("YYYY-MM-DD");
+		}
+		endDate=endDate?moment(endDate).format("YYYYMMDD").toString():"";
+		var opts = {
+			url : '/manage/course/subjectCourseActualize/searchTotal.html',
+			type : "post",
+			data : {
+				yearTermCode : yearTermCode,
+				subjectCode : subjectCode,
+				sectionCode : sectionCode,
+				endDate:endDate
+			},
+			success : function(data) {
+				$('#subjectNum').text(data.subjectNum || 0);
+				$('#lessonTotalNum').text(data.lessonTotalNum || 0);
+				$('#usedClassTotalNum').text(data.usedClassTotalNum || 0);
+			},
+			error : function(XMLHttpRequest, textStatus, errorThrown) {
+				alert("网络繁忙请稍后再试");
+			},
+			complete : function() {
+
+			}
+		}
+		$.ajax(opts);
+	}
+
+	//页面初始化
+	$(function() {
+		<#if "${currentYearTermCode}" != "">
+		   $('#yearTerm').combobox('setValue',"${currentYearTermCode}");
+		</#if>
+		//初始化dg
+		$('#dg').datagrid({    
+			 pagination:true,
+			 onBeforeLoad:onBeforeLoad,
+			 onLoadSuccess:dgOnLoadSuccess,
+			 rownumbers:true,
+			 singleSelect:true,
+			 toolbar:'#tb',
+			 fit:true,
+			 url:'/manage/course/subjectCourseActualize/search.html',
+		     columns:[[
+		        {title:'学段',field:'sectionName',halign:'center',width:90,align:'center'},
+		        {title:'学科',field:'subjectName',align:'left',halign:'center',width:100},
+		        {title:'课程数',field:'lessonNum',halign:'center',width:100,align:'right'}, 
+		        {title:'翻转课堂模式',field:'flippedClassNum',halign:'center',width:120,align:'right'}, 
+		        {title:'自主创建模式',field:'normalClassNum',halign:'center',width:120,align:'right'},
+		        {title:'班级课程发布数',field:'publishedClassNum',halign:'center',align:'right',width:120},
+		        {title:'班级课程实施数',field:'usedClassNum',halign:'center',align:'right',width:120}
+		    ]]   
+		});  
+		queryTotal();
+	})
+	
+	function onBeforeLoad(param) {
+		param["yearTermCode"] = $("#yearTerm").combobox('getValue');
+		param["subjectCode"] = $("#subject").combobox('getValue');
+		param["sectionCode"]=$("#section").combobox('getValue');
+		var endDate=$("#endDate").val();
+		if(endDate==""||endDate==null){
+			endDate=moment(new Date()).format("YYYY-MM-DD");
+		}
+		endDate=endDate?moment(endDate).format("YYYYMMDD").toString():"";
+		param["endDate"]=endDate;
+	}
+
+	//导出数据
+	function exportData() {
+		var yearTermCode = $("#yearTerm").combobox("getValue");
+		var endDate=$("#endDate").val();
+		var sectionCode=$("#section").combobox("getValue");
+		var subjectCode=$("#subject").combobox("getValue");
+		if(endDate==""||endDate==null){
+			endDate=moment(new Date()).format("YYYY-MM-DD");
+		}
+		endDate=endDate?moment(endDate).format("YYYYMMDD").toString():"";
+		downloadHelper("/manage/course/subjectCourseActualize/export.html?sectionCode="
+				+ sectionCode
+				+ "&yearTermCode="
+				+ yearTermCode
+				+ "&subjectCode="
+				+ subjectCode
+				+ "&endDate="
+				+ endDate + "&fileName="+ getExportName());
+	}
+      
+	//在数据加载成功的时候触发
+	function dgOnLoadSuccess(data){
+		queryTotal();
+	}
+   </script>
+</body>
+</html>

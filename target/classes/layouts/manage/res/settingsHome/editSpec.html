@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>编辑页面-特色资源</title>
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body>
+     <div style="padding:10px">
+        <input type="text" id="id" hidden="hidden"/>
+     	<div style="float:left;padding:10px;text-align:center">
+     	    <input id="coverPath" name="coverPath" hidden="hidden"/>
+			<form id="coverForm" enctype="multipart/form-data" method="post" action="/manage/company/uploadImage.html">
+			<input hidden="hidden" type="file" name="file" id="coverImg" accept=".jpg,.png,.gif,.jpeg"/>
+			<input hidden="hidden" id="fileType" name="fileType" value="cover"/>
+				<img id="img1" style="cursor: pointer" height="220px" width="220px" onclick="$('#coverImg').click()"><br> 
+				<img id="img3" hidden="true">
+     		          封面设置
+		    </form>
+     	</div>
+     	
+    </div>
+    <div style="clear:both"></div>
+    <div style="padding:10px">
+      <div style="float:right;padding:10px;text-align:center">
+          <span style="position: absolute;right: 0;bottom: 0;">
+                <a style="margin-right:10px" class="btn btnConfirm" onclick="save()">保存</a>
+			    <a class="btn btnCancel" onclick="cancel()">取消</a>
+		  </span>
+      </div>
+    </div>
+    
+    <script type="text/javascript">
+	       var coverImgChanged=false;
+	       var coverPath="";
+		   var params=null;
+	       //取消
+	       function cancel(){
+	    	   easyui_closeTopWindow(false);
+	       }
+	        //封面选择事件
+	        $('#coverImg').change(function(data){
+		       	var file=data.target.files[0];
+		       	if(!file){
+		       		return false;	
+		       	}
+		   		if(file.type.indexOf("image")<0){
+					alert("封面只能选择图片");
+					return false;
+				}
+		       	if(file.size>10000000){
+		       		alert("图片不能大于10M");
+		       		return false;
+		       	}
+		       	showCoverPic();
+	        })
+       
+	        $(function() {
+	  		  params=easyui_getParam();
+	  		    if(params!=null){
+	  		    	if(params["coverPath"]!=null&&params["coverPath"]!=""){
+		  			    $('#img1').attr("src","${imgHost}/"+params["coverPath"]);
+	  		    	}
+	  			    $('#id').val(params["id"]);
+	  		    }
+	  	    })
+	  	   
+	  	    //显示图片
+		    function showCoverPic(){
+	    		coverImgChanged=true;
+		    	var url=window.URL.createObjectURL($('#coverImg')[0].files[0])
+		    	$("#img1").attr("src",url);
+		    	$('#img3').attr("src",url);
+		    }
+		    
+			//保存
+			function save(){
+				var id=$("#id").val();
+				var opts={
+	    				url:'/manage/resSettingsHome/resSet/add.html',
+	        			type:"post",
+	    				data:{
+	    					id:id
+	    				},
+	    				success:function(res){
+	    					window.top.$.messager.alert("提示", res.msg, "info");
+							if(res.success){
+								easyui_closeTopWindow(true);
+							}
+	    				 },
+	    				error:function(XMLHttpRequest, textStatus, errorThrown) {
+	    						alert("网络繁忙请稍后再试！");
+	    				 },
+	    				complete:function() {
+	    						
+	    				}
+	    	    }
+				saveCoverAndThumbnail();
+				//保存图片
+				function saveCoverAndThumbnail(){
+					if(coverImgChanged){
+						$('#coverForm').form('submit',{
+		    				success:function(json){
+		    					var res=$.parseJSON(json);
+		    					coverPath=res.data;
+		    					coverImgChanged=false;
+		    					submitRequest();
+		    				},
+		    			})		
+					}else{
+						submitRequest();
+					}	
+				}
+				
+				//图片大小check
+				function sizeCheck(setType){
+					var coverheight=$('#img3').height();
+					var coverwidth=$('#img3').width();
+					if(setType==0){
+						if($('#coverImg')[0].files[0]&&(coverheight<400||coverwidth<1920)){
+							alert("封面必须大于1920*400");
+							return false;
+						}
+					}else{
+						if($('#coverImg')[0].files[0]&&(coverheight<290||coverwidth<360)){
+							alert("封面必须大于360*290");	 
+							return false;
+						}
+					}
+					return true;
+				}
+				//提交请求	
+				function submitRequest(){
+					if(coverPath==null||coverPath==""){
+						opts.data.coverPath=params["coverPath"];
+					}else{
+						opts.data.coverPath=coverPath;
+					}
+					if(opts.data.coverPath==null||opts.data.coverPath==""){
+						$.messager.alert('消息','请上传封面图片！','info');
+			            return;
+					}
+					if(sizeCheck(11)){
+						setTimeout(function(){$.ajax(opts)},1000);
+					}
+				}
+		    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include "/manage/common/meta_css.html"/>
+</head>
+<style type="text/css">
+
+div.column{
+margin-top:18px;
+width:299px
+}
+div.column>span:first-child{
+display:inline-block;
+width:60px;
+}
+div.column>input:first-of-type{
+width:220px
+}
+</style>
+<body >
+<div style="margin:0px 30px;padding-top:1px">
+	<form id="fm">
+	<div class="column">
+		<span>登录账号</span> <input id="loginAccount" class="easyui-validatebox"  data-options="required:true,validType:'alphaChar[0,50]'"/>
+	</div>
+	<div class="column">
+		<span>姓名</span> <input id="name"  class="easyui-validatebox" data-options="required:true,validType:'length[0,36]'"/>
+	</div>
+	<div class="column">
+		<span>密码</span> <input type="password" id="password"  class="easyui-validatebox" data-options="required:true,validType:'length[0,50]'"/>
+	</div>
+	<div class="column">
+		<span>确认密码</span> <input type="password"  id="loginPwdConfirm"  class="easyui-validatebox" data-options="required:true,validType:'length[0,50]'"/>
+	</div>
+	<div class="column">
+		<span>手机号</span> <input id="mobilePhone"  class="easyui-validatebox" data-options="validType:'mobile'"/>
+	</div>
+	<div class="column">
+		<span>邮箱</span> <input id="mail" class="easyui-validatebox" data-options="validType:'email',length:[0,60]" maxlength="60"/>
+	</div>
+	</form>
+	<div class="column" style="text-align:right">
+		<a class="btn btnConfirm"  iconCls="icon-save" onclick="save()">保存</a>
+		<a class="btn btnCancel"  iconCls="icon-cancel" onclick="cancel()">取消</a>
+	</div>
+	</div>
+	<script type="text/javascript">
+	
+	function cancel(){
+		easyui_closeTopWindow(false);
+	}
+	//保存
+	function save(){
+		if(!$('#fm').form('validate'))return false;
+		
+		var loginAccount=$('#loginAccount').val().trim();
+		var userName=$('#name').val().trim();
+		var password=$('#password').val().trim();
+		var loginPwdConfirm=$('#loginPwdConfirm').val();
+		var mobilePhone=$('#mobilePhone').val();
+		var mail=$('#mail').val();
+		
+		if(password!=loginPwdConfirm){
+			$.messager.alert("信息","2次密码输入不一致请重新输入","info");
+			$('#password').val("");
+			$('#loginPwdConfirm').val("");
+			return false;
+		}
+		if(loginAccount==""){
+			$.messager.alert("信息","登录账户不能为空","info");
+			return false;
+		}
+		if(userName==""){
+			$.messager.alert("信息","姓名不能为空","info");	
+			return false
+		}
+		if(password==""){
+			$.messager.alert("信息","密码不能为空","info");	
+			return false
+		}
+		var url="";
+			if("${orgCode}"==""){
+				url="/manage/schoolLoginUserAdd.html";//区域管理员新增 
+			}else{
+				url="/manage/areaLoginUserAdd.html"//学校管理员新增
+			}
+		$.ajax({
+			url:url,
+			data:{
+				loginAccount:loginAccount,
+				userName:userName,
+				loginPwd:password,
+				mobilePhone:mobilePhone,
+				mail:mail,
+				orgCode:"${orgCode}"
+			},
+			type:'post',
+			success:function(res){
+			$.messager.alert("信息",res.msg,"info",function(){
+				if(res.success){
+					easyui_closeTopWindow(res.success);
+	
+				}
+				});
+			}
+		})
+	}
+	</script>
+</body>
+</html>

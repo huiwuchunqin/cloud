@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" xmlns:util="http://www.springframework.org/schema/util" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd
+	   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+	<context:component-scan base-package="com.baizhitong" use-default-filters="true">
+		<!-- 排除MySql连接过滤器 -->
+		<context:exclude-filter type="regex" expression="com\.baizhitong\.resource\.dao\.\w+\.mysql.*" />
+		<!-- 排除SqlServer连接过滤器 -->
+		<!--<context:exclude-filter type="regex" expression="com\.baizhitong\.resource\.dao\.\w+\.sqlserver.*" /> -->
+	</context:component-scan>
+
+	<context:annotation-config />
+	
+	<!-- load config files -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<!-- MySql连接配置 -->
+				<!--<value>classpath:db.mysql.properties</value> -->
+				<!-- SqlServer连接配置 -->
+				<value>classpath:settings.properties</value>
+			</list>
+		</property>
+	</bean>
+
+
+</beans>

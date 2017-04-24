@@ -1,0 +1,169 @@
+
+<!-- 视频 -->
+<#macro video resource>
+
+    <link href="/manage/moveToCommon/js/plugins/video-js/video-js.css" rel="stylesheet">
+	<!-- <script src="/manage/moveToCommon/js/plugins/video-js/video.js"></script> -->
+	<script src="${videoConvertHost}/static/p2p/p2pPlayer/es6-promise.min.js"></script>
+	<script src="${videoConvertHost}/static/p2p/p2pPlayer/videojs/ie8/videojs-ie8.min.js"></script>
+	<script src="${videoConvertHost}/static/p2p/p2pPlayer/videojs/video.js"></script>
+	<script src="${videoConvertHost}/static/p2p/p2pPlayer/videojs/videojs-contrib-hls.js"></script>
+	<script src="${videoConvertHost}/static/p2p/p2pPlayer/p2p/peer.js"></script>
+	<script src="${videoConvertHost}/static/p2p/p2pPlayer/p2p/dist/bzt.p2p.js"></script>
+
+
+	<script>
+  		videojs.options.flash.swf = "/manage/moveToCommon/js/plugins/video-js/video-js.swf"
+	</script>
+	<div id="hide_div_for_width" style="width:100%"></div>
+	<video id="resource_video" class="video-js vjs-default-skin vjs-big-play-centered"
+	  controls preload="auto" >
+	  <#if "${resource.highPath}"!="">
+	  <source src="${videoHost}/${resource.highPath}" type='video/mp4'/>
+	  <#else>
+	  <source src="${videoHost}/${resource.p2pPath}" type='application/x-mpegURL' />
+	  </#if>
+	</video>
+	
+    <script type="text/javascript">
+    (function(){
+    	
+    	//图片路径处理
+    	function pathHandle(){
+    		var thumbnailList=eval(${thumbnailList});
+    		var path="${resource.coverPath}"||(thumbnailList?thumbnailList[0].path:"");
+    		   var _path="";
+    		   if(path!=null&&path!=""){
+    			   if(path.indexOf("img_upload")>=0){
+    				   _path="${imgHost}"+"/"+path;
+    			   }else{
+    				   _path="${videoHost}"+"/"+path;
+    			   }	
+    		   }
+    		   return _path;
+    	}
+        $("#resource_video").attr("poster", pathHandle());
+
+        var screen_width=$("#hide_div_for_width").width();
+        videojs("resource_video",{
+        	width:582,
+        	height:326
+        });
+    	
+    }())
+  
+    </script>
+</#macro>
+
+<!-- 音频 -->
+<#macro audio resource>
+     <audio src="${videoHost}/${resource.audioPath}" autoplay controls style="width:100%"></audio>
+     <script>
+     $('#container').addClass("audioBak");
+     </script>
+</#macro>
+
+
+<!-- 其他 -->
+<#macro other msg>
+<div id="readerContent" style="width: 100%;height:426px">
+    <#if (msg)>
+    ${msg}
+    <#else>
+    资源暂时无法查看
+    </#if>  
+</div>
+</#macro>
+
+<style type="text/css">
+#status {
+    top: 14px;
+    right: 37px;
+    height: 15px;
+    width: 49px;
+    display: none;
+    padding: 1px;
+    border: 1px solid #d8d8d8;
+    border-radius: 3px;
+}
+</style>
+
+<!-- 互动PPT -->
+<#macro ppt resource>
+<iframe id="ppt_res"  frameborder="0" src="${docHost}/${resource.convertedPathHTML}" allowfullscreen="true" style="width:586px;height:326px">
+
+</iframe>
+<script type="text/javascript">
+$("#ppt_res").height($("#ppt_res").width() * 0.618);
+</script>
+</#macro>
+
+<!-- 一般文档 -->
+<#macro document resource>
+<div id="readerContent" style="width: 100%;">
+	
+</div>
+
+<script src="/manage/moveToCommon/js/bzt-doc-player/jquery.bzt.doc.player.js"></script>
+<link rel="stylesheet" type="text/css" href="/manage/moveToCommon/js/bzt-doc-player/jquery.bzt.doc.player.css" />
+<script type="text/javascript">
+var url="${docHost}/${resource.convertedPathImages}".replace("%.swf",1+".jpg");
+var config={
+		width:580,
+		height:326,
+		mode: "single",
+		url: "/manage/res/getJsonForRes.html?resId=${resource.id}&pageNo=1&pageSize=1000",
+		toolbarAutoHide: true,
+		initPageNo: 1,
+		fitWithHeight: true,
+}
+$(document).ready(function(){
+	var reader = $("#readerContent").bztdocplayer(config);
+});	
+</script>
+</#macro>
+
+<!--flash  -->
+<#macro flash resource>
+<iframe id="flash_res"  frameborder="0" src="${webUrl}/pub/resource/flashPlayer.html?objectId=${resource.objectId}"  allowfullscreen="true" style="width:582px;height:326px">
+</iframe>
+</#macro>
+
+<#macro resourceDisplay r_resource>
+	<!-- 资源转码成功 -->
+	<#if (r_resource.resStatus=20)>
+	    <!-- 视音频 -->
+	    <#if (r_resource.resTypeL1=10||r_resource.resTypeL1=11)>
+		    <!-- 视频 -->
+		     <@video resource=r_resource/>
+		   
+	    <!-- 文档 -->
+	    <#elseif (r_resource.resTypeL1=20)>
+	        <!-- 互动ppt -->
+	        <#if (r_resource.convertedPathHTML)>
+	        	 <@ppt resource=r_resource/>
+	        <!-- 一般文档 -->
+	        <#else>
+	             <@document resource=r_resource/>
+	        </#if>
+	    <!-- 其他 -->
+	      <!-- 文档 -->
+	    <#elseif (r_resource.resTypeL1=15)>
+	        	 <@flash resource=r_resource/>
+	    <!-- 其他 -->
+	    	<!-- 音频 -->
+	    <#elseif (r_resource.resTypeL1=12)>
+	    		<@audio resource=r_resource/>	
+	    <#else>
+	        <@other />
+	    </#if>
+	<!-- 资源转码中 -->
+    <#elseif (r_resource.resStatus=10)>
+    	<@other msg="文件转码中，请稍后"/>
+    <!-- 资源转码失败 -->
+    <#elseif (r_resource.resStatus=30)>
+        <@other msg="文件转码失败，请联系管理员"/>
+    <#else>
+        <@other />
+    </#if>
+</#macro>

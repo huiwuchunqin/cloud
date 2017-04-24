@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>积分头衔等级</title>
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<style type="text/css">
+	#fm{
+		padding: 0 15px;
+	}
+	#rankName{
+		width:130px;
+	}
+	.attrDiv400{
+		width: auto;
+	}
+	.attrDiv400 .numberbox{
+		box-sizing: border-box;
+		width: 160px !important;
+	}
+	#memo{
+		width: 158px;
+		margin-top: 10px;
+		padding: 0;
+	}
+</style>
+</head>
+<body class="easyui-layout " data-options="fit:true">
+	<div data-options="region:'north',border:false,fit:true">
+	<form id="fm" >
+		<div class="attrDiv">
+		<span>头衔名称</span><input id="rankName" class="easyui-validatebox" maxlength="6" data-options="required:true,validType:'length[0,6]'">
+		</div>
+		<div class="attrDiv"><span>用户身份</span><input class="easyui-combobox" id="userRole"
+				name="userRole"
+				data-options="
+			   data:[
+				   {name:'教师',code:'10'},
+				   {name:'学生',code:'20'}
+			
+			   ],
+			   textField:'name',
+			   valueField:'code',
+			   required:true,
+			   editable:false,
+ 				 " />
+		</div>
+		<div class="attrDiv400">
+		<span>所需积分</span><input id="totalPoint" class="easyui-numberbox" data-options="required:true,min:0,max:1000000000">
+		 <span class="red">积分范围0~1000000000</span>
+		</div>
+		<div class="attrDiv">
+		<span style="float:left">备注</span>
+		 <textarea id="memo" class="easyui-validatebox"  maxlength="100"  rows="4"></textarea>
+		</div>
+		<input id="id" hidden="hidden">
+	</form>
+	</div>
+	<div data-options="region:'south',border:false" style="text-align:center">
+		<a class="btn btnConfirm"  onclick="save()" >保存</a>
+		<a class="btn btnCancel"  onclick="easyui_closeTopWindow()">取消</a>
+	</div>
+</body>
+	<script type="text/javascript">
+	var pointRank=eval(${pointRank});
+	$(function(){
+		if(pointRank){
+			$('#id').val(pointRank.id);
+			$('#rankName').val(pointRank.rankName);
+			$('#userRole').combobox('setValue',pointRank.userRole);
+			$('#memo').val(pointRank.memo);	
+			$('#totalPoint').numberbox('setValue',pointRank.totalPoint);
+		}
+	})
+	//保存
+	function save(){
+		if($('#fm').form('validate')){
+			$.ajax({
+				url:"/manage/orgRank/save.html",
+				data:{
+					rankName:$('#rankName').val(),
+					userRole:$('#userRole').combobox('getValue'),
+					totalPoint:$('#totalPoint').numberbox('getValue'),
+					id:$('#id').val(),
+					memo:$('#memo').val(),
+				},
+				success:function(res){
+					$.messager.alert("信息",res.msg,"info",function(){
+						easyui_closeTopWindow(res.success);
+					});
+				}
+			})	
+		}
+	}
+	</script>
+</html>

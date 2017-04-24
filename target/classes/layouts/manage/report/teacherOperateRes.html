@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>老师资源使用情况</title> 
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'">
+			<div class="box">
+				<div class="labelBox ">
+					<span class="labelLine440"> <span
+							class="labelWidth60">日期：</span> <input id="startTime" class="Wdate"
+																  onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endTime\')}',dateFmt:'yyyy-MM-dd'})"/>
+						~ <input id="endTime"  class="Wdate"
+								 onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startTime\')}',dataFmt:'yyyy-MM-dd'})"/>
+					</span>
+					<span class="clear10"></span>
+					<span class="labelLine250"> <span class="labelWidth60">机构名称：</span>
+						<input id="orgName" placeholder="机构名称"/>
+					</span> <span class="labelLine250"> <span class="labelWidth60">老师姓名：</span> 
+						<input id="userName" placeholder="请输入老师姓名"/>
+					</span>
+				</div>
+				<div class="btnBox">
+					<button class="btn btnBlue search"
+						onclick="$('#tb1').datagrid('reload')">查询</button>
+				</div>
+			</div>
+		</div>
+		<div data-options="region:'center'">
+			<div id="tb" class="tbClass">
+				<button class="btn btnBlue align-right" onclick="exportData()">导出</button>
+			</div>
+			<table id ="tb1"class="easyui-datagrid"
+				data-options="
+				    pagination:true,
+				    toolbar:'#tb',
+				    rownumbers:true,
+				    fit:true,
+				    onBeforeLoad:onBeforeLoad,
+				    url:'/manage/userOperateRes/teacherList'
+                ">
+				<thead>
+					<tr>
+						<th data-options="field:'userName',halign:'center',width:100,align:'left'">姓名</th>
+						<th data-options="field:'orgName',halign:'center',width:250,align:'left'">机构名称</th>
+						<th data-options="field:'reference',halign:'center',width:100,align:'center'">引用</th>
+						<th data-options="field:'browser',halign:'center',width:100,align:'center'">浏览</th>
+						<th data-options="field:'good',halign:'center',width:100,align:'center'">点赞</th>
+						<th data-options="field:'comment',halign:'center',width:100,align:'center'">评论</th>
+						<th data-options="field:'favourite',halign:'center',width:100,align:'center'">收藏</th>
+						<th data-options="field:'download',halign:'center',width:100,align:'center'">下载</th>
+						<th data-options="field:'total',halign:'center',width:100,align:'center'">总数</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+		<script>
+		function onBeforeLoad(param){
+			param["orgName"]=$('#orgName').val();
+			param["userName"]=$('#userName').val();
+			param["beginTime"]=$('#startTime').val();
+			param["endTime"]=$('#endTime').val();
+		}
+		
+		//数据导出
+		function exportData(){
+			var  orgName=$('#orgName').val();
+			var  userName=$('#userName').val();
+			var startTime=$('#startTime').val();
+			var  endTime=$('#endTime').val();
+			downloadHelper("/manage/userOperateRes/export.html?role=2&orgName="+orgName+"&userName="+userName+"&beginTime="+startTime+"&endTime="+endTime+"&fileName="+getExportName())
+		}
+</script>
+	
+</body>
+</html>

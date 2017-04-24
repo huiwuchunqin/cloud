@@ -1,0 +1,34 @@
+<ul id="chapterTree" class="ztree" style="width:90%;">
+
+</ul>
+<script type="text/javascript">
+var chapterSetting={
+	view:{
+		showIcon:false,
+		showLine:false,
+		showTitle:true,
+		selectedMulti: false,
+	},
+	data:{
+		simpleData:{
+			enable: true,
+			idKey:'code',
+			enable: true,
+			pIdKey:'pcode',
+			rootPId: null,
+		},
+		key:{
+			name:"name",
+		}
+	},
+	callback:{
+		beforeAsync:beforeAsync,
+	}
+}
+
+//ztree异步加载事件
+function beforeAsync(id,treeNode){
+		if(treeNode==undefined)return false;
+	//zTreeObj.setting.async.url='/manage/textbook/getChapterTree.html?nodeType=chapter&chapterName='+$('#chapterName').val();
+}
+</script>

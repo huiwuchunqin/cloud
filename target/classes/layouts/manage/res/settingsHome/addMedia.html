@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<title>资源设置-视频资源</title>
+<style type="text/css">
+
+.imagebox {
+	height: 170px;
+}
+
+.imagebox:after {
+	clear: both;
+}
+
+.leftbox {
+	float: left;
+	height: 170px; 
+}
+
+.centerbox {
+	float: left;
+	margin-left: 100px;
+	height: 170px;
+}
+
+.rightbox {
+	float: right;
+	height: 115px;
+	line-height: 115px;
+}
+
+.tip {
+	position: absolute;
+	left: 52px;
+	top: 60px;
+	width: 100px;
+	height: 0px;
+	line-height: 21px;
+	color: grey;
+	cursor: pointer;
+}
+
+.tip2 {
+	position: absolute;
+	left: 32px;
+	top: 46px;
+	width: 100px; 
+	height: 0px;
+	line-height: 21px;
+	color: grey;
+	cursor: pointer;
+}
+</style>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'" >
+		<div class="box form">
+			<div class="labelBox">
+				<span class="labelLine240"> <span
+					class="labelWidth60">学段：</span> <input id="section"
+					class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false,onSelect:sectionSelect,panelHeight: 'auto'">
+				</span> <span class="labelLine240"> <span
+					class="labelWidth60">学科：</span> <input id="subject"
+					class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false,panelHeight: 'auto',data:[{name:'全部',code:'',selected:true}]">
+				</span> <span class="labelLine240"> <span
+					class="labelWidth60">年级：</span> <input id="grade"
+					class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false,panelHeight: 'auto',data:[{name:'全部',code:'',selected:true}]">
+				</span>
+				<div class="clear10"></div>
+				<span class="labelLine240"> <span
+					class="labelWidth60">视频分类：</span> <input id="resTypeL2"
+					class="easyui-combobox"
+					data-options="data:[{name:'全部',code:'',selected:true}],textField:'name',valueField:'code',editable:false,panelHeight: 'auto'">
+				</span> 
+				<span class="labelLine240"> <span
+					class="labelWidth60">共享级别：</span><input id="shareLevel"
+					class="easyui-combobox"
+					data-options="data:[{code: '',name: '全部',selected:true},
+								        {code: '20',name: '校内共享'},
+								        {code: '30',name: '区域共享'}],
+								        textField:'name',
+								        valueField:'code',
+								        editable:false,
+								        panelHeight: 'auto'
+					           ">
+				</span>
+				<span class="labelLine250"><span
+					class="labelWidth60">资源名称：</span><input id="resName" placeholder="请输入资源名称"> </span>
+				<div class="clear10"></div>
+				<span class="labelLine250"> <span
+					class="labelWidth60">学校名称：</span> <input id="orgName" placeholder="请输入学校名称">
+				</span> <span class="labelLine250"> <span
+					class="labelWidth60">作者姓名：</span> <input id="userName" placeholder="请输入作者姓名">
+				</span>
+			</div>
+			<div class="btnBox">
+				<a class="btn btnBlue search" data-options="iconCls:'icon-search'"
+					onclick="query()">查询</a>
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+			    pagination:true,
+			    fit:true,
+			    rownumbers:true,
+			    onBeforeLoad:onBeforeLoad,
+			    singleSelect:true,
+			    onClickRow:dgOnClickRow,
+			    pageNumber:1,
+			    pageSize:15,
+			    url:'/manage/resSettingsHome/media/search.html'
+                ">
+			<thead>
+				<tr>
+					<th data-options="field:'resName',width:280,align:'left',halign:'center'">资源名称</th>
+					<th data-options="field:'resTypeL1Name',width:90,align:'left',halign:'center'">资源一级分类</th>
+					<th data-options="field:'resTypeL2Name',width:90,align:'left',halign:'center'">资源二级分类</th>
+					<th data-options="field:'shareLevel',width:70,align:'center',halign:'center',formatter:commonfmt">共享级别</th>
+					<th data-options="field:'orgName',width:180,halign:'center',align:'left'">机构名称</th>
+					<th data-options="field:'userName',width:90,align:'left',halign:'center'">作者</th>
+					<th data-options="field:'sectionName',width:70,align:'center',halign:'center'">学段</th>
+					<th data-options="field:'subjectName',width:80,align:'left',halign:'center'">学科</th>
+					<th data-options="field:'gradeName',width:70,align:'left',halign:'center'">年级</th>
+					<th data-options="field:'makeTime',width:120,align:'center',halign:'center',formatter:timefmt">制作时间</th>
+					<th data-options="field:'resCode',hidden:true"></th>
+					<th data-options="field:'resTypeL1',hidden:true"></th>
+					<th data-options="field:'resTypeL2',hidden:true"></th>
+					<th data-options="field:'sectionCode',hidden:true"></th>
+					<th data-options="field:'subjectCode',hidden:true"></th> 
+				</tr>
+			</thead>
+		</table>
+	</div>
+	<div data-options="region:'south'">
+		<div class="imagebox">
+			<div class="leftbox">
+				<form id="image1" enctype="multipart/form-data" method="post"
+					action="/manage/company/uploadImage.html">
+					<div>
+						<input hidden="hidden"  type="file"
+							name="file" id="file1" accept=".jpg,.png,.gif,.jpeg"
+							onchange="showPicture1()"/><input hidden="hidden" id="fileType"
+							name="fileType" value="cover"/>
+					</div>
+					<div style="width: 150px; margin-top: 6px; margin-left: 10px; position: relative; cursor: pointer">
+						<label onclick="$('#file1').click()" class="tip" id="tip1">封面设置</label>
+						<img id="img1" style="height: 150px; width: 150px; border: 0"
+							onclick="$('#file1').click()"/><img id="img3" hidden="true"> 
+					</div>
+				</form>
+			</div>
+
+			<div class="centerbox">
+				<form id="image2" enctype="multipart/form-data" method="post"
+					action="/manage/company/uploadImage.html">
+					<div>
+						<input hidden="hidden"  type="file"
+							name="file" id="file2" accept=".jpg,.png,.gif,.jpeg"
+							onchange="showPicture2()"/><input hidden="hidden" id="fileType"
+							name="fileType" value="thumbnail"/>
+					</div>
+					<div
+						style="width: 120px; margin-top: 21px; position: relative; cursor: pointer">
+						<label onclick="$('#file2').click()" class="tip2" id="tip2">缩略图设置</label>
+						<img id="img2" style="height: 120px; width: 120px; border: 0"
+							onclick="$('#file2').click()"/><img id="img4" hidden="true">
+					</div>
+				</form>
+			</div>
+
+			<div class="rightbox">
+				<div style="padding: 20px">
+					<span>显示类别</span><input class="easyui-combobox" id="setType"
+						data-options="
+							valueField: 'value',
+							textField: 'label',
+							panelHeight: 'auto',
+							editable: false
+				            "/>
+				    <span style="margin-left: 10px">是否使用</span>
+				    <input name="flagAvailable" type="radio" value="1"/>是
+				    <input name="flagAvailable" type="radio" value="0"/>否
+					<span style="margin-left: 20px"> 
+					<a style="margin-right: 10px" class="btn btnConfirm"  onclick="save()">保存</a>
+					<a class="btn btnCancel" onclick="cancel()">取消</a>
+					</span>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var _subjectCombo = $('#subject');
+		var _gradeCombo = $('#grade');
+		var _sectionCombo = $('#section');
+		var _resTypeL2List = $('#resTypeL2');
+		var _setTypeCombo=$('#setType');
+		var defaultOpt = {
+			name : "全部",
+			code : '-1'
+		};
+		var setTypeDefaultData= function(){return [ {
+			label : '全部',
+			value : '',
+			selected : true
+		}, {
+			label : '顶部横幅',
+			value : '0'
+		}, {
+			label : '最新',
+			value : '1'
+		}, {
+			label : '最热',
+			value : '2'
+		}];}
+		
+		$(function() {
+			var sectionList = ${sectionList};
+			var resTypeL2List = ${resTypeL2List};
+			sectionList.splice(0, 0, defaultOpt);
+			resTypeL2List.splice(0, 0, defaultOpt);
+			_sectionCombo.combobox('loadData', sectionList);
+			_resTypeL2List.combobox('loadData', resTypeL2List);
+			_sectionCombo.combobox('select', -1);
+			_resTypeL2List.combobox('select', -1);
+			_setTypeCombo.combobox('loadData',setTypeDefaultData());
+		})
+
+		function timefmt(value, row) {
+			if (value != "" && value != null) {
+				return moment(value).format("YYYY-MM-DD HH:mm");
+			}
+		}
+		
+		//共享级别格式化
+		function commonfmt(value,row){
+			var result="";
+			if(value=="10"){
+				result="个人私有";
+			}else if(value=="20"){
+				result="校内共享";
+			}else if(value=="30"){
+				result="区域共享";
+			}
+			return result;
+		}
+
+		var coverPath = "";
+		var thumbnailPath = "";
+		
+		//学段下拉框选择事件
+		function sectionSelect(record) {
+			sectionSubject(record.code,$('#subject'));
+			sectionGrade(record.code,$('#grade'));
+		}
+
+		//查询按钮
+		function query() {
+			$('#dg').datagrid('reload');
+		}
+
+		//查询参数传递 
+		function onBeforeLoad(param) {
+			param["gradeCode"] = _gradeCombo.combobox('getValue');
+			param["subjectCode"] = _subjectCombo.combobox('getValue');
+			param["sectionCode"] = _sectionCombo.combobox('getValue');
+			param["resName"] = $('#resName').val();
+			param["resTypeL2"] = _resTypeL2List.combobox('getValue');
+			param["orgName"] = $('#orgName').val();
+			param["userName"] = $('#userName').val();
+			param["shareLevel"]=$("#shareLevel").combobox('getValue');
+		}
+
+		//取消
+		function cancel() {
+			easyui_closeTopWindow(false);
+		}
+		
+		//封面选择事件
+		$('#file1').change(function(data) {
+			var file = data.target.files[0];
+			if (!file) {
+				return false;
+			}
+			if (file.type.indexOf("image") < 0) {
+				alert("封面只能选择图片");
+				return false;
+			}
+			if (file.size > 10000000) {
+				alert("图片不能大于10M");
+				return false;
+			}
+			showPicture1();
+		})
+		
+		//缩略图选择事件
+		$('#file2').change(function(data) {
+			var file = data.target.files[0];
+			if (!file) {
+				return false;
+			}
+			if (file.type.indexOf("image") < 0) {
+				alert("封面只能选择图片"); 
+				return false;
+			}
+			if (file.size > 10000000) {
+				alert("图片不能大于10M");
+				return false;
+			}
+			showPicture2();
+		})
+		
+		//图片大小check
+		function sizeCheck(setType) {
+			var coverheight = $('#img3').height();
+			var coverwidth = $('#img3').width();
+			if (setType == 0) {
+				if ($('#file1')[0].files[0]
+						&& (coverheight < 400 || coverwidth < 1920)) {
+					alert("封面必须大于1920*400");
+					return false;
+				}
+			} else {
+				if ($('#file1')[0].files[0]
+						&& (coverheight < 290 || coverwidth < 360)) {
+					alert("封面必须大于360*290");
+					return false;
+				}
+			}
+			var thumbnailheight = $('#img4').height();
+			var thumbnailwidth = $('#img4').width();
+			if ($('#file2')[0].files[0]
+					&& (thumbnailheight < 50 || thumbnailwidth < 86)) {
+				alert("缩略图必须大于86*50");
+				return false;
+			}
+			return true;
+		}
+		//保存
+		function save() {
+			var row = $('#dg').datagrid('getSelected');
+			var setType = $('#setType').combobox('getValue');
+			var flagAvailable=$("input[name='flagAvailable']:checked").val();
+			if (row == null) {
+				$.messager.alert('消息', '请先选择一个音视频资源！', 'info');
+				return;
+			}
+			if (setType == null || setType == "") {
+				$.messager.alert('消息', '请选择显示类别！', 'info');
+				return;
+			}
+			if (flagAvailable == null || flagAvailable == "") {
+				$.messager.alert('消息', '请选择是否使用！', 'info');
+				return;
+			}
+			saveFile1AndFile2();
+			//保存文件1文件2
+			function saveFile1AndFile2() {
+				var file1 = $("#file1")[0].files[0];
+				if (file1) {
+					$('#image1').form('submit', {
+						success : function(json) {
+							var res = $.parseJSON(json);
+							coverPath = res.data;
+							saveFile2AndCommitRequest();
+						},
+					})
+				} else {
+					saveFile2AndCommitRequest()
+				}
+			}
+			
+			//保存文件2并提交请求
+			function saveFile2AndCommitRequest() {
+				var file2 = $("#file2")[0].files[0];
+				if (file2) {
+					$('#image2').form('submit', {
+						success : function(json) {
+							var res = $.parseJSON(json);
+							thumbnailPath = res.data;
+							commitRequest()
+						},
+					})
+				} else {
+					commitRequest();
+				}
+			}
+			//提交请求
+			function commitRequest() {
+				if (setType == "0") {
+					if (coverPath == null || coverPath == "") {
+						$.messager.alert('消息', '请上传封面图片！', 'info');
+						return;
+					}
+					if (thumbnailPath == null || thumbnailPath == "") {
+						$.messager.alert('消息', '请上传缩略图图片！', 'info');
+						return;
+					}
+				} else {
+					if (coverPath == null || coverPath == "") {
+						$.messager.alert('消息', '请上传封面图片！', 'info');
+						return;
+					}
+				}
+				var resCode = row.resCode;
+				var resTypeL1 = row.resTypeL1;
+				var resTypeL2 = row.resTypeL2;
+				var sectionCode = row.sectionCode;
+				var subjectCode = row.subjectCode;
+				var resName = row.resName;
+				var opts = {
+					url : '/manage/resSettingsHome/resSet/add.html',
+					type : "post",
+					data : {
+						resCode : resCode,
+						resTypeL1 : resTypeL1,
+						resTypeL2 : resTypeL2,
+						setType : setType,
+						coverPath : coverPath,
+						thumbnailPath : thumbnailPath,
+						sectionCode : sectionCode,
+						subjectCode : subjectCode,
+						resName : resName,
+						flagAvailable :flagAvailable
+					},
+					success : function(res) {
+						window.top.$.messager.alert("提示", res.msg, "info");
+						if (res.success) {
+							easyui_closeTopWindow(true);
+						}
+					},
+					error : function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("网络繁忙请稍后再试");
+					},
+					complete : function() {
+
+					}
+				}
+				if (sizeCheck(setType)) {
+					setTimeout(function() {
+						$.ajax(opts);
+					}, 1000)
+				}
+
+			}
+		}
+		
+		//显示图片
+		function showPicture1() {
+			$("#tip1").text("");
+			var url = window.URL.createObjectURL($('#file1')[0].files[0])
+			$("#img1").attr("src", url);
+			$("#img3").attr("src", url);
+		}
+
+		function showPicture2() {
+			$("#tip2").text("");
+			var url = window.URL.createObjectURL($('#file2')[0].files[0])
+			$("#img2").attr("src", url);
+			$("#img4").attr("src", url);
+		}
+
+		//行点击事件
+		function dgOnClickRow(rowIndex, rowData) {
+			var resTypeL2Code = rowData.resTypeL2;
+			var resTypeL2Name = rowData.resTypeL2Name;
+			var setTypeList=setTypeDefaultData();
+			//如果选中视频对应的二级分类是其它，不需要将值追加到下拉框里
+			if("1099"!=resTypeL2Code){
+				setTypeList.push({label:resTypeL2Name,value:resTypeL2Code});
+			}
+			_setTypeCombo.combobox('loadData', setTypeList);
+		}
+	</script>
+</body>
+</html>

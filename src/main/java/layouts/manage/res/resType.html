@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>资源分类</title>
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body>
+<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'center',fit:true">
+			 <table id="resType_treeGrid" class="easyui-treegrid" data-options="
+			 url:'/manage/resType/getResTypeTreeData.html',
+			 idField:'gid',
+			 treeField:'text',
+			 fit:true,
+			 rownumbers:true">
+			     <thead>
+			        <tr>
+			            <th data-options="field:'text',align:'left',halign:'center',width:300">资源分类</th>
+			            <th data-options="field:'description',halign:'center',align:'left',width:400">描述</th>
+			        </tr>
+			    </thead>
+            </table>
+</div>
+</div>
+  <script type="text/javascript"> 
+	
+  </script>
+</body>
+</html>

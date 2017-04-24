@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>机构学科题型设置</title>
+<style>
+	.datagrid-view{
+		width: 99% !important;
+		height: 99% !important;
+	}
+	.minBtn{
+		float:left;
+		height:80%;
+		margin-top:4%;
+		width:7%;
+		text-align: center;
+	}
+</style>
+</head>
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<body>
+<div id="unselected" style="width:46%;height:100%;float:left">
+<table id="unSelectedDg" class="easyui-datagrid" 
+data-options="
+	    fitColumns:true,
+	    fit:true,
+	    onBeforeLoad:onBeforeLoad,
+	    rownumbers:true,
+	    url:'/manage/questionTypeSubject/getNotSelect.html',
+	    idField:'code',
+	    ">
+	    <thead>
+			<tr>
+			    <th data-options="field:'ck',checkbox:true,width:50,halign:'center'"></th>
+				<th data-options="field:'name',width:100,halign:'center',align:'left'">可选题型</th> 
+			</tr>
+		</thead>
+</table>
+</div>
+
+<div  class="minBtn">
+<span class="clear" style="height:60px"></span>
+<img  src="/manage/template/images/right.png"  onclick="addQuestionTypeSubject()"/>
+<span class="clear" style="height:60px"></span>
+<img  src="/manage/template/images/left.png" onclick="removeQuestionTypeSubject()"/>
+</div>
+<div  id="selected" style="width:46%;height:100%;float:left">
+<table id="selectedDg" class="easyui-datagrid" 
+data-options="
+	    fit:true,
+	    fitColumns:true,
+	    rownumbers:true,
+	     onBeforeLoad:onBeforeLoad,
+	    idField:'code',
+	    url:'/manage/questionType/getOrgQuestionTypeList.html',
+	    ">
+	    <thead>
+			<tr>
+			    <th data-options="field:'ck',checkbox:true,width:50,halign:'center'"></th>
+				<th data-options="field:'name',width:100,halign:'center',align:'left'">已选题型</th>
+			</tr>
+		</thead>
+</table>
+</div>
+<script type="text/javascript">
+function onResize() {
+	$('#unselected').width($(window).width()*0.55);
+	$('#selected').width($(window).width()*0.4);
+	$('#selectedDg').datagrid('resize'); 
+	$('#unSelectedDg').datagrid('resize'); 
+}
+
+$(window).resize(onResize);
+
+function onBeforeLoad(param){
+	param["subjectCode"]="${subjectCode}"
+}
+var adding=false;
+//保存学科
+function addQuestionTypeSubject(){
+	if(adding)return false;
+	var rows=$('#unSelectedDg').datagrid('getSelections');
+	if(rows==undefined||rows==null||rows.length<=0){
+		$.messager.alert("信息","请选择要添加的题型","info");
+		return false;
+	}
+	adding=true;
+	$.ajax({
+		url:'/manage/questionType/saveOrgQuestionType.html',
+		data:{
+			questionTypeJSON:JSON.stringify(rows),
+		},
+		type:'post',
+		success:function(res){
+			$('#selectedDg').datagrid('reload');
+			$('#unSelectedDg').datagrid('reload');
+			$('#unSelectedDg').datagrid('unselectAll');
+			adding=false;
+		}
+	})
+}
+var removing=false;
+// 删除学科
+function removeQuestionTypeSubject(){
+	if(removing)return false;
+	var rows=$('#selectedDg').datagrid('getSelections');
+	if(rows==undefined||rows==null||rows.length<=0){
+		$.messager.alert("信息","请选择要移除的题型","info");
+	}
+	removing=true;
+	$.ajax({
+		url:'/manage/questionType/deleteOrgQuestionType.html',
+		data:{
+			questionTypeJSON:JSON.stringify(rows),
+		},
+		type:'post',
+		success:function(res){
+			$('#selectedDg').datagrid('reload');
+			$('#unSelectedDg').datagrid('reload');
+			removing=false;
+		}
+	})	
+}
+
+</script>
+</body>
+</html>

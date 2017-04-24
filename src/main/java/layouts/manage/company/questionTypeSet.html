@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>学科题型设置</title> <#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+</head>
+<script type="text/javascript">
+var list;
+$(function(){
+	
+	$.ajax({
+			url:'/manage/questionType/questionTypeSubjectList.html',
+			data:{
+				subjectCode:${subjectCode},
+			},
+			success:function(res){
+				list=res;
+			}
+		});
+	$('#dg').datagrid({
+	columns:[[
+	{field:'questionTypeSubjectOrgName',title:'题型别名',width:160,align:'left', 
+	editor:{type:'validatebox',options:{validType:'length[0,20]',required:true}}},  
+	{field:'questionType',title:'系统题型',formatter:questionTypefmt,width:120,align:'left',
+	editor:{type:'combobox',options:{editable:false,textField:'name',required:true,valueField:'questionType',url:'/manage/questionType/questionTypeSubjectList.html?subjectCode='+${subjectCode}}}},   
+	 {field:'dispOrder',width:50,align:'right',title:'显示序号',editor:{type:'numberbox',options:{min:1,max:999999999}}},       
+	{field:'del',width:90,align:'center',formatter:fmt,title:'操作'},           
+	 ]]	
+	})
+
+})
+</script>
+<body>
+	<div id="tb">
+		<div style="float:left">
+		<a class="easyui-linkbutton" onclick="importDefault()" >导入默认</a>
+		</div>
+		<div class="btnBox">
+			<a class="btn btnBlue " onclick="save()" iconCls="icon-save">保存</a>
+			<a class="btn btnBlue add" onclick="append()" iconCls="icon-add">新增</a>
+		</div>
+	</div>
+	<table id="dg" class="easyui-datagrid"
+		data-options="
+			toolbar:'#tb',
+			singleSelect:true,
+			fit:true,
+			fitColumns:true,
+			onClickRow:onClickRow,
+			onBeforeLoad:onBeforeLoad,
+			url:'/manage/questionType/getOrgQuestionTypeList.html'
+        ">
+	</table>
+
+	<script type="text/javascript">
+	var dg=$('#dg');
+	var editIndex;
+	
+	//操作格式化
+	function fmt(value,row){
+		return "<a href='javascript:void(0)'class='easyui-linkbutton' iconCls='icon-edit' onclick='edit(this)'> 修改</a>"
+		+"&nbsp;&nbsp;<a href='javascript:void(0)' class='easyui-linkbutton' iconCls='icon-del' onclick='deleteRow(this)'> 删除 </a>"
+	}
+	
+	function onBeforeLoad(param){
+		param["subjectCode"]=${subjectCode};
+	}
+	function questionTypefmt(value,row,index){
+		if(!value){
+			return "";
+			}else {
+				var same=_.find(list,function(item){
+					return item.questionType==value
+				})
+				return same&&same.name||"";
+			/* 	for(var i=0;i<list.length;i++){
+					if(list[i].code==value){
+						return list[i].typeName;
+					}
+				}	 */
+			}
+	}
+	//单击某行
+	function onClickRow(rowIndex,data){
+		if(endEditing()){
+			dg.datagrid('beginEdit',rowIndex);
+			editIndex=rowIndex;
+		}else{
+			dg.datagrid('beginEdit',editIndex);
+		}
+	}
+	
+	//停止编辑
+	function endEditing(){
+		if(editIndex==void 0)return true;
+		if(dg.datagrid('validateRow',editIndex)){
+			 var ed= dg.datagrid('getEditor', {index:editIndex,field:"questionType"});
+			 var ed2=dg.datagrid('getEditor', {index:editIndex,field:"questionTypeSubjectOrgName"});
+			 var ed3=dg.datagrid('getEditor', {index:editIndex,field:"dispOrder"});
+			 var questionType=$(ed.target).combobox('getValue');
+			 var codeName=$(ed.target).combobox('getText');
+			 var name=$(ed2.target).val();
+			 var order=$(ed3.target).numberbox('getValue');
+			 var rows=dg.datagrid('getRows');
+			 for(var i=0;i<rows.length;i++){
+				if(name==rows[i].questionTypeSubjectOrgName&&questionType==rows[i].questionType&&i!=editIndex){
+					$.messager.alert("提示","正在编辑的题型已存在,不能通过验证,请修改","info"); 
+					return false;
+				}
+				if(order==rows[i].dispOrder&&i!=editIndex&&order!=""){
+					$.messager.alert("提示","显示序号已经被使用请修改","info");
+					return false;
+				}
+			}
+			dg.datagrid('endEdit',editIndex);
+			editIndex=void 0;
+			return true;
+		}else{
+			dg.datagrid('beginEdit',editIndex);
+			return false;
+		}
+	}
+	
+	//编辑某行
+	function edit(obj){
+		var index=$(obj).closest("tr").index();
+		if(endEditing()){
+			dg.datagrid('beginEdit',index);
+			editIndex=index;
+		}else{
+			dg.datagrid('beginEdit',editIndex);
+		}
+		
+	}
+	//添加行
+	function append(){
+		if(endEditing()){
+			dg.datagrid('appendRow',{});
+			var rows=dg.datagrid('getRows');
+			editIndex=rows.length-1;
+			dg.datagrid('beginEdit',editIndex);
+		}
+	}
+	
+	//删除行
+	function deleteRow(obj){
+		var index=$(obj).closest("tr").index();
+		dg.datagrid('selectRow',index);
+		var row=dg.datagrid('getSelected');
+		if(!row.gid){
+			if(editIndex==index)editIndex=void 0;
+			dg.datagrid('deleteRow',index);
+		}else{
+			if(endEditing()){
+			confirm("删除确认","确认删除吗？",function(r){
+				if(r){
+					if(editIndex==index)editIndex=void 0;
+					$.ajax({
+						url:"/manage/questionType/deleteOrgQuestionType.html",
+						data:{
+							gid:row.gid
+						},
+						success:function(res){
+							alert(res.msg);
+							if(res.success){
+								dg.datagrid('reload');
+							}
+						}
+					})	
+				}
+			})
+			}
+		}
+	}
+	//保存数据
+	function save(){
+		if(endEditing()){
+			var rows=dg.datagrid('getChanges');
+			_.each(rows,function(row){
+				var same=_.find(list,function(item){
+					return item.questionType==row.questionType
+				})
+				row.flagSysEvaluate=same.flagSysEvaluate;
+				row.subjectCode=${subjectCode};
+				row.name=same.name;
+				row.code=same.code;
+			})
+			$.ajax({
+				url:'/manage/questionType/saveOrgQuestionType.html',
+				data:{
+					json:JSON.stringify(rows),
+				},
+				success:function(res){
+					alert(res.msg);
+					if(res.success){
+						dg.datagrid('reload');
+					}
+				}
+			})
+		}
+	}
+	
+	//导入默认
+	function importDefault(){
+		$.ajax({
+			url:'/manage/questionType/importDefault.html',
+			data:{
+				subjectCode:${subjectCode},
+			},
+			success:function(res){
+				alert(res.msg);
+				if(res.success){
+					dg.datagrid('reload');
+				}
+			}
+		})
+	}
+	</script>
+</body>
+</html>

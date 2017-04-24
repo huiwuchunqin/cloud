@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration PUBLIC "-//LOGGER" "http://logging.apache.org/log4j/1.2/apidocs/org/apache/log4j/xml/doc-files/log4j.dtd">
+<log4j:configuration>
+
+	<!-- an appender is an output destination, such as the console or a file; 
+		names of appenders are arbitrarily chosen -->
+	<appender name="stdout" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%-5p] [%d{HH:mm:ss}] %c - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="file" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/home/community/log/webapp.log" />
+		<param name="append" value="true" />
+		<param name="datePattern" value="'.'yyyy-MM-dd" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%-5p] [%d{yyyy-MM-dd HH:mm:ss}] %c - %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="AcceptOnMatch" value="true" />
+		</filter>
+	</appender>
+
+	<appender name="warn" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/home/community/log/warn.log" />
+		<param name="append" value="true" />
+		<param name="datePattern" value="'.'yyyy-MM-dd" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%-5p][ %t ] [%d{yyyy-MM-dd HH:mm:ss}] %c - %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="WARN" />
+			<param name="LevelMax" value="WARN" />
+			<param name="AcceptOnMatch" value="true" />
+		</filter>
+	</appender>
+
+	<appender name="error" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="file" value="/home/community/log/error.log" />
+		<param name="append" value="true" />
+		<param name="datePattern" value="'.'yyyy-MM-dd" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%-5p][ %t ] [%d{yyyy-MM-dd HH:mm:ss}] %c - %m%n" />
+		</layout>
+		<filter class="org.apache.log4j.varia.LevelRangeFilter">
+			<param name="LevelMin" value="ERROR" />
+			<param name="LevelMax" value="ERROR" />
+			<param name="AcceptOnMatch" value="true" />
+		</filter>
+	</appender>
+
+	<!-- loggers of category 'org.springframework' will only log messages of 
+		level "info" or higher; if you retrieve Loggers by using the class name (e.g. 
+		Logger.getLogger(AClass.class)) and if AClass is part of the org.springframework 
+		package, it will belong to this category -->
+	<!-- <logger name="org.springframework" additivity="true"> <level value="warn" 
+		/> </logger> -->
+
+	<!-- the root category -->
+	<root>
+		<!-- all log messages of level "debug" or higher will be logged, unless 
+			defined otherwise all log messages will be logged to the appender "stdout", 
+			unless defined otherwise -->
+		<level value="INFO" />
+		<appender-ref ref="stdout" /> 
+		<appender-ref ref="file" /> 
+		<appender-ref ref="warn" /> 
+		<appender-ref ref="error" />
+	</root>
+
+</log4j:configuration>

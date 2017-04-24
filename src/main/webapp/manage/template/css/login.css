@@ -1,0 +1,72 @@
+/* CSS Document */
+/* CSS Document */
+*{ padding: 0; margin: 0;}
+body { font-family:"微软雅黑", "宋体", Arial; font-size: 12px; background: #fff; color: #454545; min-width: 1200px;}
+a { text-decoration: none; cursor: pointer;}
+button { cursor: pointer; font-family:"微软雅黑", "宋体", Arial; font-size: 12px;}
+.login_header { width: 1000px; margin: 0 auto; position: relative;}
+.login_header h1 { 
+ /*    display: inline-block;
+    width: 242px;
+    height: 38px;
+    zoom: 1;
+    background: url(../images/login/bzt-logo.png) no-repeat;
+    padding-left: 108px;
+    line-height: 50px;
+    font-size: 24px;
+    font-weight: normal; */
+    display: inline-block;
+    width: 800px;
+    height: 45px;
+    zoom: 1;
+    /* background: url(../images/login/logo.png) no-repeat;  */
+    /* padding-left: 108px; */
+    line-height: 54px;
+    font-size: 24px;
+    font-weight: normal;
+}
+.login_area { width: 1000px; margin: 0 auto; position: relative;}
+.login_box { width: 380px; height: 450px; position: absolute; top: 25px; right: 20px; background: #fff;}
+.login_box h1 { line-height: 80px; padding-left: 32px; font-size: 24px; font-weight: normal;}
+.login_box input { 
+	line-height: 20px; 
+	padding: 10px 10px 10px 40px; 
+	border: 1px solid #acacac; 
+	width: 268px; 
+	margin: 12px 30px; 
+	box-shadow: 0 1px 1px #ccc inset;
+	/*filter: progid:DXImageTransform.Microsoft.Shado(Strength=1, Direction=90, Color='#ccc');*/
+}
+.login_box input.user { background: url(../images/login/user.png) 10px 15px no-repeat;}
+.login_box input.password { background: url(../images/login/password.png) 10px 15px no-repeat;}
+
+.login_box button { 
+	height: 50px; 
+	line-height: 50px; 
+	border: 0; 
+	background: url(../images/login/go.png) 185px 12px no-repeat #eb7127; 
+	color: #fff;
+	margin: 12px 30px;
+	width: 320px;
+	font-size: 18px;
+	padding-right: 30px;
+}
+.login_footer { width: 1000px; margin: 10px auto;}
+.login_footer p { line-height: 40px; text-align: center;}
+
+/* 后台登录 */
+.login_header.login_header_2 { width: 840px;}
+.login_body_2 {
+	overflow: hidden;	
+}
+.login_body_2 .login_area { border: 1px solid #c5c5c5; padding: 10px; width: 820px; margin-top: 20px;}
+.login_body_2 .login_box { top: 12px; right: 0; height: auto;}
+.list {
+	list-style: none;
+	padding: 10px 50px;
+	margin: 0;
+}
+
+.list li {
+	margin-top: 10px;
+}

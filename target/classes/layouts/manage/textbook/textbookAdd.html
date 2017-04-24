@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_css.html"/> <#include
+"/manage/common/meta_js.html"/>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript" src="/manage/template/helper/helper.js"></script>
+<title>新增教材</title>
+<script type="text/javascript">
+var tbCode="${tbCode}";
+$(function(){
+	if(tbCode!=""){
+		$('#cc').layout('panel','north').hide();
+		$('#cc').layout('remove','north');
+	}	
+})
+
+</script>
+<style type="text/css">
+	.labelLine300,.labelLine600{
+		margin: 10px 0;
+	}
+	#btnSave{
+		color: #fff;
+	}
+</style>
+</head>
+<body>
+	<div id="cc" class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'" style="title:'查询条件'">
+	<div  id="addDiv" class="box form" >
+					<div class="labelLine300">
+						<div class="labelWidth60">学段<span class="required">*</span></div>
+						<input class="easyui-combobox" id="section" data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{code: '',name: '请选择',selected:true}
+								<#if (sectionList?exists && sectionList?size>0)>
+							  		<#list sectionList as section>
+							  			,{code:'${section.code}', name:'${section.name?default('&nbsp;')}'}
+							  		</#list>
+								</#if>
+							],onSelect:sectionSelect"/>
+					</div>
+						<!-- 学科 -->
+					<div class="labelLine300">
+						<div class="labelWidth60">学科<span class="required">*</span></div>
+						<input class="easyui-combobox" id="subject" data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code: '',name: '请选择',selected:true}],
+							onSelect:subjectSelect
+							"/>
+					</div>
+					<!-- 年级 -->
+					<div class="labelLine300">
+						<div class="labelWidth60">年级<span class="required">*</span></div>
+						<input class="easyui-combobox" id="grade" data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code: '',name: '请选择',selected:true}],							
+							"/>
+					</div>				
+					<!-- 教材版本 -->
+					<div class="labelLine300">
+						<div class="labelWidth60">教材版本<span class="required">*</span></div>
+						<input class="easyui-combobox" id="version" data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code:'',name: '请选择',selected:true}]							
+							"/>
+					</div>
+						<!-- 学期 -->
+					<div class="labelLine300">
+						<div class="labelWidth60">学期</div>
+						<input class="easyui-combobox" id="term" data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+							{code:'',name: '请选择',selected:true},
+							{code:'1',name: '上学期'},
+							{code:'2',name: '下学期'},
+							]"/>
+					</div>
+			</div>
+	</div>
+	<div data-options="region:'center'">
+		<form id="fm" method="post" onsubmit="checkForm()">
+		<div class="box form">
+			<div class="labelBox">
+				<div class="labelLine600">
+					<span class="labelWidth60">教材名称<span class="required">*</span></span>
+					<input class="easyui-validatebox" id="tbName" name="tbName" data-options="required:true" maxlength="30" placeholder="请输入教材名称" value=""/>
+				</div>
+				<div class="labelLine600">
+					<span class="labelWidth60">备注</span>
+					<textarea class="easyui-validatebox " rows="5" cols="50" id="memo" name="memo" maxlength="100"></textarea>
+				</div>
+			</div>
+		</div>
+		</form>
+	</div>
+	<div data-options="region:'south',border:false" style="text-align: right; padding:0 10px 10px 0;">
+				<a class="btn btnBlue" id="btnSave" href="javascript:void(0);" onclick="save()">保存</a>
+				<a class="btn btnGrey" style="margin-left: 5px;" id="btnCancel" onclick="closeWindow()" >关闭</a>
+	</div>
+</div>
+<script type="text/javascript">
+
+//学段选择事件
+function sectionSelect(record){
+	sectionGrade(record.code,$('#grade'));
+	sectionSubject(record.code,$('#subject'));
+}
+	//年级选择事件
+function gradeSelect(record){
+	gradeSubject(record.code,$('#subject'));
+}
+	//学科选择事件
+function subjectSelect(record){
+	subjectTextbookVer(record.code,$('#version'))
+	
+}
+
+function closeWindow(){
+	easyui_closeTopWindow(false);
+}
+//保存
+var sectionCode="";
+var subjectCode="";
+var gradeCode="";
+var versionCode="";
+var termCode="";
+function save(){
+	if(tbCode==""){
+		 sectionCode=$("#section").combobox('getValue');
+		 subjectCode=$("#subject").combobox('getValue');
+		 gradeCode=$("#grade").combobox('getValue');
+		 versionCode=$("#version").combobox('getValue');
+		 termCode=$("#term").combobox('getValue');
+		if(isEmpty(sectionCode)){
+			alert("请选择学段");
+			return ;
+		}
+		if(isEmpty(subjectCode)){
+			alert("请选择学科");
+			return ;
+		}
+		if(isEmpty(gradeCode)){
+			alert("请选择年级");
+			return ;
+		}
+		if(isEmpty(versionCode)){
+			alert("请选择教材版本");
+			return ;
+		}
+	/* 	if(isEmpty(termCode)){
+			alert("请选择学期 ");
+			return ;
+		}	 */
+	}
+	var tbName=$('#tbName').val();
+	var memo=$('#memo').val();
+	if($('#fm').form('validate')){
+		$.ajax({
+			url:'/manage/textbook/saveTextbook.html',
+			data:{
+				sectionCode:sectionCode,
+				gradeCode:gradeCode,
+				subjectCode:subjectCode,
+				textbookVerCode:versionCode,
+				termCode:termCode,
+				tbName:tbName,
+				memo:memo,
+				tbCode:tbCode,
+			},
+			type:'post',
+			success:function(res){
+				$.messager.alert("信息",res.msg,"info",function(){
+					easyui_closeTopWindow(res.data);	
+				})	
+			}
+		})	
+	}
+}
+</script>
+</body>
+</html>

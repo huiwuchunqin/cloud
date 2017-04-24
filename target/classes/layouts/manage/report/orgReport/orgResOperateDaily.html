@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>本校使用情况</title> 
+<#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'">
+			<div class="box">
+				<div class="labelBox">
+					<div class="labelLine440">
+						<span class="labelWidth60">日期：</span> <input id="startDate" class="Wdate"
+																	 onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})" />
+						~ <input id="endDate" class="Wdate"
+								 onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})" />
+					</div>
+				</div>
+				<div class="btnBox">
+					<button class="btn btnBlue search" onclick="query()">查询</button> 
+				</div>
+			</div>
+		</div>
+		<div data-options="region:'center'">
+			<div id="tb" class="tbClass">
+				<span class="attr" style="margin-left: 10px;">机构数：<label id="schoolTotal"></label></span> 
+				<span class="attr">查看数：<label id="browseCountTotal"></label></span> 
+				<span class="attr">下载数：<label id="downloadCountTotal"></label></span> 
+				<span class="attr">引用数：<label id="referCountTotal"></label></span> 
+				<span class="attr">收藏数：<label id="favoriteCountTotal"></label></span> 
+				<span class="attr">点赞数：<label id="goodCountTotal"></label></span> 
+				<span class="attr">评论数：<label id="commentCountTotal"></label></span> 
+				<button class="btn btnBlue align-right"  onclick="exportData()">导出</button>
+			</div>
+			<table id="dg" class="easyui-datagrid"
+				data-options="
+				 onBeforeLoad:onBeforeLoad,
+				 rownumbers:true,
+				 singleSelect:true,
+				 toolbar:'#tb',
+				 fit:true,
+				 url:'/manage/resOperateDaily4org/search.html'
+		         ">
+				<thead>
+					<tr>
+						<th data-options="field:'orgName',width:300,halign:'center',align:'left'">机构名称</th>
+						<th data-options="field:'sectionName',width:80,align:'center',halign:'center'">学段</th>
+						<th data-options="field:'browseCount',width:80,align:'center',halign:'center'">查看数</th>
+						<th data-options="field:'downloadCount',width:80,align:'center',halign:'center'">下载数</th>
+						<th data-options="field:'referCount',width:80,align:'center',halign:'center'">引用数</th>
+						<th data-options="field:'favoriteCount',width:80,align:'center',halign:'center'">收藏数</th>
+						<th data-options="field:'goodCount',width:80,align:'center',halign:'center'">点赞数</th>
+						<th data-options="field:'commentCount',width:80,align:'center',halign:'center'">评论数</th>
+						<th data-options="field:'operate',width:90,align:'center',formatter:operatefmt,halign:'center'">查看</th>
+						<th data-options="field:'orgCode',hidden:true"></th>
+						<th data-options="field:'sectionCode',hidden:true"></th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+	<script type="text/javascript">
+		var startDate = "";
+		var endDate = "";
+		//查询
+		function query() {
+			$('#dg').datagrid('reload');
+			queryTotal();
+		}
+
+		//查询总数
+		function queryTotal() {
+			var start = $("#startDate").val();
+			var end = $("#endDate").val();
+			if (end == "" || end == null) {
+				end = moment(new Date()).format("YYYY-MM-DD");
+			}
+			start = start;
+			end = end;
+			var opts = {
+				url : '/manage/resOperateDaily4org/searchTotal.html',
+				type : "post",
+				data : {
+					startDate : start,
+					endDate : end,
+					orgCode :"${orgCode}"
+				},
+				success : function(data) {
+					$('#schoolTotal').text(data.schoolTotal || 0);
+					$('#browseCountTotal').text(data.browseCountTotal || 0);
+					$('#downloadCountTotal').text(data.downloadCountTotal || 0);
+					$('#referCountTotal').text(data.referCountTotal || 0);
+					$('#favoriteCountTotal').text(data.favoriteCountTotal || 0);
+					$('#goodCountTotal').text(data.goodCountTotal || 0);
+					$('#commentCountTotal').text(data.commentCountTotal || 0);
+				},
+				error : function(XMLHttpRequest, textStatus, errorThrown) {
+					alert("网络繁忙请稍后再试");
+				},
+				complete : function() {
+
+				}
+			}
+			$.ajax(opts);
+		}
+
+		$(function() {
+			queryTotal();
+		})
+
+		function onBeforeLoad(param) {
+			startDate = $("#startDate").val();
+			endDate = $("#endDate").val();
+			if (endDate == "" || endDate == null) {
+				endDate = moment(new Date()).format("YYYY-MM-DD");
+			}
+			param["startDate"] = startDate;
+			param["endDate"] = endDate;
+			param["orgCode"] = "${orgCode}";
+		}
+
+		//导出数据
+		function exportData() {
+			if (endDate == "" || endDate == null) {
+				endDate = moment(new Date()).format("YYYY-MM-DD");
+			}
+			var baseDateStart = startDate;
+			var baseDateEnd = endDate;
+			var orgCode="${orgCode}";
+			downloadHelper("/manage/resOperateDaily4org/export.html?baseDateStart="
+					+ baseDateStart
+					+ "&baseDateEnd="
+					+ baseDateEnd
+					+"&orgCode="+orgCode
+					+"&fileName="+getExportName())
+		}
+
+		//操作列格式化
+		function operatefmt(value, row) {
+			var str = "<a href='javascript:void(0)' onclick='detail(this)'>详情</a>";
+			return str;
+		}
+
+		//查看详细
+		function detail(obj) {
+			var index = $(obj).closest("tr").index();
+			$('#dg').datagrid('selectRow', index);
+			var row = $('#dg').datagrid('getSelected');
+			var url="/manage/userResOperateDaily/list.html?sectionCode="+row.sectionCode.trim()+"&orgCode="+row.orgCode.trim()+"&startDate="+startDate+"&endDate="+endDate
+			window.top.$("#tab").tabs('close','机构使用情况详细');
+			window.top.$("#tab").tabs('add', {
+				title : '机构使用情况详细',
+				closable : true,
+				content : '<iframe scrolling="no" frameborder="0" src="'+url+ '" style="width:100%;height:100%;"></iframe>'
+			});		
+		}
+	</script>
+</body>
+</html>

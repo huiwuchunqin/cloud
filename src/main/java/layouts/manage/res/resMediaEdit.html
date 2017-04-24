@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<#include "/manage/common/fileUpload.html"/>
+<#include "/manage/common/resource_display.html">
+<script type="text/javascript" src="/manage/template/js/manageRes/commonConstant.js"></script>
+<script type="text/javascript" src="/manage/template/js/manageRes/resUpload.js"></script>
+<script type="text/javascript" src="/manage/template/js/manageRes/mediaResAdd.js"></script>
+<script type="text/javascript" src="/manage/template/js/manageRes/resCommon.js"></script>
+<script type="text/javascript" src="/manage/template/js/manageRes/model.js"></script>
+<script type="text/javascript" src="/manage/moveToCommon/js/knockout-easyui-Lite/knockout-easyui.js"></script>
+<script type="text/javascript" src="/manage/template/js/common.validatebox.js"></script>
+<title>视频资源修改</title>
+<style>
+.row_list li>span {min-width:100px;display: inline-block;text-align: right;}
+.row_list li>span.required {min-width: 0px;}
+.row_list li{float:left}
+.childList{margin-left:100px};
+.childList>div{padding:5	px}
+.childList>div>span{min-width:97px}
+a.cursor{color:blue;}
+.combobox-item{min-height:20px;}
+</style>
+</head>
+<body class="easyui-accordion">
+<div title="观看资源"  data-options="animate:true,fit:true" style="height:150px">
+
+			<@resourceDisplay r_resource=resourse/>
+</div>
+<div title="视频信息" data-options="animate:true,fit:true,selected:true">
+		<div>
+			<form id="fm">
+				<ul class="row_list float">
+					<li> 
+						<span>公开权限：</span><!-- {label:'3',text:'区县'},{label:'4',text:'地市'},{label:'5',text:'省级'}, --><!-- class="easyui-combobox"data-options="editable:false,textField:'text',valueField:'label',data:[{label:'10',text:'私有'},{label:'20',text:'机构'},{label:'60',text:'完全'}]" -->
+						<input   data-options="required:true,editable:false" data-bind="comboboxSource:shareLevel.source,comboboxValue:shareLevel.val,easyuiOptions:shareLevel.viewSettings"/>
+						<span class="required">*</span>
+					</li>
+					<!-- <li>
+						<span>下载点数：</span>
+						<input class="easyui-validatebox" data-options="required:true,validType:'betweenInter[0,101]'" data-bind="value:downloadPoints" value="0" type="text"/>
+						<span class="required">*</span>
+					</li> -->
+					<li> 
+						<span>允许下载?：</span>
+						<input   data-options="required:true,editable:false" data-bind="comboboxSource:flagAllowDownload.source,comboboxValue:flagAllowDownload.val,easyuiOptions:flagAllowDownload.viewSettings"/>
+						<span class="required">*</span>
+					</li>
+					<li> 
+						<span>允许浏览?：</span>
+						<input   data-options="required:true,editable:false" data-bind="comboboxSource:flagAllowBrowse.source,comboboxValue:flagAllowBrowse.val,easyuiOptions:flagAllowBrowse.viewSettings"/>
+						<span class="required">*</span>
+					</li>
+					<li>
+						<span>分类：</span>
+						<input data-options="required:true,editable:false" data-bind="comboboxSource:type.source,comboboxValue:type.val,easyuiOptions:type.viewSettings"/>
+						<span class="required">*</span>
+					</li>
+						<!-- <li data-bind="visible:flagAllowBrowse.val()==1">
+						<span>允许试看百分比：</span>
+						<input  class="easyui-validatebox" data-options="required:true,validType:'betweenInter[1,101]'" data-bind="value:trialTimeRate" type="text"/>%
+						<span class="required">*</span>
+					</li> -->
+				<!-- 	<li>
+						<span><a href="javasript:void(0);" data-bind="event:{click:openSupplier}" class="cursor">供应商</a>：</span>
+						<input  readOnly="true" type="text" data-bind="value:library().supplierName" />
+					</li> -->
+					<li  style="clear:both;height:20px;display:block"></li >
+					<li>
+						<span>所属学段：</span>
+						<input data-options="required:true,editable:false" data-bind="comboboxSource:section.source,comboboxValue:section.val,easyuiOptions:section.viewSettings"/>		
+						<span class="required">*</span>
+					</li>
+					
+					<li>
+						<span>所属年级：</span>
+						<input data-options="required:true,editable:false" data-bind="comboboxSource:grade.source,comboboxValue:grade.val,easyuiOptions:grade.viewSettings"/>
+						<span class="required">*</span>
+					</li>
+						<li>
+						<span>所属学期：</span>
+						<input data-options="required:true,editable:false" data-bind="comboboxSource:term.source,comboboxValue:term.val,easyuiOptions:term.viewSettings"/>
+						<span class="required">*</span>
+					</li>
+					<li>
+						<span>所属学科</span>
+						<input data-options="required:true,editable:false" data-bind="comboboxSource:subject.source,comboboxValue:subject.val,easyuiOptions:subject.viewSettings"/>
+						<span class="required">*</span>
+					</li>
+					<li  style="clear:both;height:20px;display:block"></li >
+					<li>
+						<span>所属教材版本：</span>
+						<input data-options="editable:false" data-bind="comboboxSource:version.source,comboboxValue:version.val,easyuiOptions:version.viewSettings"/>
+					</li>
+					<li style="clear:both;height:20px;display:block"></li>
+					<li>
+						<span>资源描述：</span>
+						<textarea data-bind="value:resDesc" type="text"  class="easyui-validatebox" validType="maxLength[400]"  maxlength="400" style="width:800px;height:100px;"></textarea>
+					</li>
+				</ul>
+				<div class="btnBox" style="margin:20px;">
+							<a class="btn btnConfirm" onclick="update()">保存</a>
+							&nbsp;
+							<a class="btn btnCancel"  onclick="easyui_closeTopWindow()">取消</a>
+						</div>
+			</form>
+		</div>
+</div>
+<script type="text/javascript">
+//后台数据
+var sectionList=eval(${sectionList});
+var typeList=eval(${typeList})||[];
+var relateGrade=eval(${relateGrade})||"";
+var relateSubject=eval(${relateSubject})||"";
+var relateVersion=eval(${relateVersion})||"";
+var relateSection=eval(${relateSection})||"";
+var res=$.parseJSON('${res}');
+var defaultOptions=[{name:"请选择",code:"-1"}];
+//ko初始化
+var vm=new ViewModel();
+vm.shareLevel.source(shareLevel);
+vm.flagAllowDownload.source(flagAllowDownload);
+vm.flagAllowBrowse.source(flagAllowBrowse);
+vm.type.source(typeList);
+$(function(){
+		vm.section.source(sectionList);		//学段
+	    ko.applyBindings(vm);
+		//数据初始换
+	    vm.shareLevel.val(res.shareLevel);			//分享级别
+	    vm.downloadPoints(res.downloadPoints);		//下载点数
+	    vm.resDesc(res.resDesc);					//描述
+	    vm.type.val(res.resTypeL2);					//资源类型
+	    vm.section.val(relateSection.code);	//适合的学段
+	    vm.flagAllowDownload.val(res.flagAllowDownload);//是否允许下载
+	    vm.flagAllowBrowse.val(res.flagAllowBrowse);//是否允许浏览
+	    vm.trialTimeRate(res.trialTimeRate);//允许观看百分比
+	    vm.subject.val(relateSubject.code);
+	    vm.grade.val(relateGrade.code);
+	    vm.version.val(relateVersion.code);
+	    vm.term.source(term);
+	    vm.term.val(relateGrade.termCode);
+	    resId=res.id;
+})
+
+//ko对象
+function ViewModel(){
+	var section=new easyuiDefaultModel();
+	var subject=new easyuiDefaultModel();
+	var version=new easyuiDefaultModel();
+	section.viewSettings.onChange=sectionChange;
+	subject.viewSettings.onChange=subjectChange;
+	var self=this;
+	self.downloadPoints=ko.observable();				//下载点数
+	self.resDesc=ko.observable();						//资源描述
+	self.flagAllowDownload= new easyuiDefaultModel();	//允许下载
+	self.flagAllowBrowse=new easyuiDefaultModel();		//允许浏览
+	self.shareLevel=new easyuiDefaultModel();			//分享等级
+	self.type=new easyuiDefaultModel();					//资源类别
+	self.library=ko.observableArray([]),				//资源
+	self.section=section;								//所属学段
+	self.term=new easyuiDefaultModel();					//学期
+	self.subject=subject;								//所属学科
+	self.grade=new easyuiDefaultModel();				//所属年级
+	self.trialTimeRate=ko.observable();					//允许试看百分比	
+	self.version=version;								//所属版本
+	return self;
+
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<script type="text/javascript"
+	src="/manage/template/comboChange/comboChange.js"></script>
+<title>机构资源报表</title>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'" style="height: 90px">
+			<div class="labelBox">
+				<div class="labelLine320">
+					<span class="labelWidth60">学段:</span><input id="section"
+						class="easyui-combobox"
+						data-options="onChange:sectionChange,textField:'name',valueField:'code',editable:false">
+				</div>
+				<div class="labelLine320">
+					<span class="labelWidth60">学校:</span><input id="school"
+						class="easyui-combobox"
+						data-options="textField:'orgName',valueField:'orgCode',editable:false">
+				</div>
+				<span class="clear"></span>
+				<div class="labelLine320">
+					<span class="labelWidth60">时间</span><input id="baseDate"
+						class="Wdate"
+						onfocus="WdatePicker({dateFmt:'yyyy-MM-dd',maxDate:'%y-%M-%d'})" />
+				</div>
+			</div>
+			<div class="btnBox">
+				<button class="btn btnBlue search" onclick="$('#dg').datagrid('reload')">查询</button>
+			</div>
+		</div>
+		<div data-options="region:'center'" style="height: 40px">
+			<div id="tb" clas="tbClass" style="height: 40px">
+				<form id="fm" action="/manage/reportOrgResDaily/export.html">
+					<a class="easyui-linkbutton" data-options="plain:true"
+						iconCls="icon-print" onclick="$('#fm').form('submit')">导出</a> <span
+						class="attr">学校数量<label id="schoolTotal"></label></span> <span
+						class="attr">资源总数<label id="resTotal"></label></span> <span
+						class="attr">个人私有<label id="selfTotal"></label></span> <span
+						class="attr">校内共享<label id="companyTotal"></label></span> <span
+						class="attr">区域共享<label id="areaTotal"></label></span> <span
+						class="attr">视频总数<label id="mediaTotal"></label></span> <span
+						class="attr">文档总数<label id="docTotal"></label></span> <span
+						class="attr">测验总数<label id="exerciseTotal"></label></span> <span
+						class="attr">题目总数<label id="questionTotal"></label></span>
+				</form>
+			</div>
+			<table id="dg" class="easyui-datagrid"
+				data-options="
+	 pagination:true,
+	 onBeforeLoad:onBeforeLoad,
+	 rownumbers:true,
+	 fitColumns:true,
+	 singleSelect:true,
+	 toolbar:'#tb',
+	 fit:true,
+	 onLoadSuccess:onLoadSuccess,
+	 url:'/manage/reportOrgResDaily/list.html'
+	 ">
+				<thead>
+					<tr>
+						<th data-options="field:'orgName',width:200,halign:'center',align:'left'">学校</th> 
+						<th data-options="field:'resTotal',width:90,align:'right',halign:'center'">资源总数</th>
+						<th data-options="field:'share_level_10',width:90,align:'right',halign:'center'">个人私有</th>
+						<th data-options="field:'share_level_20',width:90,align:'right',halign:'center'">校内共享</th>
+						<th data-options="field:'share_level_30',width:90,align:'right',halign:'center'">区域共享</th>
+						<th data-options="field:'res_media',width:90,align:'right',halign:'center'">视频</th>
+						<th data-options="field:'res_doc',width:90,align:'right',halign:'center'">文档</th>
+						<th data-options="field:'res_exercise',width:90,align:'right',halign:'center'">测验</th>
+						<th data-options="field:'res_question',width:90,align:'right',halign:'center'">题目</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+	<script type="text/javascript">
+var sectionList=eval(${sectionList});
+$(function(){
+	$('#section').combobox('loadData',sectionList);
+})
+function onBeforeLoad(param){
+	param["sectionCode"]=$("#section").combobox('getValue');
+	param["orgCode"]=$("#school").combobox('getValue');
+	var baseDate=$("#baseDate").val();
+	param["baseDate"]=baseDate?moment(baseDate).format("YYYYMMDD").toString():"";
+}
+function sectionChange(record){
+	sectionOrg(record,$('#school'))
+}
+function onLoadSuccess(data){
+	var schoolTotal=0,resTotal=0,selfTotal=0,companyTotal=0,areaTotal=0,mediaTotal=0,docTotal=0
+	exerciseTotal=0,questionTotal=0;
+	schoolTotal=data.rows.length;
+	_.each(data.rows,function(item){
+		if(item){
+		resTotal=resTotal+item.resTotal;
+		selfTotal=selfTotal+item.share_level_10;
+		companyTotal=companyTotal+item.share_level_20;
+		areaTotal=areaTotal+item.share_level_30;
+		mediaTotal=mediaTotal+item.res_media;
+		docTotal=docTotal+item.res_doc;
+		exerciseTotal=exerciseTotal+item.res_exercise;
+		questionTotal=questionTotal+item.res_question;
+		}
+	})
+	$('#schoolTotal').text(schoolTotal);
+	$('#resTotal').text(resTotal);
+	$('#selfTotal').text(selfTotal);
+	$('#companyTotal').text(companyTotal);
+	$('#areaTotal').text(areaTotal);
+	$('#mediaTotal').text(mediaTotal);
+	$('#docTotal').text(docTotal);
+	$('#exerciseTotal').text(exerciseTotal);
+	$('#questionTotal').text(questionTotal);
+}
+</script>
+</body>

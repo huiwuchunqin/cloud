@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<title>特色资源-全部页面</title>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+    <div data-options="region:'north'"  title="  ">
+    <div class="box">
+		<div class="labelBox">
+			<div class="labelLine440">
+				<span class="labelWidth90">上传日期：</span>
+				<input id="startDate" class="Wdate" onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})"/>
+				~
+				<input id="endDate" class="Wdate" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})"/>
+			</div>
+			<span class="clear10"></span>
+			<div  class="labelLine250">
+			<span class="labelWidth90">当前级别：</span><input id="shareLevel" class="easyui-combobox" data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{code: '',name: '全部',selected:true}
+								,{code: '10',name: '个人私有'}
+								,{code: '20',name: '校内共享'}
+								,{code: '30',name: '区内共享'}
+							]"/>
+			</div>
+			<div class="labelLine250">
+						<div class="labelWidth90">类别：</div>
+						<input class="easyui-combobox" id="resSpecialTypeL1"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								{code: '',name: '全部',selected:true}
+								<#if (typeList?exists && typeList?size>0)>
+							  		<#list typeList as type>
+							  			,{code:'${type.code}', name:'${type.name?default('&nbsp;')}'}
+							  		</#list>
+								</#if>
+							],onSelect:typeSelect"/>
+			</div>
+			<div class="labelLine250">
+						<div class="labelWidth90">项目：</div>
+						<input class="easyui-combobox" id="resSpecialTypeL2"
+							data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [{code: '',name: '全部',selected:true}]
+							"/>
+			</div>
+			<span class="clear10"></span>
+			<div class="labelLine250">
+						<div class="labelWidth90">转码状态：</div>
+						<input class="easyui-combobox" id="resStatus"
+							data-options="
+							valueField: 'value',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								 {value: '',name: '不限',selected:true}
+								,{value: '10',name: '转码中'}
+								,{value: '20',name: '转码成功'}
+								,{value: '30',name: '转码失败'}
+							]"/>
+			</div>
+			<div class="labelLine250">
+						<div class="labelWidth90">共享审核状态：</div>
+						<input class="easyui-combobox" id="shareCheckStatus"
+							data-options="
+							valueField: 'value',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data: [
+								 {value: '',name: '不限',selected:true}
+								,{value: '60',name: '未提交'}
+								,{value: '10',name: '待审核'}
+								,{value: '20',name: '已通过'}
+								,{value: '5',name: '已退回'}
+							]"/>
+			</div>
+			<span class="clear10"></span>
+			<#if "${isAreaAdmin}"=="true">
+			<div class="labelLine250">
+			<span class="labelWidth90">机构名称：</span><input class="easyui-validatebox " id="makerOrgName" name="makerOrgName" maxlength="60" placeholder="机构名称"/>
+			</div>
+			</#if>
+			<div class="labelLine250">
+			<span class="labelWidth90">资源名称：</span><input class="easyui-validatebox " id="resName" name="resName" maxlength="100" placeholder="资源名称"/>
+			</div>
+			<div class="labelLine250">
+			<span class="labelWidth90">作者名称：</span><input class="easyui-validatebox " id="makerName"  name="makerName" maxlength="36" placeholder="作者名称"/>
+			</div>
+		</div>
+		<div class="btnBox">
+			<button class="btn btnBlue search" style="margin-top: 20px" onclick="query()">查询</button>
+		</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<div id="tb"> 
+		    <button class="btn btnDelete" style="float: left;margin-left: 10px;" onclick="del()">删除</button>
+			<button class="btn btnBlue" style="float: right" onclick="exportData()">导出</button>
+			<span style="clear: both;display: none;"></span>
+		</div>
+	 <table id="dg" class="easyui-datagrid" data-options="
+		 pagination:true,
+		 onBeforeLoad:onBeforeLoad,
+		 rownumbers:true,
+		 toolbar:'#tb',
+		 fit:true,
+		 url:'/manage/resMediaSpecial/all/search.html'
+		 ">
+	 <thead>
+	 	<tr>
+	 	    <th data-options="field:'ck',checkbox:true,halign:'center',align:'center'"></th>
+	 		<th data-options="field:'resName',formatter:mediafmt,width:280,halign:'center',align:'left'">资源名称</th>
+	 		<th data-options="field:'resSpecialTypeL1Name',width:100,align:'left',halign:'center'">类别</th>
+	 		<th data-options="field:'resSpecialTypeL2Name',width:100,align:'left',halign:'center'">项目</th>
+	 		<th data-options="field:'makerOrgName',width:250,align:'left',halign:'center'">机构名称</th>
+	 		<th data-options="field:'resStatus',width:120,align:'center',halign:'center',formatter:resStatusfmt">转码状态</th>
+	 		<th data-options="field:'shareLevel',width:120,halign:'center',align:'center',formatter:shareLevelfmt">当前级别</th>
+	 		<th data-options="field:'shareCheckLevel',width:140,halign:'center',align:'center',formatter:shareLevelfmt">共享审核级别</th>
+	 		<th data-options="field:'shareCheckStatus',width:140,halign:'center',align:'center',formatter:checkStatusfmt">共享审核状态</th>
+	 		<th data-options="field:'makerName',width:100,align:'left',halign:'center'">作者</th>
+	 		<th data-options="field:'makeTime',width:200,align:'center',halign:'center',formatter:makeTimefmt">上传时间</th>
+	 		<th data-options="field:'id',hidden:true"></th> 
+	 		<th data-options="field:'resCode',hidden:true"></th>
+	 	</tr>
+	 </thead>
+	 </table>
+	</div>
+<script type="text/javascript">
+
+	//查询
+	function query() {
+		$('#dg').datagrid('reload');
+	}
+
+	//类别选择事件
+	function typeSelect(record) {
+		//重新选择前，先清空原先子下拉框的数据
+		$("#resSpecialTypeL2").combobox('clear');
+		queryChildList(record.code);
+	}
+
+	function onBeforeLoad(param) {
+		param["shareLevel"]=$("#shareLevel").combobox('getValue');
+		param["resSpecialTypeL1"]=$("#resSpecialTypeL1").combobox('getValue');
+		param["resSpecialTypeL2"]=$("#resSpecialTypeL2").combobox('getValue');
+		param["resStatus"]=$("#resStatus").combobox('getValue');
+		<#if "${isAreaAdmin}"=="true">
+		param["makerOrgName"]=$("#makerOrgName").val();
+		</#if>
+		param["startDate"]=$("#startDate").val();
+		param["endDate"]=$("#endDate").val();
+		param["resName"]=$("#resName").val();
+		param["makerName"]=$("#makerName").val();
+		param["shareCheckStatus"]=$("#shareCheckStatus").combobox('getValue');
+	}
+
+	//根据选中的类别查询项目列表
+	function queryChildList(pcode){
+		var opts={
+				url:'/manage/resMediaSpecial/getListByPCode.html',
+    			type:"post",
+				data:{
+					pcode:pcode
+				},
+				success:function(data){
+					var selectAll = {
+							code : "",
+							name : "全部"
+					};
+					data.unshift(selectAll);
+					$("#resSpecialTypeL2").combobox('loadData',data);
+				},
+				error:function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("网络繁忙请稍后再试");
+				 },
+				complete:function() {
+						
+				}
+		}
+		$.ajax(opts);
+	}
+	
+	
+	//导出数据
+	function exportData() {
+		var shareLevel=$("#shareLevel").combobox('getValue');
+		var resSpecialTypeL1=$("#resSpecialTypeL1").combobox('getValue');
+		var resSpecialTypeL2=$("#resSpecialTypeL2").combobox('getValue');
+	    var resStatus=$("#resStatus").combobox('getValue');
+	    <#if "${isAreaAdmin}"=="true">
+		var makerOrgName=$("#makerOrgName").val();
+		</#if>
+		var startDate=$("#startDate").val();
+		var endDate=$("#endDate").val();
+		var resName=$("#resName").val();
+		var makerName=$("#makerName").val();
+		var shareCheckStatus=$("#shareCheckStatus").combobox('getValue');
+		//区域管理员
+		<#if "${isAreaAdmin}"=="true">
+		window.location.href="/manage/resMediaSpecial/all/export.html?shareLevel="+shareLevel+"&resSpecialTypeL1="+resSpecialTypeL1
+				+"&makerOrgName="+encodeURI(encodeURI(makerOrgName))+"&resSpecialTypeL2="+resSpecialTypeL2+"&startDate="+startDate+"&endDate="+endDate
+				+"&resStatus="+resStatus+"&resName="+encodeURI(encodeURI(resName))+"&makerName="+encodeURI(encodeURI(makerName))+"&shareCheckStatus="+shareCheckStatus;
+		<#else>
+		//机构管理员
+		window.location.href="/manage/resMediaSpecial/all/export.html?shareLevel="+shareLevel+"&resSpecialTypeL1="+resSpecialTypeL1
+			+"&resSpecialTypeL2="+resSpecialTypeL2+"&startDate="+startDate+"&endDate="+endDate
+			+"&resStatus="+resStatus+"&resName="+encodeURI(encodeURI(resName))+"&makerName="+encodeURI(encodeURI(makerName))+"&shareCheckStatus="+shareCheckStatus;
+		</#if>
+		
+	}
+	
+	//资源状态格式化
+	function resStatusfmt(value,row){
+		var str="";
+		if(value=="10"){
+			str="<center><span>转码中</span></center>";
+		}else if(value=="20"){
+			str="<center style='color:green'><span>转码成功</span></center>";
+		}else if(value=="30"){
+			str="<center style='color:red'><span>转码失败</span></center>";
+		}else{
+			str="";
+		}
+		return str;
+	}
+	
+	function makeTimefmt(value,row){
+		if (value != "" && value != null) {
+			return moment(value).format("YYYY/MM/DD HH:mm");
+		}
+	}
+	
+	function shareLevelfmt(value,row){
+		var str="";
+		if(value=="10"){
+			str="个人私有";
+		}else if(value=="20"){
+			str="校内共享";
+		}else if(value=="30"){
+			str="区内共享";
+		}else{
+			str="";
+		}
+		return str;
+	}
+	
+	function checkStatusfmt(value,row){
+		var str="";
+		if(value=="5"){
+			str="<center><span style='color:red'>已退回</span></center>"
+		}else if(value=="10"){
+			str="<center><span>待审核</span></center>"; 
+		}else if(value=="20"){
+			str="<center><span>已通过</span></center>";
+		}else{
+			str="<center><span style='color:grey'>未提交</span></center>";
+		}
+		return str;
+	}
+	
+	//删除功能
+	function del(){
+		var rows = $('#dg').datagrid('getSelections');
+		var arrId = new Array();
+		for (var i = 0; i < rows.length; i++) {
+			arrId.push(rows[i].id);
+		}
+		if (arrId.length==0) {
+			$.messager.alert("提示", "请先选择要删除的资源！", 'info');
+		}else{
+			   var opts = {
+			     url : "/manage/resMediaSpecial/delete.html",
+			     type : "POST",
+		         data : {
+				     ids : arrId
+			     },
+			     success:function(result){
+					  window.top.$.messager.alert("提示", result.msg, "info");
+				 	  if(result.success){
+				 		 $('#dg').datagrid('reload');
+				      } 
+				 },
+				 error : function(XMLHttpRequest, textStatus, errorThrown) {
+						alert("网络繁忙请稍后再试");
+					},
+				 complete : function() {
+					
+				 },
+		       }
+		       $.messager.confirm("提示", "确定要删除选中的资源？", function (r){
+		    	  if(r){
+		    	       $.ajax(opts);
+		    	  }
+		       });	  
+		}	 
+	}
+	
+	//资源查看和编辑
+	function mediafmt(value, row) {
+		return "<a href='javascript:void(0)' onclick='edit(\"" + row.id+ "\")'>" + value + "</a>";
+	}
+	
+	//编辑和查看资源
+	function edit(id) {
+		easyui_openNoResizeWindow("资源编辑", 940, 700, 
+				"/manage/resMediaSpecial/edit.html?check=0&resId=" + id, function(r) { 
+			          if(r){
+						  query();
+			          }
+				},{},"mediaEdit");
+	}
+</script>
+    
+</body>
+</html>

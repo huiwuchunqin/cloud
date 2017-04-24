@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>知识点资源覆盖统计</title> 
+<#include "/manage/common/meta_js.html" /> <#include
+"/manage/common/meta_css.html" />
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+</head>
+<body>
+	<div class="easyui-layout" data-options="fit:true">
+		<div data-options="region:'north'">
+			<div class="box">
+				<div class="labelBox">
+					<div class="labelLine240">
+						<span class="labelWidth60">学段：</span> <input id="section" class="easyui-combobox"
+																	data-options="textField:'name',valueField:'code',editable:false,onChange:sectionChange,data:[{name:'请选择',code:''}]">
+					</div>
+					<div class="labelLine240">
+						<span class="labelWidth60">学科：</span> <input id="subject" class="easyui-combobox"
+																	data-options="textField:'name',valueField:'code',editable:false,onChange:subjectChange,data:[{name:'请选择',code:''}]">
+					</div>
+					<!-- <div class="labelLine240">
+                        <span class="labelWidth60">年级</span> <input id="grade" class="easyui-combobox"
+                            data-options="textField:'name',valueField:'code',editable:false,data:[{name:'请选择',code:''}]">
+                    </div> -->
+					<div class="labelLine240">
+						<span class="labelWidth60">体系：</span> <input id="kps" class="easyui-combobox"
+																	data-options="textField:'name',valueField:'code',editable:false,data:[{name:'请选择',code:''}]">
+					</div>
+					<!-- <div class="labelLine240">
+                        <span class="labelWidth60">上下册：</span> <input
+                            id="term" class="easyui-combobox"
+                            data-options="data:[{name:'请选择',code:''},{name:'上册',code:'1'},{name:'下册',code:'2'}],textField:'name',valueField:'code',editable:false">
+                    </div> -->
+				</div>
+				<div class="btnBox" style="margin-top:5px">
+					<form id="fm" method="post">
+						<button class="btn btnBlue" onclick="exportEXCEL()">导出</button>
+					</form>
+				</div>
+				<div style="margin-right:10px;margin-top:5px" class="btnBox">
+					<button class="btn btnBlue search" onclick="$('#dg').datagrid('reload')">查询</button>
+				</div>
+			</div>
+		</div>
+		<div data-options="region:'center'">
+			<table id="dg" class="easyui-datagrid" data-options="
+			pagination:true,
+			fit:true,
+			onBeforeLoad:onBeforeLoad,
+			toolbar:'#tb',
+			url:'/manage/coverageKps/page.html',
+			rownumbers:true,
+			singleSelect:true
+			">
+			<thead>
+				<tr>
+					<th data-options="field:'sectionName',width:90,halign:'center',align:'center'">学段</th>
+					<th data-options="field:'subjectName',width:110,halign:'center'">学科</th>
+				<!--	<th data-options="field:'gradeName',width:90,halign:'center'">年级</th>-->
+					<th data-options="field:'kpsName',width:180,halign:'center'">知识体系</th>
+					<th data-options="field:'kpNum',width:100,halign:'center',align:'center'">知识点节点数</th>
+					<th data-options="field:'resVideoNum',width:90,halign:'center',align:'center'">视频资源数</th>
+					<th data-options="field:'resDocNum',width:90,halign:'center',align:'center'">文档资源数</th>
+				<!-- 	<th data-options="field:'resTestNum',width:70,halign:'center',align:'right'">测验资源数</th> -->
+					<th data-options="field:'resQuestionNum',width:90,halign:'center',align:'center'">题目资源数</th>
+					<th data-options="field:'resVideoCoverage',width:90,halign:'center',align:'center',formatter:percentfmt,">视频覆盖率</th>
+					<th data-options="field:'resDocCoverage',width:90,halign:'center',align:'center',formatter:percentfmt,">文档覆盖率</th>
+					<!-- <th data-options="field:'resTestCoverage',width:70,halign:'center',align:'right',formatter:percentfmt,">测验覆盖率</th> -->
+					<th data-options="field:'resQuestionCoverage',width:90,halign:'center',align:'center',formatter:percentfmt,">题目覆盖率</th>
+					<th data-options="field:'detail',width:90,formatter:detail,halign:'center',align:'center'">查看</th>
+				</tr>
+			</thead>
+			</table>
+		</div>
+	</div>
+	<script type="text/javascript">
+	var sectionList=eval(${sectionList});
+	$(function(){
+		sectionList.unshift({name:"请选择 ",code:""})
+		$('#section').combobox('loadData',sectionList)
+	})
+	function onBeforeLoad(param){
+		param["sectionCode"]=$('#section').combobox('getValue');
+		param["subjectCode"]=$('#subject').combobox('getValue');
+		/* param["gradeCode"]=$('#grade').combobox('getValue'); */
+		param["kpsCode"]=$('#kps').combobox('getValue');
+	/* 	param["termCode"]=$('#term').combobox('getValue'); */
+	}
+	//学段改变事件
+	function sectionChange(record){
+		sectionSubject(record,$("#subject"));
+		sectionGrade(record,$("#grade"));
+	}
+	//学科改变事件
+	function subjectChange(record){
+		subjectKps(record,$('#kps'));
+	}
+	//导出excel
+	function exportEXCEL(){
+		var sectionCode=$("#section").combobox('getValue');
+		var subjectCode=$('#subject').combobox('getValue');
+		/* var gradeCode=$('#grade').combobox('getValue'); */
+		var kps=$("#kps").combobox('getValue');
+		/* var termCode=$("#term").combobox('getValue'); */
+		var _url="/manage/coverageKps/export.html?subjectCode="+subjectCode
+				+"&sectionCode="+sectionCode
+				+"&kpsCode="+kps+"&fileName="+getExportName();
+		$('#fm').form({
+			url:_url,
+			success:function(json){
+				var res=$.parseJSON(json);
+				$.messager.alert("信息",res.msg,"info");
+			}
+		})
+	}
+	//查看详情
+	function  detail(value,row){
+		return "<a href='javascript:void(0)' class='easyui-linkbutton' onclick='viewDetail(\""+row.id+"\",\""+row.baseDate+"\")'>详情</a>"
+	}
+	//百分比格式化
+	function percentfmt(value,row){
+		return value?((value*100).toFixed(2)+"%"):value;
+	}
+	function viewDetail(id,baseDate){
+			window.top.$("#tab").tabs('close','知识点资源覆盖率');
+			window.top.$("#tab").tabs('add', {
+				title : '知识点资源覆盖率',
+				closable : true,
+				content : '<iframe scrolling="no" frameborder="0" src="/manage/coverageKp/toCoverageKp.html?id='+id+ '&baseDate='+baseDate+'" style="width:100%;height:100%;"></iframe>'
+			});	
+		/* easyui_openTopWindow("知识点资源覆盖率",1200,800,"/manage/coverageKp/toCoverageKp.html?id="+id,function(){
+			
+		})	 */
+	}
+	</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<title>平台商品</title>
+</head>
+
+<body>
+<div id="tb">
+	<div class="box">
+		<div class="labelBox">
+			<div class="labelLine240">
+				<span class="labelWidth60">商品名称：</span><input id="goodsName4Query " class="width130" placeholder="请输入商品名称"/>
+			</div>
+			<div class="labelLine240">
+				<span class="labelWidth60">用户：</span><input  id="role" class="easyui-combobox" data-options="
+		textField:'name',
+		valueField:'code',
+		editable:false,
+		data:[
+			  {name:'不限',code:'0',selected:true},
+			  {name:'教师',code:'10'},
+			  {name:'学生',code:'20'}
+		]">
+			</div>
+		</div>
+		<div class="btnBox">
+			<a class="btn btnBlue search" iconCls="icon-search" onclick="searchData()">查询</a>
+			<a class="btn btnBlue add" iconCls="icon-add" onclick="addGood()">新增</a>
+		</div>
+	</div>
+</div>
+	<table id="dg" class="easyui-datagrid"
+		data-options="
+			toolbar:'#tb',
+			singleSelect:true,
+			onBeforeLoad:onBeforeLoad,
+			fit:true,
+			pagination:true,
+			rownumbers:true,
+			url:'/manage/lotteryGoodsPlatform/getPageList.html'
+        ">
+		<thead>
+			<tr>
+				<th data-options="field:'opt',width:130,formatter:optfmt,halign:'center',width:130,align:'center'">操作</th>
+				<th data-options="field:'goodsName',halign:'center',width:160,align:'left'">商品</th>
+				<th data-options="field:'goodsThumbnailJson',formatter:imagefmt,align:'center',halign:'center',width:120">商品图片</th>
+				<th data-options="field:'goodsUnit',halign:'center',width:100,align:'left'">商品单位</th>
+				<th data-options="field:'userRoleRequirement',halign:'center',align:'center',formatter:rolefmt,width:90">面向的角色</th>
+				<th data-options="field:'probability',formatter:profmt,width:60,halign:'center',align:'right'">概率</th>
+				<th data-options="field:'goodsSpecification',halign:'center',width:320,align:'left'">商品描述</th>
+				<th data-options="field:'flagUsing',formatter:useFmt,halign:'center',align:'center',width:80">用于抽奖</th>
+				<!-- <th data-options="field:'dispOrder',halign:'center',align:'right',width:60">顺序</th> -->
+			</tr>
+		</thead>
+	</table>
+	
+	<script type="text/javascript">
+		function onBeforeLoad(param) {
+			param["goodsName"]=$('#goodsName4Query').val();
+			param["role"]=$('#role').combobox('getValue');
+		}
+	
+		function searchData(){
+			$('#dg').datagrid('reload');
+		}
+		
+		//操作格式化
+		function optfmt(value,row){
+			return "<a  href='javascript:void(0)' onclick='editGood("+row.id+")'>编辑</a>&nbsp;&nbsp;<a href='javascript:void(0)' onclick='deleteGood("+row.id+")'>删除</a>"
+		}
+		
+		//新增商品
+		function addGood(){
+			easyui_openNoResizeWindow("新增商品",500,550,"/manage/lotteryGoodsPlatform/toPlatformLotteryGoodAdd.html",function(r){
+				if(r){
+					$('#dg').datagrid('reload');
+				}
+			})
+		}
+		function useFmt(value,row){
+			if(value==1){
+				return "是";
+			}else if(value==0){
+				return "否";
+			}
+		}
+		//删除商品信息
+		function deleteGood(id){
+			$.messager.confirm("信息","确认要删除吗？",function(r){
+				if(r){
+					$.ajax({
+						url:"/manage/lotteryGoodsPlatform/deletePlatformLotteryGood.html",
+						data:{
+							id:id,
+						},
+						success:function(res){
+							if(res.msg){
+								$.messager.alert("信息",res.msg,"info",function(){
+									if(res.success){
+										$('#dg').datagrid('reload');
+									}
+								});
+							}
+						}
+					})
+				}
+			})
+		}
+		//修改商品
+		function editGood(id){
+			easyui_openNoResizeWindow("修改商品",500,550,"/manage/lotteryGoodsPlatform/toPlatformLotteryGoodEdit.html?id="+id,function(r){
+				if(r){
+					$('#dg').datagrid('reload');
+				}
+			})
+		}
+		//概率格式化
+		function profmt(value){
+			return value?(value*100).toFixed(2)+"%":"";
+		}
+		//角色格式化
+		function rolefmt(value){
+			switch(value){
+			case "0":return "不限";break;
+			case "2":return "教师和学生";break;
+			case "10":return "教师";break;
+			case "20":return "学生";break;
+			case "40":return "家长";break;
+			  default:break
+			}
+		}
+		//商品格式化
+		function imagefmt(value,row){
+			if(value){
+				return "<img style='height:60px;' src='${imgHost}/"+value+"'>";
+			}else{
+				return value;
+			}
+		}
+		
+	</script>
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>商品兑换发放汇总</title> <#include "/manage/common/meta_js.html"/>
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript " src="/manage/template/fmt/fmt.js "></script>
+<script type="text/javascript"
+	src="/manage/template/comboChange/orgComboChange.js"></script>
+</head>
+<body>
+	<div class="easyui-tabs" data-options="fit:true">
+		<div title="机构商品领取情况">
+			<div id="tb">
+				<div class="box">
+					<div class="labelBox">
+						<div class="labelLine240">
+							<span class="labelWidth60">角色：</span><input class="easyui-combobox"
+																		id="orgRole"
+																		data-options="editable:false,textField:'text',valueField:'value',data:[
+			{text:'老师',value:'10'},
+			{text:'学生',value:'20',selected:true},
+			],
+			onChange:function(record){model.showOrgAdminClass(record==20)}" />
+						</div>
+						<div data-bind="visible:showOrgAdminClass()" class="labelLine240">
+							<span class="labelWidth60">年级：</span><input
+								class="easyui-combobox" id="orgGrade"
+								data-options="onChange:orgGradeChange,editable:false,textField:'name',valueField:'code'">
+						</div>
+						<div data-bind="visible:showOrgAdminClass()" class="labelLine240">
+							<span class="labelWidth60">行政班级：</span><input
+								class="easyui-combobox" id="orgAdminClass"
+								data-options="editable:false,textField:'className',valueField:'classCode'">
+						</div>
+						<span class="clear10"></span>
+						<div class="labelLine240">
+							<span class="labelWidth60">领取情况：</span><input id="orgStatus"
+																		  class="easyui-combobox"
+																		  data-options="
+			textField:'name',
+			valueField:'code',
+			editable:false,
+			onSelect:orgStatusSelect,
+			data:[
+			{name:'已兑换完',code:'1'},
+			{name:'未兑换完',code:'0',selected:true},
+			]
+			">
+						</div>
+						<div class="labelLine240">
+							<span class="labelWidth60">用户姓名：</span>
+							<input id="orgUserName" class="width130" placeholder="请输入用户姓名" />
+						</div>
+					</div>
+					<div class="btnBox">
+						<a class="btn btnBlue search" iconCls="icon-search" onclick="$('#orgDg').datagrid('reload')">查询</a>
+						<a data-bind="visible:orgExchangeShow()" class="btn btnBlue" iconCls="icon-ok" onclick="exchange(20)">兑换</a>
+					</div>
+				</div>
+			</div>
+			<table id="orgDg" class="easyui-datagrid"
+				data-options="
+					pagination:true,
+					rownumbers:true,
+					toolbar:'#tb',
+					fit:true,
+					onBeforeLoad:orgOnBeforeLoad,
+					url:'/manage/acquireSummary/list.html',
+					onLoadSuccess:orgLoadSuccess
+                ">
+				<thead>
+					<tr>
+					    <th data-options="field:'ck',checkbox:true"></th>
+						<th data-options="field:'userName',width:90,align:'left',halign:'center'">用户姓名</th>
+						<th data-options="field:'adminClassName',width:120,align:'left',halign:'center'">行政班级名称</th>
+						<th data-options="field:'goodsLevel',formatter:levelfmt,width:90,align:'center',halign:'center'">商品级别</th>
+						<th data-options="field:'goodsType',formatter:typefmt,width:90,align:'center',halign:'center'">商品类型</th>
+						<th data-options="field:'goodsName',width:90,halign:'center',align:'left'">商品名称</th>
+						<th data-options="field:'goodsBizType',formatter:typefmt,width:110,align:'center',halign:'center'">商品业务类型</th>
+						<th data-options="field:'convertedAmount',width:120,align:'center',halign:'center'">已兑换商品数量</th>
+						<th data-options="field:'acquiredAmount',width:120,align:'center',halign:'center'">已领用商品数量</th>
+						<th data-options="field:'acquiringAmount',width:110,align:'center',halign:'center'">待领用商品数量</th>
+						<th data-options="field:'lastGrantBatch',width:110,align:'center',halign:'center'">最后领用批次</th>
+						<th data-options="field:'lastAcquireDate',formatter:timefmt,width:120,align:'center',halign:'center'">最后领用日期</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+		<div title="平台商品领取情况">
+			<div id="areaTb">
+				<div class="box">
+					<div class="labelBox">
+						<div class="labelLine240">
+							<span class="labelWidth60">角色：</span><input class="easyui-combobox"
+																		id="areaRole"
+																		data-options="editable:false,textField:'text',valueField:'value',data:[
+			{text:'老师',value:'10'},
+			{text:'学生',value:'20',selected:true}
+			],
+			onChange:function(record){model.showAreaAdminClass(record==20)}
+		" />
+						</div>
+						<div data-bind="visible:showAreaAdminClass()" class="labelLine240">
+							<span class="labelWidth60">年级：</span><input
+								class="easyui-combobox" id="areaGrade"
+								data-options="onChange:areaGradeChange,editable:false,textField:'name',valueField:'code'">
+						</div>
+						<div data-bind="visible:showAreaAdminClass()" class="labelLine240">
+							<span class="labelWidth60">行政班级：</span><input id="areaAdminClass"
+																		  class="easyui-combobox"
+																		  data-options="editable:false,textField:'className',valueField:'classCode'">
+						</div>
+						<span class="clear10"></span>
+						<div class="labelLine240">
+							<span class="labelWidth60">领取情况：</span><input id="areaStatus"
+																		  class="easyui-combobox"
+																		  data-options="
+			textField:'name',
+			valueField:'code',
+			editable:false,
+			onSelect:areaStatusSelect,
+			data:[
+			{name:'已兑换完',code:'1'},
+			{name:'未兑换完',code:'0',selected:true},
+			]
+			">
+						</div>
+						<div class="labelLine240">
+							<span class="labelWidth60">用户姓名：</span><input id="areaUserName" class="width130" placeholder="请输入用户姓名">
+						</div>
+					</div>
+					<div class="btnBox">
+						<a class="btn btnBlue search" iconCls="icon-search" onclick="$('#areaDg').datagrid('reload')">查询</a>
+						<a data-bind="visible:areaExchangeShow() " class="btn btnBlue" iconCls="icon-ok" onclick="exchange(30)">兑换</a>
+					</div>
+				</div>
+			</div>
+			<div id="dlg" class="easyui-dialog"
+				data-options="
+	width:400,
+	height:200,
+	closed:true,
+	buttons:[
+	{
+	text:'兑换',
+	iconCls:'icon-ok',
+	handler:areaExchange,
+	},
+	{
+	text:'取消',
+	iconCls:'icon-cancel',
+	handler:function(){
+	$('#dlg').dialog('close');
+	}
+	}
+	],
+	modal:true,
+	
+	">
+				<form id="fm" style="padding: 10px;">
+					<div class="labelLine240">
+						<span class="labelWidth60">批次</span> <input
+							class="easyui-validatebox" id="actionBatch"
+							data-options="required:true" />
+					</div>
+				</form>
+			</div>
+			<table id="areaDg" class="easyui-datagrid"
+				data-options="
+					pagination:true,
+					rownumbers:true,
+					toolbar:'#areaTb',
+					fit:true,
+					onBeforeLoad:areaOnBeforeLoad,
+					url:'/manage/acquireSummary/list.html',
+					onLoadSuccess:areaLoadSuccess
+                ">
+				<thead>
+					<tr>
+					 	<th data-options="field:'ck',checkbox:true"></th>
+						<th data-options="field:'userName',width:90,align:'left',halign:'center'">用户姓名</th>
+						<th data-options="field:'adminClassName',width:120,align:'left',halign:'center'">行政班级名称</th>
+						<th data-options="field:'goodsLevel',formatter:levelfmt,width:90,align:'center',halign:'center'">商品级别</th>
+						<th data-options="field:'goodsType',formatter:typefmt,width:90,align:'center',halign:'center'">商品类型</th>
+						<th data-options="field:'goodsName',width:90,align:'left',halign:'center'">商品名称</th>
+						<th data-options="field:'goodsBizType',formatter:typefmt,width:9110,align:'center',halign:'center'">商品业务类型</th>
+						<th data-options="field:'convertedAmount',width:120,align:'right',halign:'center'">已兑换商品数量</th>
+						<th data-options="field:'acquiredAmount',width:120,align:'right',halign:'center'">已领用商品数量</th>
+						<th data-options="field:'acquiringAmount',width:110,align:'right',halign:'center'">待领用商品数量</th>
+						<th data-options="field:'lastGrantBatch',width:110,align:'center',halign:'center'">最后领用批次</th>
+						<th data-options="field:'lastAcquireDate',formatter:timefmt,width:120,align:'center',halign:'center'">最后领用日期</th>
+					</tr>
+				</thead>
+			</table>
+		</div>
+	</div>
+	<script type="text/javascript">
+	var model={
+			areaExchangeShow:ko.observable(true),
+			orgExchangeShow:ko.observable(true),
+			showAreaAdminClass:ko.observable(true),
+			showOrgAdminClass:ko.observable(true),
+	}
+	ko.applyBindings(model);
+	var adminClassList=eval(${adminClassList});
+	var gradeList=eval(${gradeList});
+	var orgGradeList=eval(${orgGradeList});
+	gradeList.unshift({name:'请选择',code:''});
+	orgGradeList.unshift({name:'请选择',code:''});
+	$(function(){
+		adminClassList.unshift({className:'不限',classCode:''})
+		$('#orgAdminClass').combobox('loadData',adminClassList);
+		$('#areaAdminClass').combobox('loadData',adminClassList);
+		$('#orgGrade').combobox('loadData',orgGradeList);
+		$('#areaGrade').combobox('loadData',gradeList);
+	})
+	function areaOnBeforeLoad(param){
+		param["status"]=$('#areaStatus').combobox('getValue');
+		param["goodsLevel"]=30;
+		param["userRole"]=$('#areaRole').combobox('getValue');;
+		param["adminClassCode"]=$('#areaAdminClass').combobox('getValue');
+		param["userName"]=$('#areaUserName').val();
+		param["gradeCode"]=$('#areaGrade').combobox('getValue');
+	}
+	function orgOnBeforeLoad(param){
+		param["status"]=$('#orgStatus').combobox('getValue');
+		param["goodsLevel"]=20;
+		param["userRole"]=$('#orgRole').combobox('getValue');
+		param["adminClassCode"]=$('#orgAdminClass').combobox('getValue');
+		param["userName"]=$('#orgUserName').val();
+		param["gradeCode"]=$('#orgGrade').combobox('getValue');
+	}
+	function orgGradeChange(record){
+		orgGradeAdminClass(record,$('#orgAdminClass'),true)
+	}
+	function areaGradeChange(record){
+		orgGradeAdminClass(record,$('#areaAdminClass'),true)
+	}
+	function areaLoadSuccess(){
+		var  role=$('#areaRole').combobox('getValue');
+		if(role==10){
+			$(".tabs-panels>.panel:visible td[field='adminClassName']").hide()
+		}else{
+			$(".tabs-panels>.panel:visible td[field='adminClassName']").show()
+		}
+	}
+	function orgLoadSuccess(){
+		var  role=$('#orgRole').combobox('getValue');
+		if(role==10){
+			$(".tabs-panels>.panel:visible td[field='adminClassName']").hide()
+		}else{
+			$(".tabs-panels>.panel:visible td[field='adminClassName']").show()
+		}
+	}
+	//机构兑换状态选择
+	function orgStatusSelect(record){
+		$('#orgDg').datagrid('reload');
+		model.orgExchangeShow(record.code==0);
+	}
+	//区域兑换状态选择
+	function areaStatusSelect(record){
+		$('#areaDg').datagrid('reload');
+		model.areaExchangeShow(record.code==0);
+	}
+	//兑换
+	function exchange(goodsLevel){
+		var _data={};
+		_data.goodsLevel=goodsLevel;
+		if(goodsLevel==30){
+			_data.status=$('#areaStatus').combobox('getValue');
+			_data.userRole=$('#areaRole').combobox('getValue');
+			_data.adminClassCode=$('#areaAdminClass').combobox('getValue');
+			_data.userName=$('#areaUserName').val();
+			var data=$('#areaDg').datagrid('getSelections');
+			if(data&&data.length<=0){
+				$.messager.alert("信息","没有需要兑换的商品","info");
+				return false
+			}
+			var ids;
+			_.each(data,function(item){
+				ids=ids+item.id+","
+			})
+			ids.substring(0,ids.length-1);
+			_data.ids=ids;
+			$('#dlg').dialog({"title":"输入批次"}).dialog('open');
+			
+		}else{
+			_data.status=$('#orgStatus').combobox('getValue');
+			_data.userRole=$('#orgRole').combobox('getValue');
+			_data.adminClassCode=$('#orgAdminClass').combobox('getValue');
+			_data.userName=$('#orgUserName').val();
+			var data=$('#orgDg').datagrid('getSelections');
+			if(data&&data.length<=0){
+				$.messager.alert("信息","没有需要兑换的商品","info");
+				return false;
+			}
+			var ids="";
+			_.each(data,function(item){
+				ids=ids+item.id+","
+			})
+			ids=ids.substring(0,ids.length-1);
+			_data.ids=ids;
+			$.ajax({
+				url:'/manage/acquireSummary/exchange.html',
+				data:_data,
+				success:function(res){
+					$.messager.alert("信息",res.msg,"info");
+					$('#orgDg').datagrid('reload');
+				}
+			})	
+		}
+	}
+	//区域兑换 
+	function areaExchange(){
+		
+		$.ajax({
+			url:'/manage/acquireSummary/exchange.html',
+			data:{
+				goodsLevel:30,
+				actionBatch:$('#actionBatch').val(),
+			},
+			success:function(res){
+				$.messager.alert("信息",res.msg,"info");
+				$('#actionBatch').val("");
+				$('#dlg').dialog('close');
+				$('#areaDg').datagrid('reload');
+			}
+		})
+	}
+</script>
+</body>
+</html>

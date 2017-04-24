@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+</head>
+<style type="text/css">
+.attrDiv400>span:first-of-type{
+width:90px;
+}
+.readOnly{
+/*background-color:#f6f6f6;*/
+}
+</style>
+<body>
+<form>
+<div class="attrDiv400">
+<span >平台积分算法</span><input id="algorithmsJson" class="easyui-numberbox" data-options="required:true,min:0,max:1000000000">
+ <span class="red">积分范围0~1000000000</span>
+</div>
+<div class="attrDiv400">
+<span class="attrWidth90">机构积分算法</span><input  id="algorithmsJsonOrg" class="easyui-numberbox" data-options="required:true,min:0,max:1000000000">
+ <span class="red">积分范围0~1000000000</span>
+</div>
+<span class="clear10"></span>
+<div style="text-align:right">
+<a class="btn btnConfirm" onclick="save()" >保存</a>
+<a class="btn btnCancel" onclick="easyui_closeTopWindow(false)" >取消</a>
+</div>
+</form>
+<script type="text/javascript">
+var acquire=eval(${acquire});
+var orgPoint=eval('('+acquire.algorithmsJsonOrg+')');
+var point=eval('('+acquire.algorithmsJson+')');
+$(function(){
+	if(orgPoint){
+		$('#algorithmsJsonOrg').numberbox('setValue',orgPoint.point)	
+	}
+	if(point){
+		$('#algorithmsJson').numberbox('setValue',acquire.flagOrgValid==1?point.point:0)
+	}
+	if(acquire.flagOrgValid!=1){
+		$('#algorithmsJson ').parent().find("input").attr("disabled",true).addClass("readOnly");
+	}
+})
+function save(){
+	var _pointOrg={};
+	_pointOrg.point=$('#algorithmsJsonOrg').numberbox('getValue');
+	var _pointPlt={};
+	_pointPlt.point=acquire.flagOrgValid==1?$('#algorithmsJson').numberbox('getValue'):point.point;
+	if($("form").form('validate')){
+		$.ajax({
+			url:"/manage/pointRuleAcquire/updateAcquire.html",
+			data:{
+				pointOrg:JSON.stringify(_pointOrg),
+				pointPlt:JSON.stringify(_pointPlt),
+				actionCode:acquire.actionCode,
+			},
+			success:function(res){
+				alert(res.msg);
+				easyui_closeTopWindow(res.success);
+			}
+		})
+	}
+}
+</script>
+</body>
+</html>

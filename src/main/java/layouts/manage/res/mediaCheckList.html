@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/> <#include
+"/manage/res/common/resCheckCommon.html"/>
+</head>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript" src="/manage/template/res/resCommon.js"></script>
+<script type="text/javascript" src="/manage/template/res/media.js"></script>
+<script type="text/javascript" src="/manage/template/resCheck/check.js"></script>
+<script type="text/javascript" src="/manage/template/resCheck/export.js"></script>
+<title>视频资源</title>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'" title=" " style="height: 175px;">
+		<div class="box ">
+			<div class="labelBox">
+				<span class="labelLine440"> <span id="timeQuery"
+					class="labelWidth60">日期:</span> <input id="checkTimeStart"
+					class="Wdate"
+					onFocus="WdatePicker({maxDate:'#F{$dp.$D(\'checkTimeEnd\')}',dateFmt:'yyyy-MM-dd',lang:'zh-cn'})"
+					type="text"> <span style="width: 10px; line-height: 20px">~</span>
+					<input id="checkTimeEnd" class="Wdate"
+					onFocus="WdatePicker({minDate:'#F{$dp.$D(\'checkTimeStart\')}',dateFmt:'yyyy-MM-dd',lang:'zh-cn'})"
+					type="text">
+				</span>
+				<div class="clear10"></div>
+				<span class="labelLine240"> <span class="labelWidth60">视频分类：</span>
+					<input id="resTypeL2" class="easyui-combobox"
+					data-options="data:[{name:'不限',code:'',selected:true}],textField:'name',valueField:'code',editable:false">
+				</span>
+				<div class="clear10"></div>
+				<span class="labelLine240"> <span class="labelWidth60">学段：</span>
+					<input id="section" class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false,onSelect:sectionSelect">
+				</span> <span class="labelLine240"> <span class="labelWidth60">学科：</span>
+					<input id="subject" class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false">
+				</span> <span class="labelLine240"> <span class="labelWidth60">年级：</span>
+					<input id="grade" class="easyui-combobox"
+					data-options="textField:'name',valueField:'code',editable:false">
+				</span>
+				<div class="clear10"></div>
+				<#if "${areaAdmin}"==1> <span class="labelLine240"> <span
+					class="labelWidth60">机构名称：</span> <input id="orgName"
+					placeholder="请输入机构名称">
+				</span> </#if> <span class="labelLine240"> <span
+					class="labelWidth60">资源名称：</span> <input id="resName"
+					placeholder="请输入资源名称">
+				</span> <span class="labelLine240"> <span class="labelWidth60">作者：</span>
+					<input id="makerName" placeholder="请输入作者">
+				</span>
+
+			</div>
+			<div class="btnBox">
+				<a class="btn btnBlue search" onclick="$('#dg').datagrid('reload')">查询</a>
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<div id="tb"> 
+			<@btnBar "${checkStatus}" 10/>
+			<div class="btnBox">
+				<form id="fm" method="post">
+					<a class="btn btnBlue"
+						onclick="exportMediaCheck('${checkStatus}','${areaAdmin}')">导出</a>
+				</form>
+			</div>
+		</div>
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+    pagination:true,
+    fit:true,
+    toolbar:'#tb',
+    rownumbers:true,
+    onBeforeLoad:onBeforeLoad,
+    url:'/manage/res/mediaList.html'
+
+">
+			<thead>
+				<tr>
+					<th
+						data-options="field:'ck',checkbox:true,width:80,halign:'center',headalign:'center'"></th>
+					<th
+						data-options="field:'resName',formatter:mediafmt,width:260,align:'left',halign:'center'">资源名称</th>
+					<th
+						data-options="field:'resTypeL2Name',width:90,align:'center',halign:'center'">视频分类</th>
+					<th data-options="field:'orgName',width:180,halign:'center'">机构名称</th>
+					<th
+						data-options="field:'sectionName',width:70,align:'center',halign:'center'">学段</th>
+					<th
+						data-options="field:'subjectName',width:80,align:'left',halign:'center'">学科</th>
+					<th
+						data-options="field:'gradeName',width:70,align:'left',halign:'center'">年级</th>
+					<th
+						data-options="field:'resStatus',formatter:statusfmt,width:80,align:'center',halign:'center'">转码状态</th>
+					<th
+						data-options="field:'shareLevelStr',width:80,align:'center',halign:'center'">当前级别</th>
+					<th
+						data-options="field:'shareCheckStatus',formatter:checkStatusfmt,width:120,align:'center',halign:'center'">共享审核状态</th>
+					<th
+						data-options="field:'allowDownload',width:60,align:'center',halign:'center'">可下载</th>
+					<!-- <th data-options="field:'allowBrowser',width:60,align:'center',halign:'center'">可浏览</th>  -->
+
+					<!-- 	<th data-options="field:'subjectName',width:80,align:'center',halign:'center'">所属学科</th>
+				<th data-options="field:'gradeName',width:80,align:'center',halign:'center'">所属年级</th> -->
+					<!-- 	<th data-options="field:'uploadTime',width:130,align:'center',formatter:timeLongfmt,halign:'center'">上传时间</th> -->
+					<!--    <th data-options="field:'shareCheckLevelStr',width:90,align:'center',halign:'center'">共享审核级别</th> -->
+					<th
+						data-options="field:'makerName',width:90,align:'left',halign:'center'">作者</th>
+					<#if "${checkStatus}"!=10>
+					<th
+						data-options="field:'applyTime',width:140,align:'center',halign:'center',formatter:timeLongfmt">申请时间</th>
+					<th data-options="field:'checkerName',width:80,halign:'center'">审核人</th>
+					<th
+						data-options="field:'shareCheckTime',width:140,align:'center',halign:'center',formatter:timeLongfmt">审核日期</th>
+					<th
+						data-options="field:'checkComments',width:420,halign:'center',formatter:lengthSubfmt">审核意见</th>
+					<th
+						data-options="field:'checkCommentsDetail',width:100,halign:'center',formatter:detailPreviewfmt">审核意见详情</th>
+					<!-- <th data-options="field:'detail',formatter:detailfmt,width:120,align:'center',halign:'center'">审核情况</th> -->
+					<#else>
+					<th
+						data-options="field:'shareTime',width:140,align:'center',halign:'center',formatter:timeLongfmt">申请日期</th>
+					</#if>
+					<!-- <th data-options="field:'suffix',width:60,align:'center',halign:'center'">资源后缀</th>
+				<th data-options="field:'resourceSize',formatter:resourceSizeFmt,width:100,align:'center',halign:'center'">资源大小</th>
+				<th data-options="field:'resStatus',formatter:resStatusFmt,width:90,align:'center'">资源状态</th>
+				<th data-options="field:'convertCompletedTime',width:130,align:'center',halign:'center'">转码完成时间</th> -->
+					<!-- <th data-options="field:'source',formatter:sourceFmt,width:80,align:'left',halign:'center'">资源来源</th> -->
+					<!-- 	<th data-options="field:'supplierName',width:100,align:'left',halign:'center'">所属供应商</th> -->
+					<!-- <th data-options="field:'downloadPoints',width:60,align:'right',halign:'center'">下载点数</th> -->
+				</tr>
+			</thead>
+		</table>
+
+		<!--通过对话框  -->
+		<@dialog 10/>
+		<!--/通过对话框 -->
+
+	</div>
+	<script type="text/javascript">
+		var sectionList = ${sectionList};
+		var resTypeL2List = ${resTypeL2List};
+		//dom
+		var _subjectCombo = $('#subject');
+		var _gradeCombo = $('#grade');
+		var _sectionCombo = $('#section');
+		var _resTypeL2List = $('#resTypeL2');
+		var model = {
+			deny : ko.observable(true),
+			adviceList : ko.observableArray([]),
+		};
+		$(function() {
+			ko.applyBindings(model);
+			UIChange("${checkStatus}");
+			sectionList.splice(0, 0, defaultOpt);
+			resTypeL2List.splice(0, 0, defaultOpt);
+			_sectionCombo.combobox('loadData', sectionList);
+			_resTypeL2List.combobox('loadData', resTypeL2List);
+			_sectionCombo.combobox('select', -1);
+			_resTypeL2List.combobox('select', -1);
+
+		})
+	
+		//查询参数传递 
+		function onBeforeLoad(param) {
+			$.extend(param,getMediaCheckParam());
+		}
+		
+		//获取参数
+		function getMediaCheckParam(){
+			var param={};
+			param["gradeCode"] = _gradeCombo.combobox('getValue');
+			param["subjectCode"] = _subjectCombo.combobox('getValue');
+			param["sectionCode"] = _sectionCombo.combobox('getValue');
+			param["shareCheckStatus"] = "${checkStatus}";
+			if ("${checkStatus}" == 10) {
+				param["resStatusSuccess"] = 20;
+				param["shareTimeStart"] = $('#checkTimeStart').val();
+				param["shareTimeEnd"] = $('#checkTimeEnd').val()
+			} else {
+				param["checkTimeStart"] = $('#checkTimeStart').val();
+				param["checkTimeEnd"] = $('#checkTimeEnd').val()
+			}
+			if ("${shareCheckLevel}") {
+				param["shareCheckLevel"] = "${shareCheckLevel}";
+			}
+			param["resTypeL2"] = _resTypeL2List.combobox('getValue');
+			<#if "${areaAdmin}"==1>
+			param["orgName"] = $('#orgName').val();
+			</#if>
+			param["resName"] = $('#resName').val();
+			param["userName"] = $('#makerName').val();
+			return param;
+		}
+		//操作列格式化
+		function mediafmt(value, row) {
+			return "<a href='javascript:void(0)' onclick='edit(\"" + row.id
+					+ "\",1)'>" + value + "</a>";
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<#include "/manage/common/meta_js.html"/> 
+<#include "/manage/common/meta_css.html"/>
+<script type="text/javascript" src="/manage/template/comboChange/comboChange.js"></script>
+<script type="text/javascript" src="/manage/template/user/modifyPwd.js"></script>
+<title>教师信息</title>
+<style type="text/css">
+</style>
+</head>
+<body class="easyui-layout" data-options="fit:true">
+	<div data-options="region:'north'">
+		<div>
+			<div class="box form">
+			<div class="labelBox">
+				<div class="labelLine240">
+					<span class="labelWidth60">学段：</span> <input class="easyui-combobox width130"
+						id="section"
+						data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							onSelect:sectionSelect,
+							data: [
+								{code: '',name: '不限',selected:true}
+								<#if (sectionList?exists && sectionList?size>0)>
+							  		<#list sectionList as section>
+							  			,{code:'${section.code}', name:'${section.name?default('&nbsp;')}'}
+							  		</#list>
+								</#if>
+							]"/>
+				</div>
+					<div class="labelLine240">
+					<span class="labelWidth60">学科：</span> <input class="easyui-combobox width130"
+						id="subject"
+						data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data:[{name:'不限',code:'',selected:true}]"/>
+				</div>
+			<!-- 	<div style="float: left; width: 320px">
+					<span class="labelWidth60">用户角色</span> <input class="easyui-combobox"
+						id="userRole"
+						data-options="
+							valueField: 'code',
+							textField: 'name',
+							panelHeight: 'auto',
+							editable: false,
+							data:[
+							{name:'管理员',code:'30'},
+							{name:'教师',code:'10'}
+							]" />
+				</div> -->
+					<div class="clear10"></div>
+					<div class="labelLine240">
+						<span class="labelWidth60">姓名：</span> <input id="userName"
+							placeholder="请输入姓名"/>
+					</div>
+					<div class="labelLine240">
+						<span class="labelWidth60">账号：</span> <input id="loginAccount"
+							placeholder="请输入登录账号"/>
+					</div>
+					<div class="labelLine240">
+						<span class="labelWidth60">学校：</span> <input id="orgName"
+																	 placeholder="请输入学校名称"/>
+					</div>
+				</div>
+					<div class="btnBox">
+				      <a class="btn btnBlue search" onclick="javascript:$('#dg').datagrid('reload')">查询</a>
+					<#if "${type}"!="">
+					  <a class="btn btnBlue" data-options="iconCls:'icon-save'" onclick="choose()">保存</a>
+					</#if>
+			     </div> 
+			</div>
+		</div>
+	</div>
+	<div data-options="region:'center'">
+		<table id="dg" class="easyui-datagrid"
+			data-options="
+			    pagination:true,
+			    fit:true,
+			    rownumbers:true,
+			    fitColumns:true,
+			    singleSelect:'${type}'=='',
+			    onBeforeLoad:onBeforeLoad,
+			    url:'/manage/teacher/teacherPageInfo.html'
+		    ">
+			<thead>
+				<tr>
+					<#if "${type}"!="">
+					<th data-options="field:'opt',checkbox:true"></th>
+					</#if>
+					<th data-options="field:'userName',width:120,halign:'center',align:'left'">姓名</th>
+					<th data-options="field:'loginAccount',halign:'center',width:120,align:'left'">登录账号</th>
+					<th data-options="field:'orgName',width:280,halign:'center',align:'left'">学校</th>
+					<th data-options="field:'sectionName',width:80,halign:'center',align:'left'">学段</th>
+					<th data-options="field:'subjectName',width:90,halign:'center',align:'left'">学科</th>
+					<th data-options="field:'gradeName',width:90,halign:'center',align:'left'">年级</th>
+				    <th data-options="field:'genderStr',width:60,halign:'center',align:'left'">性别</th>
+					<th data-options="field:'mobilePhone',width:120,halign:'center',align:'center'">手机号</th>
+					<th data-options="field:'mail',width:140,halign:'center',align:'left'">邮箱</th> 
+				</tr>
+			</thead>
+		</table>
+			 <div id="menu"  class="easyui-menu" style="width: 120px;" >
+<!-- 	 <div  data-options="iconCls:'icon-edit',name:'useful'">设为有效</div>   
+   	 <div data-options="iconCls:'icon-edit',name:'useless'">设为无效</div>   
+ -->	 <div data-options="iconCls:'icon-edit',name:'modifypwd'">修改密码</div>
+	</div>
+	</div>
+	<script type="text/javascript">
+		function onBeforeLoad(param) {
+			var sectionCode = $('#section').combobox('getValue');
+			var subjectCode = $('#subject').combobox('getValue');
+		/* 	var userRole = $('#userRole').combobox('getValue'); */
+			var userName = $('#userName').val();
+			var orgName = $('#orgName').val();
+			var loginAccount = $('#loginAccount').val();
+			param["sectionCode"] = sectionCode;
+			param["subjectCode"] = subjectCode;
+			/* param["userRole"] = userRole; */
+			param["orgName"] = orgName;
+			param["userName"] = userName;
+			param["loginAccount"] = loginAccount;
+			param["type"]="${type}";
+		}
+		
+		//学段选择事件
+		function sectionSelect(record) {
+			sectionSubject(record.code, $('#subject'));
+		}
+		
+		//选择教师设置为对应的角色
+		function choose(){
+			var user=$('#dg').datagrid('getSelections');
+			if(user==undefined||user.length<=0){
+				$.messager.alert("信息","请先选择要操作的数据！","info");
+				return ;
+			}
+			var _userCodes=_.pluck(user,"teacherCode");
+			$.ajax({
+				url:"/manage/adminAdd.html",
+				data:{
+					userCodes:_userCodes,
+					type:"${type}"
+				},
+				success:function(res){
+					window.top.$.messager.alert("提示", res.msg, "info");
+					if(res.success){
+						easyui_closeTopWindow(true);
+					} 
+				}
+			})
+		}
+	
+	</script>
+	</body>
+</html>
