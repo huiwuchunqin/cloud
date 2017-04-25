@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<#include "/manage/common/meta_js.html"/> <#include
+"/manage/common/meta_css.html"/>
+<script src="/manage/template/js/echarts.common.min.js"></script>
+<title>概况</title>
+<style>
+.resTypeArea {
+	float: left;
+	margin-left: 130px
+}
+
+.resTypeArea label {
+	width: 37px;
+	display: inline-block;
+	color: #898989;
+	font-size: 15px;
+	vertical-align: middle;
+}
+
+.timeArea {
+	float: right;
+	margin-right: 12%;
+}
+
+.timeArea>ul {
+	padding: 0px;
+	margin: 0px;
+	overflow: hidden;
+	float: left;
+}
+
+.timeArea>ul>li {
+	float: left;
+	padding: 5px 15px;
+	border-left: 1px solid #C9C9C9;
+	border-bottom: 1px solid #C9C9C9;
+	border-top: 1px solid #C9C9C9;
+	cursor: pointer;
+	height: 20px;
+	line-height: 20px;
+}
+
+.timeArea>ul>li:last-child {
+	border-right: 1px solid #C9C9C9;
+}
+
+.timeArea>div {
+	width: 200px;
+	float: left;
+	height: 30px;
+	line-height: 30px;
+	margin-left: 31px;
+}
+
+.active {
+	background-color: rgba(25, 158, 216, 1);
+	border: 1px solid rgba(25, 158, 216, 1);
+	color: #FFFFFF;
+}
+
+body {
+	padding: 20px 20px;
+	overflow:auto;
+}
+
+p {
+	font-size: 18px;
+}
+
+#main {
+	height:500px;
+	overflow:auto;
+}
+</style>
+
+</head>
+<body>
+	<p>资源上传量趋势</p>
+	<div style="overflow: hidden; margin-top: 50px">
+		<div class="resTypeArea">
+			<label>类别:</label> <input id="resTypeL1" class="easyui-combobox" />
+		</div>
+		<div class="timeArea">
+			<ul>
+				<li class="active">今天</li>
+				<li>昨天</li>
+				<li>15天</li>
+				<li>30天</li>
+				<li>全部</li>
+			</ul>
+			<div id="timeZone"></div>
+		</div>
+	</div>
+	<div id="main" class="clearfix"></div>
+	<script>
+		var option = {
+			tooltip : {},
+			legend : {},
+			xAxis : {
+				data : [],
+				axisLine : {
+					show : false,
+				},
+				axisTick : {
+					show : false,
+				},
+				axisLabel : {
+					textStyle : {
+						color : '#999999',
+						fontSize : 10,
+					}
+				},
+				nameTextStyle : {
+					color : '#999999',
+					fontSize : 10,
+				}
+			},
+			yAxis : {
+				type : 'value',
+				nameGap : 55,
+				nameLocation : 'start',
+				axisLine : {
+					show : false,
+				},
+				axisTick : {
+					show : false,
+				},
+				axisLabel : {
+					textStyle : {
+						color : '#999999',
+						fontSize : 10,
+					}
+				},
+				splitLine : {
+					show : true,
+					lineStyle : {
+						color : [ '#E4E4E4' ],
+						width : 1,
+						type : 'dotted'
+					}
+				},
+			},
+			series : [ {
+				type : 'line',
+				symbolSize : 10,
+				data : [],
+			} ],
+			color : [ '#C2D9F8' ]
+
+		}
+		$("ul>li").click(function() {
+			$(this).addClass('active').siblings().removeClass('active');
+			query();
+		})
+		$('#resTypeL1').combobox({
+			textField : 'name',
+			valueField : 'value',
+			editable : false,
+			data : _RES_TYPE,
+			onChange : query,
+		})
+		var mychart = echarts.init($('#main')[0]);
+
+		//获取时间
+		function getTime(type,data) {
+			var startDate, endDate;
+			switch (type) {
+			case 0:
+				startDate = moment().format("YYYY-MM-DD");
+				endDate = startDate;
+				break;
+			case 1:
+				startDate = moment().add(-1, "days").format("YYYY-MM-DD");
+				endDate = startDate;
+				break;
+			case 2:
+				startDate = moment().add(-15, "days").format("YYYY-MM-DD");
+				endDate = moment().format("YYYY-MM-DD");
+				break;
+			case 3:
+				startDate = moment().add(-30, "days").format("YYYY-MM-DD");
+				endDate = moment().format("YYYY-MM-DD");
+				break;
+			case 4:
+				startDate = "";
+				endDate = "";
+				break;
+			default:
+				startDate = "";
+				endDate = "";
+			}
+			data.startDate = startDate;
+			data.endDate = endDate;
+			//给时间块填充
+			endDate ? $('#timeZone').html(startDate + "~" + endDate) : $(
+					'#timeZone').html("");
+			return data;
+		}
+
+		function query() {
+			var data = {
+						resTypeL1 : $("#resTypeL1").combobox('getValue')
+					};
+		    getTime($('.active').index(),data);
+			$.post("/manage/survery/list.html", data, function(res) {
+				var countList = _.pluck(res, "count");
+				var timeList = _.pluck(res, "makeTime");
+				
+				//给日期横坐标拼接 周的字符串
+				timeList = _.map(timeList, function(item) {
+					var day = moment(item).day();
+					var days = [ "星期日", "星期一", "星期二", "星期三", "星期四", "星期五",
+							"星期六" ];
+					return moment(item).format("MM/DD") + "　" + days[day];
+				});
+				option.xAxis.data = timeList;
+				option.series[0].data = countList;
+				
+				//太多的情况加滚动条
+				delete option.dataZoom;
+				if (timeList.length > 15) {
+					option.dataZoom = [{ // 这个dataZoom组件，默认控制x轴。
+						type : 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+						start : 10, // 左边在 10% 的位置。
+						end : 60
+					// 右边在 60% 的位置。
+					}];
+				}
+				mychart.clear();
+				mychart.setOption(option);
+			})
+		}
+	</script>
+</body>
+</html>

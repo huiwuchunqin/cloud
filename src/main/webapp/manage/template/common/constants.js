@@ -48,6 +48,24 @@ _SHARELEVEL=[ {
 	value : '30'
 } ],
 
+_RES_TYPE=[{
+	name : '全部资源',
+	value : ' ',
+	selected : true
+}, {
+	name : '视频',
+	value : '10'
+}, {
+	name : '文档',
+	value : '20'
+}, {
+	name : '测验',
+	value : '30'
+}, {
+	name : '题库',
+	value : '50'
+} ]
+
 // 共享审核级别
 _SHARECHECKLEVEL = [ {
 	name : '不限',

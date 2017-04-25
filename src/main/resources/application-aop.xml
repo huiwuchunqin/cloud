@@ -17,6 +17,7 @@
  		
 	<bean class="org.springframework.jdbc.core.JdbcTemplate">
 		<property name="dataSource" ref="dataSource_mooc" />
+		<constructor-arg index="0" ref="dataSource_mooc"></constructor-arg>
 	</bean>
 	<bean
 		class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
