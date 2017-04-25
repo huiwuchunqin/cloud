@@ -73,13 +73,13 @@ ul.title >li.active{
 		<div data-options="region:'north'">
 			<div class="box">
 				<div class="labelBox">
-					<div class="labelLine440">
+					<!-- <div class="labelLine440">
 						<span class="labelWidth60">日期:</span> <input id="startDate"
 																	 class="Wdate"  size="20"
 																	 onfocus="WdatePicker({maxDate:'#F{$dp.$D(\'endDate\')}',dateFmt:'yyyy-MM-dd'})" />
 						~ <input id="endDate" class="Wdate" size="20"
 								 onfocus="WdatePicker({minDate:'#F{$dp.$D(\'startDate\')}',dateFmt:'yyyy-MM-dd'})" /> 
-					</div>
+					</div> -->
 					<span class="clear10"></span>
 					<div class="labelLine240">
 						<span class="labelWidth60">资源类型：</span><input id="resTypeL1" class="easyui-combobox"
@@ -183,14 +183,14 @@ ul.title >li.active{
 					</i>
 					</div> -->
 					<div class="labelBox">
-					<div class="attr"><span>资源数</span><label id="totalResCount"></label></div>
-					<div class="attr"><span>查看数</span><label id="totalBrowseCount"></label></div>
-					<div class="attr"><span>下载数</span><label id="totalDownloadCount"></label></div>
-					<div class="attr"><span>引用数</span><label id="totalReferCount"></label></div>
+					<div class="attr"><span>资源数:</span><label id="totalResCount"></label></div>
+					<div class="attr"><span>查看数:</span><label id="totalBrowseCount"></label></div>
+					<div class="attr"><span>下载数:</span><label id="totalDownloadCount"></label></div>
+					<div class="attr"><span>引用数:</span><label id="totalReferCount"></label></div>
 					<span class="clear0"></span>
-					<div class="attr"><span>收藏数</span><label id="totalFavouriteCount"></label></div>
-					<div class="attr"><span>点赞数</span><label id="totalGoodCount"></label></div>
-					<div class="attr"><span>评论数</span><label id="totalCommentCount"></label></div>
+					<div class="attr"><span>收藏数:</span><label id="totalFavouriteCount"></label></div>
+					<div class="attr"><span>点赞数:</span><label id="totalGoodCount"></label></div>
+					<div class="attr"><span>评论数:</span><label id="totalCommentCount"></label></div>
 					</div>
 					<form id="fm" method="post">
 					<div class="btnBox">
@@ -289,8 +289,8 @@ ul.title >li.active{
 			resTypeL2 : $('#resTypeL2').combobox('getValue'),
 			shareLevel : $('#shareLevel').combobox('getValue'),
 			orgCode : $('#school').combobox('getValue'),
-			startDate : $('#startDate').val(),
-			endDate : $('#endDate').val(),
+			startDate : $('#startDate').val()||"",
+			endDate : $('#endDate').val()||"",
 		}
 	}
 	function onBeforeLoad(param){
